@@ -1,23 +1,24 @@
-TFG – Arquitectura de computadors i sistemes operatius
+# TFG – Arquitectura de computadors i sistemes operatius
 
-Definició dels objectius del TFG de forma clara i concreta. Planificació temporal.
+## Definició dels objectius del TFG de forma clara i concreta. Planificació temporal.
 
 Estudiant: Jordi Bericat Ruz
 Professor col·laborador: Daniel Rivas Barragan
 Semestre: Tardor 2021/22 (Aula 1)
 
-Índex
+## Índex
+
 1 - Títol provisional del projecte	
 2 - Resum provisional del projecte: Motivació i definició dels objectius	
 3 - Planificació temporal	
 3.1 – Descripció de cada fita i detall de tasques relacionades	
 3.2 – Planificació temporal per fites (Google Calendar)	
  
-1 - Títol provisional del projecte
+## 1 - Títol provisional del projecte
 
 **Simulació d’un conjunt de mitjans aeris específics per a la extinció d’incendis forestals durant períodes nocturns i dirigits de manera autònoma mitjançant tècniques d’intel·ligència artificial.**
 
-2 - Resum provisional del projecte: Motivació i definició dels objectius
+## 2 - Resum provisional del projecte: Motivació i definició dels objectius
 
 Durant els darrers 35 anys , s’ha incrementat tant la envergadura com la virulència dels incendis forestals que es produeixen a Catalunya: hi ha menys incendis, però aquests són molt més grans i avancen més ràpidament. La causa s’atribueix a diversos factors; principalment al progressiu escalfament global del planeta, que està afectant especialment les zones costaneres del mar Mediterrani  i que implica que es produeixin situacions de sequera no només a l’estiu, si no que també en d’altres èpoques de l’any, però també a l’abandonament de les terres de conreu i pastures, agreujat per la ineficient política de gestió dels boscos del nostre país (gairebé un 65%  del territori català correspon a massa forestal). 
 
@@ -33,9 +34,9 @@ En aquest sentit, d’entrada un dels objectius del TFG estarà orientat a estab
 
 A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d’identificar i classificar de manera totalment autònoma les característiques d’un incendi amb una configuració diferent de les que ha aprés l’arquitectura DCNN durant la fase d’entrenament, i de l’altra, de decidir en temps real i de manera distribuïda en quines zones serà necessari actuar primer, de manera que serà possible repartir la càrrega de feina o workload entre els diferents drons de l’eixam. Ho podem il·lustrar de manera pràctica si posem el cas que, durant un deployment de l’eixam durant la nit, cadascun dels drons està tractant de refredar diferents parts del perímetre d’un incendi amb l’objectiu d’evitar una revifada de les flames, que ja han sigut extingides durant horari diürn pels mitjans aeris tradicionals (e.g. hidroavions i helitancs). En aquest escenari, si suposem que un dels drons conclou que s’està produint una revifada a un dels fronts de l’incendi, aleshores, aquest dron pot comunicar-ho a l’eixam sencer per a què s’avaluï de manera distribuïda si la resta de drons han de deixar estar la tasca que estan realitzant i dirigir-se cap a la seva zona per tal de donar-li suport.
  
-3 - Planificació temporal
+## 3 - Planificació temporal
 
-3.1 – Descripció de cada fita i detall de tasques relacionades
+### 3.1 – Descripció de cada fita i detall de tasques relacionades
 
 1. Fita #001: Establir i preparar l’entorn de desenvolupament 
 1.1. Descripció i preparació / muntatge del hardware disponible 
@@ -81,15 +82,29 @@ A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d
 12. Fita #012: Crear una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
 13. Fita #013: Preparar la defensa del projecte
 
-3.2 – Planificació temporal per fites (Google Calendar)
+### 3.2 – Planificació temporal per fites (Google Calendar)
 
 Seguidament es detalla la planificació temporal de cadascuna de les fites establertes a la secció 3.1. El mateix calendari pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç, de manera que serà possible fer un seguiment de l’assoliment de cada fita per part del professor docent col·laborador de l’assignatura, si això ho creu convenient:
 
 
 https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
 
+4 - Bibliografia
 
-*changelog:*
+Salvatierra, Issac; Bosch, Francina; Marfà, Ricard; Longan, Idoia. Per què Catalunya crema [Internet]. Barcelona: [Actualitzat el (N/A) ; consultat l’1 d’octubre de 2021]. Disponible a:  https://interactius.ara.cat/incendis/
+
+Elgendy, Mohamed. Deep Learning for Vision Systems. Nova York, Estats Units d’Amèrica: Manning publications; 2020. 458 p.
+
+Yadav, Robin. Deep Learning Based Fire Recognition for Wildfire Drone Automation. The Canadian Science Fair Journal. 2020 Oct;3(2):N/A. https://csfjournal.com/volume-3-issue-2/2020/10/30/deep-learning-based-fire-recognition-for-wildfire-drone-automation
+
+Microsoft Research. Aerial Informatics and Robotics Platform [Internet]. Microsoft: Microsoft Research; 2017 [Actualitzat el 5 de febrer de 2021; consultat el l’9 d’octubre de 2021]. https://www.microsoft.com/en-us/research/project/aerial-informatics-robotics-platform/#overview
+
+Universitat Oberta de Catalunya. Com citar: Estil Vancouver [Internet]. Campus virtual: Recursos d’aprenentatge de l’assignatura “TFG – Arquitectura de computadors i sistemes operatius”; [Actualitzat el (N/A); consultat el 9 d’octubre de 2021]. Disponible a:  https://biblioteca.uoc.edu:8080/ca/plana/Estil-Vancouver/ 
+
+Beneito Montagut, Roser. Presentació de documents i elaboració de presentacions [Internet]. Barcelona: Editorial UOC; data de publicació no disponible [consultat el 9 d’octubre de 2021]. 56 p. Disponible a: https://campus.uoc.edu/cdocent/HKZB5UG6XS130_6R5O43.pdf 
+
+
+## *changelog:*
 
 v001.1 - Afegida documentació de tasques relacionades  amb la fita #001 (Preparació de l'entorn) - 
          /doc/Fita #001 - Preparació de l'entorn_ESBORRANY.pdf
