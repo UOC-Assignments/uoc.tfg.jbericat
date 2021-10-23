@@ -3,7 +3,9 @@
 ## Definició dels objectius del TFG de forma clara i concreta. Planificació temporal.
 
 Estudiant: Jordi Bericat Ruz
+
 Professor col·laborador: Daniel Rivas Barragan
+
 Semestre: Tardor 2021/22 (Aula 1)
 
 ## Índex
