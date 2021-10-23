@@ -1,4 +1,5 @@
-# TFG – Arquitectura de computadors i sistemes operatius
+# Universitat Oberta de Catalunya - Treball Final de Grau 
+# *Arquitectura de computadors i sistemes operatius*
 
 ## Definició dels objectius del TFG de forma clara i concreta. Planificació temporal.
 
