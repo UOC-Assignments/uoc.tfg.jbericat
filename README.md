@@ -8,11 +8,12 @@ Semestre: Tardor 2021/22 (Aula 1)
 
 ## Índex
 
-1 - Títol provisional del projecte	
-2 - Resum provisional del projecte: Motivació i definició dels objectius	
+1 - Títol provisional del projecte
+2 - Resum provisional del projecte: Motivació i definició dels objectius
 3 - Planificació temporal	
-3.1 – Descripció de cada fita i detall de tasques relacionades	
-3.2 – Planificació temporal per fites (Google Calendar)	
+3.1 – Descripció de cada fita i detall de tasques relacionades
+3.2 – Planificació temporal per fites (Google Calendar)
+4 - Bibliografia
  
 ## 1 - Títol provisional del projecte
 
@@ -89,7 +90,7 @@ Seguidament es detalla la planificació temporal de cadascuna de les fites estab
 
 https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
 
-4 - Bibliografia
+## 4 - Bibliografia
 
 Salvatierra, Issac; Bosch, Francina; Marfà, Ricard; Longan, Idoia. Per què Catalunya crema [Internet]. Barcelona: [Actualitzat el (N/A) ; consultat l’1 d’octubre de 2021]. Disponible a:  https://interactius.ara.cat/incendis/
 
