@@ -1,3 +1,13 @@
+# Ignore directories:
+
+usr/
+bin/
+src/AirSim
+src/UnrealEngine
+src/UnrealEnvironments
+
+### Python extensions
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -127,3 +137,38 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#### C++ extensions (from: https://raw.githubusercontent.com/github/gitignore/master/C%2B%2B.gitignore) 
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
