@@ -1,7 +1,9 @@
 # Ignore directories:
 
 usr/
+!usr/GIT-README.md
 bin/
+!bin/GIT-README.md
 src/AirSim
 src/UnrealEngine
 src/UnrealEnvironments
