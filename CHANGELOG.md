@@ -1,0 +1,17 @@
+## *changelog:*
+
+v01.1
+-----
+1) Afegida documentació de tasques relacionades  amb la FITA#01 (Preparació de l'entorn) -> /doc/FITA#01_ESBORRANY.pdf
+
+2) Actualitzada estructura (guió) del projecte al fitxer README.md -> Secció FITA#01
+
+v02.4
+-----
+1) Afegida documentació de tasques relacionades  amb la FITA#02 (Adaptació de la plataforma de simulació AirSim de Microsoft Research) -> /doc/FITA#02_ESBORRANY.pdf
+
+2) Actualitzada estructura (guió) del projecte al fitxer README.md -> Secció FITA#02
+
+v03.0
+-----
+1) Actualitzada estructura (guió) del projecte al fitxer README.md -> Secció FITA#03

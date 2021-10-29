@@ -116,7 +116,5 @@ Universitat Oberta de Catalunya. Com citar: Estil Vancouver [Internet]. Campus v
 Beneito Montagut, Roser. Presentació de documents i elaboració de presentacions [Internet]. Barcelona: Editorial UOC; data de publicació no disponible [consultat el 9 d’octubre de 2021]. 56 p. Disponible a: https://campus.uoc.edu/cdocent/HKZB5UG6XS130_6R5O43.pdf 
 
 
-## *changelog:*
 
-v001.1 - Afegida documentació de tasques relacionades  amb la fita #001 (Preparació de l'entorn) - 
-         /doc/Fita #001 - Preparació de l'entorn_ESBORRANY.pdf
+
