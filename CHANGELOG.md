@@ -15,3 +15,4 @@ v02.4
 v03.0
 -----
 1) Actualitzada estructura (guió) del projecte al fitxer README.md -> Secció FITA#03
+

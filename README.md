@@ -98,7 +98,6 @@ A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d
 
 Seguidament es detalla la planificació temporal de cadascuna de les fites establertes a la secció 3.1. El mateix calendari pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç, de manera que serà possible fer un seguiment de l’assoliment de cada fita per part del professor docent col·laborador de l’assignatura, si això ho creu convenient:
 
-
 https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
 
 ## 4 - Bibliografia
