@@ -83,19 +83,20 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 1.3.3.7. Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
 
-2. **FITA#02:** Adaptació de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
- 
-2.1. Simulació de l’escenari (terreny).
 
-2.1.1. Establir el terreny apropiat: Massa forestal i/o terreny muntanyós mitjançant el “Landscape environment pack” de AirSim
+2. **FITA#02** - Adaptació i personalització de l’entorn de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
 
-2.1.2. Generar diferents escenaris amb incendis de manera aleatòria utilitzant el Fire Builder Asset Pack del framework Unreal Engine
+2.1. Obtenir l’entorn Landscape Environment de Unreal Engine per a Windows i Mac i adaptar-lo per a ser utilitzat amb l’editor UE4Editor d’Ubuntu Linux.
 
-2.1.3. Simular un escenari nocturn mitjançant l’arranjament de paràmetres nadius de AirSim
+2.2. Editar l'entorn "Landscape environment" per a adequar-lo al requeriments del projecte
 
-2.2. Simulació dels actors (5 drons i/o octocòpters) mitjançant la API de AirSim 
+2.3. Ús de múltiples drons (simulació de l’eixam)
 
-3. **FITA#03:** O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas: 
+2.4. Configuració de dispositius accessoris per a tasques de depuració i testeig
+
+2.5. OPCIONAL: Disseny d’un hexacòpter
+
+3. **FITA#03** - O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas: 
 
 3.1. Primer definirem les classes de la capa de sortida o completa de l’arquitectura DCNN
 
