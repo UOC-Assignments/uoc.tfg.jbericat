@@ -85,7 +85,7 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 2. **FITA#02:** Adaptació de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
  
-2.1. Simulació de l’escenari (terreny).
+2.1. Simulació de l’escenari (terreny).. 
 
 2.1.1. Establir el terreny apropiat: Massa forestal i/o terreny muntanyós mitjançant el “Landscape environment pack” de AirSim
 
