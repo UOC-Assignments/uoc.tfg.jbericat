@@ -45,64 +45,119 @@ A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d
  
 ## 3 - Planificació temporal
 
-### 3.1 – Descripció de cada fita i detall de tasques relacionades
+### 3.1 – Planificació temporal per fites (Google Calendar)
 
-1.	FITA#01 - Establir i preparar l’entorn de desenvolupament 
+El mateix calendari pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç, de manera que serà possible fer un seguiment de l’assoliment de cada fita per part del professor docent col·laborador de l’assignatura, si això ho creu convenient:
+
+https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
+
+A la secció següent es concreten els detalls de la planificació temporal de cadascuna de les fites establertes. 
+
+### 3.2 – Descripció de cada fita i detall de tasques relacionades
+
+1. *FITA#01 - Establir i preparar l’entorn de desenvolupament
+ 
 1.1. Anàlisi de pre-requisits
-1.2.  Característiques del maquinari
-1.3. Preparació del programari
-1.3.1.	Selecció i instal·lació del sistema operatiu (Linux Workstation)
-1.3.2.	Estructura de directoris del projecte
-1.3.3.	Instal·lació i configuració dels paquets de software
-1.3.3.1.	Paquets base i dependències
-1.3.3.2.	Controladors de dispositiu
-1.3.3.3.	IDE “Visual Studio Code”
-1.3.3.4.	Motor gràfic: Unreal Engine
-1.3.3.5.	Plataforma de simulació: AirSim (Aerial Informatics and Robotics Simulation)
-1.3.3.6.	Paquet d’entorn LandscapeMountains per al motor gràfic Unreal Engine
-1.3.3.7.	Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
 
-2. Fita #002: Adaptació de la plataforma de simulació de vehicles autònoms AirSim de Microsoft 
+1.2.  Característiques del maquinari
+
+1.3. Preparació del programari
+
+1.3.1.	Selecció i instal·lació del sistema operatiu (Linux Workstation)
+
+1.3.2.	Estructura de directoris del projecte
+
+1.3.3.	Instal·lació i configuració dels paquets de software
+
+1.3.3.1. Paquets base i dependències
+
+1.3.3.2. Controladors de dispositiu
+
+1.3.3.3. IDE “Visual Studio Code”
+
+1.3.3.4. Motor gràfic: Unreal Engine
+
+1.3.3.5. Plataforma de simulació: AirSim (Aerial Informatics and Robotics Simulation)
+
+1.3.3.6. Paquet d’entorn LandscapeMountains per al motor gràfic Unreal Engine
+
+1.3.3.7. Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
+
+2. *FITA#02:* Adaptació de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
+ 
 2.1. Simulació de l’escenari (terreny)
+
 2.1.1. Establir el terreny apropiat: Massa forestal i/o terreny muntanyós mitjançant el “Landscape environment pack” de AirSim
+
 2.1.2. Generar diferents escenaris amb incendis de manera aleatòria utilitzant el Fire Builder Asset Pack del framework Unreal Engine
+
 2.1.3. Simular un escenari nocturn mitjançant l’arranjament de paràmetres nadius de AirSim
+
 2.2. Simulació dels actors (5 drons i/o octocòpters) mitjançant la API de AirSim 
-3. Fita #003: O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas: 
+
+3. *FITA#03:* O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas: 
+
 3.1. Primer definirem les classes de la capa de sortida o completa de l’arquitectura DCNN
+
 3.2. Després cal determinar quines característiques o features s’hauran de reconèixer en funció de les classes que haguem determinat al punt anterior
+
 3.3. Seguidament es decidirà de quina manera (mida, colors, etc) es normalitzarà el training data-set d’imatges per tal de conèixer de partida la complexitat computacional i de memòria a la que haurem de fer front, i s’adaptarà el data-set en conseqüència
+
 3.4. Establir quins filtres o Kernels necessitarem aplicar a les deep / hidden layers de la DCNN
+
 3.5. Acabar de depurar / definir la resta de capes que ha d’incloure l’arquitectura (pools, etc.) 
-4. Fita #004: Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim 
-5. Fita #005: Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
-6. Fita #006: Testeig de la DCNN (Joc de proves #1):
+
+4. *FITA#04:* Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim 
+
+5. *FITA#05:* Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
+
+6. *FITA#06:* Testeig de la DCNN (Joc de proves #1):
+
 6.1. Definir un joc de proves reduït per a testar el correcte funcionament de la DCNN amb un sol dron
+
 6.2. Entrenar i fer el deployment d’un sol dron sobre el joc de proves #1
+
 6.3. Avaluar el comportament de la DCNN: En cas de fallada repassar el punt 4, o bé repetir el punt 5 amb un training data-set amb un conjunt d’imatges més gran. En cas d’èxit seguir amb el punt 7)
-7. Fita #007: Entrenar la resta de drons de l’eixam (5 unitats de drons o octocòpters)
-8. Fita #008: Disseny + implementació dels mecanismes de comunicació entre els drons de l’eixam:
+
+7. *FITA#07:* Entrenar la resta de drons de l’eixam (5 unitats de drons o octocòpters)
+
+8. *FITA#08:* Disseny + implementació dels mecanismes de comunicació entre els drons de l’eixam:
+
 8.1. Definir els mecanismes de comunicació que utilitzaran els drons tant pel que fa la rebuda de comandes de control com pel que respecta al pas de missatges a la resta de l’eixam 
+
 8.2. Descriure amb més detall les PoC que prendrem com a referència per a implementar la comunicació: quines ordres es comuniquen, quines dades s’envien (e.g. coordenades GPS) i quines accions s’efectuen
+
 8.3. Definir un sistema de decisió de prioritat dels missatges inter-dron, així com establir com es gestiona el cas en què dos o més missatges amb la mateixa prioritat arribin “a l’hora”. A tall d’exemple; si dos drons envien un mateix missatge a l’hora es determina quin és el de més prioritat i s’actua en conseqüència, però si tenen la mateixa prioritat, aleshores per a determinar quina ordre s’accepta o es descarta s’haurà d’utilitzar un mecanisme de decisió distribuït; o bé un de senzill basat en timestamps en cas que els drons (nodes) de l’eixam estiguin perfectament sincronitzats, o bé, en cas de que no ho estiguin, utilitzar altres mecanismes més complexos com per exemple Lamport timestamp o bé Vector Clocks. 
+
 8.4. Definir quin mecanisme (distribuït) s’utilitza per a propagar missatges per tot l’eixam. p.e. Gossip Protocol, Time-Stamped Anti-Entropy Protocol (TSAE), etc.
+
 8.5. Implementar els mecanismes de comunicació distribuïda que s’hagi decidit utilitzar
-9. Fita #009: Testeig de les comunicacions (joc de proves #2): 
+
+9. *FITA#09:* Testeig de les comunicacions (joc de proves #2): 
+
 9.1. Definir un joc de proves per tal de comprovar que la comunicació inter-dron s’efectua de manera correcta
+
 9.2. Executar el joc de proves sobre tot l’eixam
+
 9.3. Avaluar els resultats del testeig. Si falla tornar al punt 8, si no, passar al punt 10.
-10. Fita #010: Testeig de tot el sistema (joc de proves #3):
-10.1. Unir i estendre els jocs de proves #1 i #2 per a poder provar els casos d’ús (PoC) definits  a l’abstract del projecte.  
+
+10. *FITA#10:* Testeig de tot el sistema (joc de proves #3):
+
+10.1. Unir i estendre els jocs de proves #1 i #2 per a poder provar els casos d’ús (PoC) definits  a l’abstract del projecte. 
+
 10.2. Fer el Deployment de tot l’eixam sobre el joc de proves nº 3
+
 10.3. Avaluar resultats i procedir en conseqüència
-11. Fita #011: Obtenir conclusions i redactar la memòria del projecte
-12. Fita #012: Crear una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
-13. Fita #013: Preparar la defensa del projecte
+
+11. *FITA#11:* Obtenir conclusions i redactar la memòria del projecte
+
+12. *FITA#12:* Crear una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
+
+13. *FITA#13:* Preparar la defensa del projecte
 
 ### 3.2 – Planificació temporal per fites (Google Calendar)
 
 Seguidament es detalla la planificació temporal de cadascuna de les fites establertes a la secció 3.1. El mateix calendari pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç, de manera que serà possible fer un seguiment de l’assoliment de cada fita per part del professor docent col·laborador de l’assignatura, si això ho creu convenient:
-
 
 https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
 
