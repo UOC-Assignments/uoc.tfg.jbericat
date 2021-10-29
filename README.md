@@ -55,7 +55,7 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 ### 3.2 – Descripció de cada fita i detall de tasques relacionades
 
-1. *FITA#01 - Establir i preparar l’entorn de desenvolupament
+1. **FITA#01** - Establir i preparar l’entorn de desenvolupament
  
 1.1. Anàlisi de pre-requisits
 
@@ -83,7 +83,7 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 1.3.3.7. Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
 
-2. *FITA#02:* Adaptació de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
+2. **FITA#02:** Adaptació de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
  
 2.1. Simulació de l’escenari (terreny)
 
@@ -95,7 +95,7 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 2.2. Simulació dels actors (5 drons i/o octocòpters) mitjançant la API de AirSim 
 
-3. *FITA#03:* O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas: 
+3. **FITA#03:** O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas: 
 
 3.1. Primer definirem les classes de la capa de sortida o completa de l’arquitectura DCNN
 
@@ -107,11 +107,11 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 3.5. Acabar de depurar / definir la resta de capes que ha d’incloure l’arquitectura (pools, etc.) 
 
-4. *FITA#04:* Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim 
+4. **FITA#04:** Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim 
 
-5. *FITA#05:* Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
+5. **FITA#05:** Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
 
-6. *FITA#06:* Testeig de la DCNN (Joc de proves #1):
+6. **FITA#06:** Testeig de la DCNN (Joc de proves #1):
 
 6.1. Definir un joc de proves reduït per a testar el correcte funcionament de la DCNN amb un sol dron
 
@@ -119,9 +119,9 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 6.3. Avaluar el comportament de la DCNN: En cas de fallada repassar el punt 4, o bé repetir el punt 5 amb un training data-set amb un conjunt d’imatges més gran. En cas d’èxit seguir amb el punt 7)
 
-7. *FITA#07:* Entrenar la resta de drons de l’eixam (5 unitats de drons o octocòpters)
+7. **FITA#07:** Entrenar la resta de drons de l’eixam (5 unitats de drons o octocòpters)
 
-8. *FITA#08:* Disseny + implementació dels mecanismes de comunicació entre els drons de l’eixam:
+8. **FITA#08:** Disseny + implementació dels mecanismes de comunicació entre els drons de l’eixam:
 
 8.1. Definir els mecanismes de comunicació que utilitzaran els drons tant pel que fa la rebuda de comandes de control com pel que respecta al pas de missatges a la resta de l’eixam 
 
@@ -133,7 +133,7 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 8.5. Implementar els mecanismes de comunicació distribuïda que s’hagi decidit utilitzar
 
-9. *FITA#09:* Testeig de les comunicacions (joc de proves #2): 
+9. **FITA#09:** Testeig de les comunicacions (joc de proves #2): 
 
 9.1. Definir un joc de proves per tal de comprovar que la comunicació inter-dron s’efectua de manera correcta
 
@@ -141,7 +141,7 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 9.3. Avaluar els resultats del testeig. Si falla tornar al punt 8, si no, passar al punt 10.
 
-10. *FITA#10:* Testeig de tot el sistema (joc de proves #3):
+10. **FITA#10:** Testeig de tot el sistema (joc de proves #3):
 
 10.1. Unir i estendre els jocs de proves #1 i #2 per a poder provar els casos d’ús (PoC) definits  a l’abstract del projecte. 
 
@@ -149,11 +149,11 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 10.3. Avaluar resultats i procedir en conseqüència
 
-11. *FITA#11:* Obtenir conclusions i redactar la memòria del projecte
+11. **FITA#11:** Obtenir conclusions i redactar la memòria del projecte
 
-12. *FITA#12:* Crear una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
+12. **FITA#12:** Crear una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
 
-13. *FITA#13:* Preparar la defensa del projecte
+13. **FITA#13:** Preparar la defensa del projecte
 
 ### 3.2 – Planificació temporal per fites (Google Calendar)
 
