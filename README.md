@@ -53,6 +53,14 @@ https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA
 
 A la secció següent es concreten els detalls de la planificació temporal de cadascuna de les fites establertes. 
 
+### 3.1 – Planificació temporal per fites (Google Calendar)
+
+El mateix calendari pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç:
+
+https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
+
+Seguidament es detalla la planificació temporal de cadascuna de les tasques associades a cada fita.
+
 ### 3.2 – Descripció de cada fita i detall de tasques relacionades
 
 1. **FITA#01** - Establir i preparar l’entorn de desenvolupament
@@ -96,71 +104,104 @@ A la secció següent es concreten els detalls de la planificació temporal de c
 
 2.5. OPCIONAL: Disseny d’un hexacòpter
 
-3. **FITA#03** - O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas: 
+3. **FITA#03** – Creació d’un escenari (UE Environment) adequat per a la PoC i implementació de funcionalitats bàsiques de vol als drons mitjançant l’API de AirSim
+3.1. Tasques de recerca i investigació
 
-3.1. Primer definirem les classes de la capa de sortida o completa de l’arquitectura DCNN
+3.1.1.	Estudi de la API de AirSim per a Python
 
-3.2. Després cal determinar quines característiques o features s’hauran de reconèixer en funció de les classes que haguem determinat al punt anterior
+3.2. Simulació de l’escenari (terreny)
 
-3.3. Seguidament es decidirà de quina manera (mida, colors, etc) es normalitzarà el training data-set d’imatges per tal de conèixer de partida la complexitat computacional i de memòria a la que haurem de fer front, i s’adaptarà el data-set en conseqüència
+3.2.1. Crear el terreny apropiat per a obtenir el training data-set i efectuar les proves
 
-3.4. Establir quins filtres o Kernels necessitarem aplicar a les deep / hidden layers de la DCNN
+3.2.2. Generar diferents escenaris amb incendis de manera aleatòria utilitzant el framework Unreal Engine #45
 
-3.5. Acabar de depurar / definir la resta de capes que ha d’incloure l’arquitectura (pools, etc.) 
+3.2.3. Simular un escenari nocturn mitjançant l’arranjament de paràmetres nadius de AirSim
 
-4. **FITA#04:** Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim 
+3.3. Simulació dels actors (4 drons i/o octocòpters) mitjançant la API de AirSim
 
-5. **FITA#05:** Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
+3.3.1. Simulació de vol autònom: Implementació de vol en mode “patrulla” pre-programat 
 
-6. **FITA#06:** Testeig de la DCNN (Joc de proves #1):
+3.3.1.1. Implementació de mode “patrulla” Individual (programa hello “drone”)
 
-6.1. Definir un joc de proves reduït per a testar el correcte funcionament de la DCNN amb un sol dron
+3.3.1.2. Implementació de mode mode “patrulla” Col·lectiu (programa hello “swarm”)
 
-6.2. Entrenar i fer el deployment d’un sol dron sobre el joc de proves #1
+------------------------
 
-6.3. Avaluar el comportament de la DCNN: En cas de fallada repassar el punt 4, o bé repetir el punt 5 amb un training data-set amb un conjunt d’imatges més gran. En cas d’èxit seguir amb el punt 7)
+4. FITA#04 - Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim
 
-7. **FITA#07:** Entrenar la resta de drons de l’eixam (5 unitats de drons o octocòpters)
+5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes: O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas:
+ 
+5.1. Tasques d’investigació i recerca
 
-8. **FITA#08:** Disseny + implementació dels mecanismes de comunicació entre els drons de l’eixam:
+5.1.1. Fer recerca en l’àrea de Deep Learning, Visió per computador, i concretament, les DCNNA
 
-8.1. Definir els mecanismes de comunicació que utilitzaran els drons tant pel que fa la rebuda de comandes de control com pel que respecta al pas de missatges a la resta de l’eixam 
+5.1.2. Definir per què és necessària la Visió per Computador per assolir els objectius definits al abstract i associar aquells aspectes en aquest àrea que siguin d’especial interès i/o que aplicables per al projecte (background tecnològic)
+ 
+5.1.3.	Estudiar altres models de DCNNA i avaluar la seva conveniència per a ser utilitzades en aquest projecte.
 
-8.2. Descriure amb més detall les PoC que prendrem com a referència per a implementar la comunicació: quines ordres es comuniquen, quines dades s’envien (e.g. coordenades GPS) i quines accions s’efectuen
+5.2. Disseny teòric de l’arquitectura de xarxes neuronals DCNN
 
-8.3. Definir un sistema de decisió de prioritat dels missatges inter-dron, així com establir com es gestiona el cas en què dos o més missatges amb la mateixa prioritat arribin “a l’hora”. A tall d’exemple; si dos drons envien un mateix missatge a l’hora es determina quin és el de més prioritat i s’actua en conseqüència, però si tenen la mateixa prioritat, aleshores per a determinar quina ordre s’accepta o es descarta s’haurà d’utilitzar un mecanisme de decisió distribuït; o bé un de senzill basat en timestamps en cas que els drons (nodes) de l’eixam estiguin perfectament sincronitzats, o bé, en cas de que no ho estiguin, utilitzar altres mecanismes més complexos com per exemple Lamport timestamp o bé Vector Clocks. 
+5.2.1.	Definir les classes de la capa de sortida o completa de l’arquitectura DCNN que necessitem
 
-8.4. Definir quin mecanisme (distribuït) s’utilitza per a propagar missatges per tot l’eixam. p.e. Gossip Protocol, Time-Stamped Anti-Entropy Protocol (TSAE), etc.
+5.2.2.	Seguidament es decidirà de quina manera (mida, colors, etc) es normalitzarà el training data-set d’imatges per tal de conèixer de partida la complexitat computacional i de memòria a la que haurem de fer front, i s’adaptarà el data-set en conseqüència
 
-8.5. Implementar els mecanismes de comunicació distribuïda que s’hagi decidit utilitzar
+5.2.3.	Després cal determinar quines característiques o features s’hauran de reconèixer en funció de les classes que haguem determinat al punt anterior i en funció d’això definirem els hyperparàmetres (knobs) que necessitarem i com els haurem de configurar (fine-tuning). També caldrà veure quins haurien de ser els seus valors inicials (default).
 
-9. **FITA#09:** Testeig de les comunicacions (joc de proves #2): 
+5.2.4.	Establir quins filtres o Kernels necessitarem aplicar a les deep / hidden layers de la DCNN
 
-9.1. Definir un joc de proves per tal de comprovar que la comunicació inter-dron s’efectua de manera correcta
+5.2.5.	Acabar de depurar / definir la resta de capes que ha d’incloure l’arquitectura (pools, etc.) 
 
-9.2. Executar el joc de proves sobre tot l’eixam
+5.3. Selecció i utilització d’un model existent que presenti característiques similars als de l’arquitectura dissenyada al punt 3.2 i que puguem entrenar amb el nostre training data-set.
 
-9.3. Avaluar els resultats del testeig. Si falla tornar al punt 8, si no, passar al punt 10.
+5.4. OPCIONAL: Implementació d’un algorisme DCNN d’elaboració pròpia amb Keras/Tensor-Flow
 
-10. **FITA#10:** Testeig de tot el sistema (joc de proves #3):
+6.	FITA#06 - Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
 
-10.1. Unir i estendre els jocs de proves #1 i #2 per a poder provar els casos d’ús (PoC) definits  a l’abstract del projecte. 
+7.	FITA#07 - Testeig de la DCNN (Joc de proves #1):
 
-10.2. Fer el Deployment de tot l’eixam sobre el joc de proves nº 3
+7.1. Definir un joc de proves reduït per a testar el correcte funcionament de la DCNN amb un sol dron
 
-10.3. Avaluar resultats i procedir en conseqüència
+7.2. Entrenar i fer el deployment d’un sol dron sobre el joc de proves #1
 
-11. **FITA#11:** Obtenir conclusions i redactar la memòria del projecte
+7.3. Avaluar el comportament de la DCNN: En cas de fallada repassar el punt 4, o bé repetir el punt 5 amb un training data-set amb un conjunt d’imatges més gran. En cas d’èxit seguir amb el punt 7)
 
-12. **FITA#12:** Crear una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
+8.	FITA#08 - Entrenar la resta de drons de l’eixam (4 unitats de drons o octocòpters)
 
-13. **FITA#13:** Preparar la defensa del projecte
+9.	FITA#09 - Disseny + implementació dels mecanismes de comunicació entre els drons de l’eixam:
 
-### 3.2 – Planificació temporal per fites (Google Calendar)
+9.1. Definir els mecanismes de comunicació que utilitzaran els drons tant pel que fa la rebuda de comandes de control com pel que respecta al pas de missatges a la resta de l’eixam 
 
-Seguidament es detalla la planificació temporal de cadascuna de les fites establertes a la secció 3.1. El mateix calendari pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç, de manera que serà possible fer un seguiment de l’assoliment de cada fita per part del professor docent col·laborador de l’assignatura, si això ho creu convenient:
+9.2. Descriure amb més detall les PoC que prendrem com a referència per a implementar la comunicació: quines ordres es comuniquen, quines dades s’envien (e.g. coordenades GPS) i quines accions s’efectuen
 
-https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
+9.3. Definir un sistema de decisió de prioritat dels missatges inter-dron, així com establir com es gestiona el cas en què dos o més missatges amb la mateixa prioritat arribin “a l’hora”. A tall d’exemple; si dos drons envien un mateix missatge a l’hora es determina quin és el de més prioritat i s’actua en conseqüència, però si tenen la mateixa prioritat, aleshores per a determinar quina ordre s’accepta o es descarta s’haurà d’utilitzar un mecanisme de decisió distribuït; o bé un de senzill basat en timestamps en cas que els drons (nodes) de l’eixam estiguin perfectament sincronitzats, o bé, en cas de que no ho estiguin, utilitzar altres mecanismes més complexos com per exemple Lamport timestamp o bé Vector Clocks. 
+
+9.4. Definir quin mecanisme (distribuït) s’utilitza per a propagar missatges per tot l’eixam. p.e. Gossip Protocol, Time-Stamped Anti-Entropy Protocol (TSAE), etc.
+
+9.5. Implementar els mecanismes de comunicació distribuïda que s’hagi decidit utilitzar
+
+10.	FITA#10 - Testeig de les comunicacions (joc de proves #2): 
+
+10.1. Definir un joc de proves per tal de comprovar que la comunicació inter-dron s’efectua de manera correcta
+
+10.2. Executar el joc de proves sobre tot l’eixam
+
+10.3. Avaluar els resultats del testeig. Si falla tornar al punt 8, si no, passar al punt 10.
+
+11.	FITA#11 - Testeig de tot el sistema (joc de proves #3):
+
+11.1. Unir i estendre els jocs de proves #1 i #2 per a poder provar els casos d’ús (PoC) 
+definits  a l’abstract del projecte.  
+
+11.2. Fer el Deployment de tot l’eixam sobre el joc de proves nº 3
+
+11.3. Avaluar resultats i procedir en conseqüència
+
+12.	FITA#12 - Obtenir conclusions i redactar la memòria del projecte
+
+13.	FITA#13 - Crear una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
+
+14.	FITA#14 - Preparar la defensa del projecte
+
 
 ## 4 - Bibliografia
 
