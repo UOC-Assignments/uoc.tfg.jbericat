@@ -1,3 +1,3 @@
-Els arxius d'aquesta carpeta han sigut ignorats segons directrius .gitignore
+Els arxius d'aquesta carpeta han sigut ignorats segons directrius .gitignore (es conserven al repositori local)
 
-còpia de seguretat -> /mnt/ARCHIVE/Backups/TFG-BAK_v002
+Còpies de seguretat -> /mnt/JBERICAT-BACKUPS/Manual/TFG-UOC.BT.lan_*
