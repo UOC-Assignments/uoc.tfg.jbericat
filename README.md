@@ -47,13 +47,21 @@ A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d
 
 ### 3.1 – Descripció de cada fita i detall de tasques relacionades
 
-1. Fita #001: Establir i preparar l’entorn de desenvolupament 
-1.1. Descripció i preparació / muntatge del hardware disponible 
-1.2. Instal·lació i configuració del Sistema Operatiu Ubuntu Linux 18.04 LTS
-1.3. Instal·lació i configuració de la plataforma de simulació AirSim de Microsoft i dels components necessaris (LandscapeMountain.zip Environment Asset Pack)
-1.4. Instal·lació i configuració del framework de gràfics 3D Unreal Engine 4.xx  i dels components necessaris (Fire Builder Asset Pack)
-1.5. Instal·lació del IDE de desenvolupament PyDev basat en Eclipse, així com dels frameworks necessaris per a implementar la DCNN (o bé Keras, o bé Tensor-Flow)
-1.6. Instal·lació del client Git per a Linux i creació del repositori al GitHub 
+1.	FITA#01 - Establir i preparar l’entorn de desenvolupament 
+1.1. Anàlisi de pre-requisits
+1.2.  Característiques del maquinari
+1.3. Preparació del programari
+1.3.1.	Selecció i instal·lació del sistema operatiu (Linux Workstation)
+1.3.2.	Estructura de directoris del projecte
+1.3.3.	Instal·lació i configuració dels paquets de software
+1.3.3.1.	Paquets base i dependències
+1.3.3.2.	Controladors de dispositiu
+1.3.3.3.	IDE “Visual Studio Code”
+1.3.3.4.	Motor gràfic: Unreal Engine
+1.3.3.5.	Plataforma de simulació: AirSim (Aerial Informatics and Robotics Simulation)
+1.3.3.6.	Paquet d’entorn LandscapeMountains per al motor gràfic Unreal Engine
+1.3.3.7.	Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
+
 2. Fita #002: Adaptació de la plataforma de simulació de vehicles autònoms AirSim de Microsoft 
 2.1. Simulació de l’escenari (terreny)
 2.1.1. Establir el terreny apropiat: Massa forestal i/o terreny muntanyós mitjançant el “Landscape environment pack” de AirSim
