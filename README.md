@@ -61,6 +61,9 @@ A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d
 2.1.3. Simular un escenari nocturn mitjançant l’arranjament de paràmetres nadius de AirSim
 2.2. Simulació dels actors (5 drons i/o octocòpters) mitjançant la API de AirSim 
 3. Fita #003: O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas: 
+
+--> 
+
 3.1. Primer definirem les classes de la capa de sortida o completa de l’arquitectura DCNN
 3.2. Després cal determinar quines característiques o features s’hauran de reconèixer en funció de les classes que haguem determinat al punt anterior
 3.3. Seguidament es decidirà de quina manera (mida, colors, etc) es normalitzarà el training data-set d’imatges per tal de conèixer de partida la complexitat computacional i de memòria a la que haurem de fer front, i s’adaptarà el data-set en conseqüència
@@ -84,7 +87,7 @@ A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d
 9.2. Executar el joc de proves sobre tot l’eixam
 9.3. Avaluar els resultats del testeig. Si falla tornar al punt 8, si no, passar al punt 10.
 10. Fita #010: Testeig de tot el sistema (joc de proves #3):
-10.1. Unir i estendre els jocs de proves #1 i #2 per a poder provar els casos d’ús (PoC) definits  a l’abstract del projecte.  
+10.1. Unir i estendre els jocs de proves #1 i #2 per a poder provar els casos d’ús (PoC) definits  a l’abstract del projecte.
 10.2. Fer el Deployment de tot l’eixam sobre el joc de proves nº 3
 10.3. Avaluar resultats i procedir en conseqüència
 11. Fita #011: Obtenir conclusions i redactar la memòria del projecte
