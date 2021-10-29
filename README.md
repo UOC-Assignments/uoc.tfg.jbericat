@@ -127,7 +127,7 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
 ------------------------
 
-4. FITA#04 - Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim
+4. *FITA#04* - Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim
 
 5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes: O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas:
  
