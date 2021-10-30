@@ -6,7 +6,7 @@ bin/*
 !bin/GIT-README.md
 src/
 src/AirSim/*
-!src/AirSim/PythonClient
+!src/AirSim/PythonClient/*
 
 ### Python extensions
 
