@@ -9,6 +9,8 @@ src/*
 !src/AirSim/
 src/AirSim/*
 !src/AirSim/PythonClient/
+src/AirSim/PythonClient/*
+!src/AirSim/PythonClient/TFG-PoC/
 
 ### Python extensions
 
