@@ -1,89 +1,55 @@
 import setup_path
-import airsim 
-import numpy as np
-import os
-import tempfile
-import pprint
-import cv2
+import airsim
 
-# connect to the AirSim simulator
+import sys
+import time
+
+print("""This script HAS BEEN COPIED from path.py""")
+
 client = airsim.MultirotorClient()
 client.confirmConnection()
 client.enableApiControl(True)
 
-state = client.getMultirotorState()
-s = pprint.pformat(state)
-print("state: %s" % s)
-
-imu_data = client.getImuData()
-s = pprint.pformat(imu_data)
-print("imu_data: %s" % s)
-
-barometer_data = client.getBarometerData()
-s = pprint.pformat(barometer_data)
-print("barometer_data: %s" % s)
-
-magnetometer_data = client.getMagnetometerData()
-s = pprint.pformat(magnetometer_data)
-print("magnetometer_data: %s" % s)
-
-gps_data = client.getGpsData()
-s = pprint.pformat(gps_data)
-print("gps_data: %s" % s)
-
-airsim.wait_key('Press any key to takeoff')
-print("Taking off...")
+print("arming the drone...")
 client.armDisarm(True)
-client.takeoffAsync().join()
 
 state = client.getMultirotorState()
-print("state: %s" % pprint.pformat(state))
+if state.landed_state == airsim.LandedState.Landed:
+    print("taking off...")
+    client.takeoffAsync().join()
+else:
+    client.hoverAsync().join()
 
-airsim.wait_key('Press any key to move vehicle to (-10, 10, -10) at 5 m/s')
-client.moveToPositionAsync(-10, 10, -10, 5).join()
-
-client.hoverAsync().join()
+time.sleep(1)
 
 state = client.getMultirotorState()
-print("state: %s" % pprint.pformat(state))
+if state.landed_state == airsim.LandedState.Landed:
+    print("take off failed...")
+    sys.exit(1)
 
-airsim.wait_key('Press any key to take images')
-# get camera images from the car
-responses = client.simGetImages([
-    airsim.ImageRequest("0", airsim.ImageType.DepthVis),  #depth visualization image
-    airsim.ImageRequest("1", airsim.ImageType.DepthPerspective, True), #depth in perspective projection
-    airsim.ImageRequest("1", airsim.ImageType.Scene), #scene vision image in png format
-    airsim.ImageRequest("1", airsim.ImageType.Scene, False, False)])  #scene vision image in uncompressed RGBA array
-print('Retrieved images: %d' % len(responses))
+# AirSim uses NED coordinates so negative axis is up.
+# z of -5 is 5 meters above the original launch point.
+z = -5
+print("make sure we are hovering at {} meters...".format(-z))
+client.moveToZAsync(z, 1).join()
 
-tmp_dir = os.path.join(tempfile.gettempdir(), "airsim_drone")
-print ("Saving images to %s" % tmp_dir)
-try:
-    os.makedirs(tmp_dir)
-except OSError:
-    if not os.path.isdir(tmp_dir):
-        raise
+# see https://github.com/Microsoft/AirSim/wiki/moveOnPath-demo
 
-for idx, response in enumerate(responses):
+# this method is async and we are not waiting for the result since we are passing timeout_sec=0.
 
-    filename = os.path.join(tmp_dir, str(idx))
+print("flying on path...")
+result = client.moveOnPathAsync([airsim.Vector3r(50,0,0),
+                                airsim.Vector3r(0,-500,0),
+                                airsim.Vector3r(-50,0,0),
+                                airsim.Vector3r(0,500,0)],
+                        5, 200,
+                        airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
 
-    if response.pixels_as_float:
-        print("Type %d, size %d" % (response.image_type, len(response.image_data_float)))
-        airsim.write_pfm(os.path.normpath(filename + '.pfm'), airsim.get_pfm_array(response))
-    elif response.compress: #png format
-        print("Type %d, size %d" % (response.image_type, len(response.image_data_uint8)))
-        airsim.write_file(os.path.normpath(filename + '.png'), response.image_data_uint8)
-    else: #uncompressed array
-        print("Type %d, size %d" % (response.image_type, len(response.image_data_uint8)))
-        img1d = np.fromstring(response.image_data_uint8, dtype=np.uint8) # get numpy array
-        img_rgb = img1d.reshape(response.height, response.width, 3) # reshape array to 4 channel image array H X W X 3
-        cv2.imwrite(os.path.normpath(filename + '.png'), img_rgb) # write to png
-
-airsim.wait_key('Press any key to reset to original state')
-
-client.reset()
+# drone will over-shoot so we bring it back to the start point before landing.
+client.moveToPositionAsync(0,0,z,1).join()
+print("landing...")
+client.landAsync().join()
+print("disarming...")
 client.armDisarm(False)
-
-# that's enough fun for now. let's quit cleanly
 client.enableApiControl(False)
+print("done.")
