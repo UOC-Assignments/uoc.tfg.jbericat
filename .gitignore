@@ -4,9 +4,11 @@ usr/*
 !usr/GIT-README.md
 bin/*
 !bin/GIT-README.md
-src/
+!src/
+src/*
+!src/AirSim/
 src/AirSim/*
-!src/AirSim/PythonClient/*
+!src/AirSim/PythonClient/
 
 ### Python extensions
 
