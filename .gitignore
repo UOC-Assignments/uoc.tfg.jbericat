@@ -1,12 +1,16 @@
 # Ignore directories:
 
-usr/
+usr/*
 !usr/GIT-README.md
-bin/
+bin/*
 !bin/GIT-README.md
-src/AirSim
-src/UnrealEngine
-src/UnrealEnvironments
+!src/
+src/*
+!src/AirSim/
+src/AirSim/*
+!src/AirSim/PythonClient/
+src/AirSim/PythonClient/*
+!src/AirSim/PythonClient/TFG-PoC/
 
 ### Python extensions
 
