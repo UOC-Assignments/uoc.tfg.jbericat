@@ -8,6 +8,7 @@ print("""This script HAS BEEN COPIED from path.py""")
 
 client = airsim.MultirotorClient()
 client.confirmConnection()
+client.reset()
 client.enableApiControl(True)
 
 print("arming the drone...")
