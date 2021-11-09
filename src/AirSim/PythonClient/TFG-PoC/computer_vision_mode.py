@@ -25,6 +25,7 @@ for camera_name in range(5):
     print("CameraInfo %d:" % camera_name)
     pp.pprint(camera_info)
 
+tempfile.tempdir = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/lib/images/raw/'
 tmp_dir = os.path.join(tempfile.gettempdir(), "airsim_cv_mode")
 print ("Saving images to %s" % tmp_dir)
 try:
@@ -34,17 +35,43 @@ except OSError:
         raise
 
 airsim.wait_key('Press any key to get images')
-for x in range(3): # do few times
-    z = x * -20 - 5 # some random number
-    client.simSetVehiclePose(airsim.Pose(airsim.Vector3r(z, z, z), airsim.to_quaternion(x / 3.0, 0, x / 3.0)), True)
+
+pose = client.simGetVehiclePose()
+
+print ("Choose the multicopter camera you want to use to retrieve the images:\n\n", 
+    "front_center=0\n",
+    "front_right=1\n",
+    "front_left=2\n",
+    "fpv=3\n",
+    "back_center=4\n"
+    )
+
+camera = input("Please enter a number (0-4):\n")
+
+print ("Choose the image type:\n\n",
+    "Scene = 0\n", 
+    "DepthPlanar = 1\n",
+    "DepthPerspective = 2\n",
+    "DepthVis = 3\n", 
+    "DisparityNormalized = 4\n",
+    "Segmentation = 5\n",
+    "SurfaceNormals = 6\n",
+    "Infrared = 7\n",
+    "Thermal(Not implemented yet) = 8\n"
+    )
+
+img_type = input("Please enter a number (0-8):\n")
+
+for x in range(10): # do few times
+    print ("Current position (x component): %d" % pose.position.x_val)
+    print ("Current position (y component): %d" % pose.position.y_val) 
+    print ("Current position (z component): %d" % pose.position.z_val) 
+    client.simSetVehiclePose(airsim.Pose(airsim.Vector3r(pose.position.x_val, pose.position.y_val, pose.position.z_val)), True)
 
     responses = client.simGetImages([
-        airsim.ImageRequest("0", airsim.ImageType.DepthVis),
-        airsim.ImageRequest("1", airsim.ImageType.DepthPerspective, True),
-        airsim.ImageRequest("2", airsim.ImageType.Segmentation),
-        airsim.ImageRequest("3", airsim.ImageType.Scene),
-        airsim.ImageRequest("4", airsim.ImageType.DisparityNormalized),
-        airsim.ImageRequest("4", airsim.ImageType.SurfaceNormals)])
+       # airsim.ImageRequest(camera, img_type),
+        airsim.ImageRequest(camera, int(img_type))],
+        )
 
     for i, response in enumerate(responses):
         filename = os.path.join(tmp_dir, str(x) + "_" + str(i))
@@ -55,10 +82,8 @@ for x in range(3): # do few times
             print("Type %d, size %d, pos %s" % (response.image_type, len(response.image_data_uint8), pprint.pformat(response.camera_position)))
             airsim.write_file(os.path.normpath(filename + '.png'), response.image_data_uint8)
 
-    pose = client.simGetVehiclePose()
-    pp.pprint(pose)
-
-    time.sleep(3)
+    pose.position.x_val += 10
+    time.sleep(1)
 
 # currently reset() doesn't work in CV mode. Below is the workaround
 client.simSetVehiclePose(airsim.Pose(airsim.Vector3r(0, 0, 0), airsim.to_quaternion(0, 0, 0)), True)
