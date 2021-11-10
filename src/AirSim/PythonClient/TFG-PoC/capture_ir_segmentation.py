@@ -126,11 +126,13 @@ def get_image(x, y, z, pitch, roll, yaw, client):
                                           False, False)])
 
     #Change images into numpy arrays.
+
+   ## S'HA HAGUT DE MODIFICAR EL CODI PER A QUE COMPILI!! (el darrer paràmetre de .reshape ha de ser 3 i no 4, falta validar-ho ) 
     img1d = numpy.fromstring(responses[0].image_data_uint8, dtype=numpy.uint8)
-    im = img1d.reshape(responses[0].height, responses[0].width, 4) 
+    im = img1d.reshape(responses[0].height, responses[0].width, 3) 
 
     img1dscene = numpy.fromstring(responses[1].image_data_uint8, dtype=numpy.uint8)
-    imScene = img1dscene.reshape(responses[1].height, responses[1].width, 4)
+    imScene = img1dscene.reshape(responses[1].height, responses[1].width, 3)
 
     return Vector3r(x, y, z), to_quaternion(pitch, roll, yaw),\
            im[:,:,:3], imScene[:,:,:3] #get rid of alpha channel
@@ -143,8 +145,8 @@ def main(client,
          z=-122,
          writeIR=True,
          writeScene=False,
-         irFolder='/home/jbericat/Documents/AirSim/Images/IR/',
-         sceneFolder='/home/jbericat/Documents/AirSim/Images/IR/Scene/'):
+         irFolder='',
+         sceneFolder=''):
     """
     title::
         main
@@ -182,19 +184,21 @@ def main(client,
         startTime = time.time()
         elapsedTime = 0
         pose = client.simGetObjectPose(o);
-
+        x=0
         #Capture images for a certain amount of time in seconds (half hour now)
         while elapsedTime < 1800:
             #Capture image - pose.position x_val access may change w/ AirSim
             #version (pose.position.x_val new, pose.position[b'x_val'] old)
-            vector, angle, ir, scene = get_image(pose.position.x_val, 
-                                                 pose.position.y_val, 
-                                                 z, 
-                                                 pitch, 
+            
+            vector, angle, ir, scene = get_image(x, 
+                                                 0, 
+                                                 -50, 
+                                                 6, 
                                                  roll, 
                                                  yaw, 
                                                  client)
 
+            x=x+1
             #Convert color scene image to BGR for write out with cv2.
             r,g,b = cv2.split(scene)
             scene = cv2.merge((b,g,r))
@@ -236,22 +240,4 @@ if __name__ == '__main__':
     #straight down, 400ft
     main(client, 
          objectList, 
-         irFolder='/tmp/auto/winter/400ft/down') 
-    #straight down, 200ft
-    main(client, 
-         objectList, 
-         z=-61, 
-         irFolder=r'auto/winter/200ft/down') 
-    #45 degrees, 200ft -- note that often object won't be scene since position
-    #is set exactly to object's
-    main(client, 
-         objectList, 
-         z=-61, 
-         pitch=numpy.radians(315), 
-         irFolder=r'auto/winter/200ft/45') 
-    #45 degrees, 400ft -- note that often object won't be scene since position
-    #is set exactly to object's
-    main(client, 
-         objectList, 
-         pitch=numpy.radians(315), 
-         irFolder=r'auto/winter/400ft/45') 
+         irFolder='/home/jbericat/Documents/AirSim/Images/IR/') 
