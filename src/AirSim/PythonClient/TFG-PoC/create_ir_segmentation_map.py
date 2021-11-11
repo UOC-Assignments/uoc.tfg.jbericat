@@ -153,49 +153,34 @@ if __name__ == '__main__':
     client = MultirotorClient()
     client.confirmConnection()
     
-    segIdDict = {'Base_Terrain':'soil',
-                 'elephant':'elephant',
-                 'zebra':'zebra',
-                 'Crocodile':'crocodile',
-                 'Rhinoceros':'rhinoceros',
-                 'Hippo':'hippopotamus',
-                 'Poacher':'human',
-                 'InstancedFoliageActor':'tree',
-                 'Water_Plane':'water',
-                 'truck':'truck'}
+    segIdDict = {'Landscape':'land', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents al terreny 
+                 'Fire':'fire', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
+                 'bigfire':'bigfire',
+                 'smoke':'smoke',
+                 'flame':'flame',
+                 'human':'human',
+                 'IcePlane':'water', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a aigua / gel 
+                 'InstancedFoliageActor':'tree'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
     
-    #Choose temperature values for winter or summer.
-    #"""
-    #winter
-    tempEmissivity = numpy.array([['elephant',290,0.96], 
-                                  ['zebra',298,0.98],
-                                  ['rhinoceros',291,0.96],
-                                  ['hippopotamus',290,0.96],
-                                  ['crocodile',295,0.96],
+    #Choose temperature values 
+    tempEmissivity = numpy.array([['fire',290,0.96], 
+                                  ['bigfire',298,0.98],
+                                  ['flame',291,0.96],
+                                  ['smoke',295,0.96],
+                                  ['human',292,0.985], 
+                                  ['tree',273,0.952],
+                                  ['water',273,0.96], 
+                                  ['land',278,0.914]])
+    """
+    tempEmissivity = numpy.array([['fire',290,0.96], 
+                                  ['bigfire',298,0.98],
+                                  ['flame',291,0.96],
+                                  ['smoke',295,0.96],
                                   ['human',292,0.985], 
                                   ['tree',273,0.952], 
-                                  ['grass',273,0.958], 
-                                  ['soil',278,0.914], 
-                                  ['shrub',273,0.986],
-                                  ['truck',273,0.8],
+                                  ['land',278,0.914], 
                                   ['water',273,0.96]])
-    #"""
     """
-    #summer
-    tempEmissivity = numpy.array([['elephant',298,0.96], 
-                                  ['zebra',307,0.98],
-                                  ['rhinoceros',299,0.96],
-                                  ['hippopotamus',298,0.96],
-                                  ['crocodile',303,0.96],
-                                  ['human',301,0.985], 
-                                  ['tree',293,0.952], 
-                                  ['grass',293,0.958], 
-                                  ['soil',288,0.914], 
-                                  ['shrub',293,0.986],
-                                  ['truck',293,0.8],
-                                  ['water',293,0.96]])
-    """
-
     #Read camera response.
     response = None
     camResponseFile = 'camera_response.npy'
