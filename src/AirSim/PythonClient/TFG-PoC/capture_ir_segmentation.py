@@ -184,21 +184,20 @@ def main(client,
         startTime = time.time()
         elapsedTime = 0
         pose = client.simGetObjectPose(o);
-        x=0
-        #Capture images for a certain amount of time in seconds (half hour now)
-        while elapsedTime < 1800:
+        
+        #Capture images for a certain amount of time in seconds (5 sec)
+        while elapsedTime < 5:
             #Capture image - pose.position x_val access may change w/ AirSim
             #version (pose.position.x_val new, pose.position[b'x_val'] old)
             
-            vector, angle, ir, scene = get_image(x, 
-                                                 0, 
-                                                 -50, 
+            vector, angle, ir, scene = get_image(pose.position.x_val, 
+                                                 100, 
+                                                 z, 
                                                  6, 
                                                  roll, 
-                                                 yaw, 
+                                                 5, 
                                                  client)
 
-            x=x+1
             #Convert color scene image to BGR for write out with cv2.
             r,g,b = cv2.split(scene)
             scene = cv2.merge((b,g,r))
@@ -229,12 +228,13 @@ if __name__ == '__main__':
     client.confirmConnection()
 
     #Look for objects with names that match a regular expression.
-    poacherList = client.simListSceneObjects('.*?Poacher.*?')
-    elephantList = client.simListSceneObjects('.*?Elephant.*?')
-    crocList = client.simListSceneObjects('.*?Croc.*?')
-    hippoList = client.simListSceneObjects('.*?Hippo.*?')
+    landList = client.simListSceneObjects('.*?Landscape.*?')
+    fireList = client.simListSceneObjects('.*?Fire.*?')
+    smokeList = client.simListSceneObjects('.*?smoke.*?')
+    flameList = client.simListSceneObjects('.*?flame.*?')
+    treeList = client.simListSceneObjects('.*?Tree.*?')
     
-    objectList = elephantList
+    objectList = fireList
     
     #Sample calls to main, varying camera angle and altitude.
     #straight down, 400ft
