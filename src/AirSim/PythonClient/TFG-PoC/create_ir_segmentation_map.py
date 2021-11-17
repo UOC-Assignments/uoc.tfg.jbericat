@@ -153,24 +153,14 @@ if __name__ == '__main__':
     client = MultirotorClient()
     client.confirmConnection()
     
-    segIdDict = {'Landscape':'land', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents al terreny 
-                 'Fire':'fire', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
-                 'bigfire':'bigfire',
-                 'smoke':'smoke',
-                 'flame':'flame',
-                 'human':'human',
-                 'IcePlane':'water', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a aigua / gel 
-                 'InstancedFoliageActor':'tree'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
+    segIdDict = {'Fire':'fire', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
+                 'Ember':'ember',
+                 'Hot':'hot'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
     
     #Choose temperature values 
     tempEmissivity = numpy.array([['fire',290,0.96], 
-                                  ['bigfire',298,0.98],
-                                  ['flame',291,0.96],
-                                  ['smoke',295,0.96],
-                                  ['human',292,0.985], 
-                                  ['tree',273,0.952],
-                                  ['water',273,0.96], 
-                                  ['land',278,0.914]])
+                                  ['ember',298,0.98],
+                                  ['hot',291,0.96]])
     """
     tempEmissivity = numpy.array([['fire',290,0.96], 
                                   ['bigfire',298,0.98],
