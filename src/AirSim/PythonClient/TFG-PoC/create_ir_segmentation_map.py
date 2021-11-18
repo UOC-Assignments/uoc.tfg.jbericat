@@ -153,7 +153,7 @@ if __name__ == '__main__':
     client = MultirotorClient()
     client.confirmConnection()
     
-    segIdDict = {'Fire':'fire', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
+    segIdDict = {'fire':'fire', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
                  'Ember':'ember',
                  'Hot':'hot'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
     

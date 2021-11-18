@@ -298,7 +298,7 @@ if __name__ == '__main__':
 
     #Look for objects with names that match a regular expression.
     #landList = client.simListSceneObjects('.*?Landscape.*?')
-    fireList = client.simListSceneObjects('.*?Fire.*?')
+    fireList = client.simListSceneObjects('.*?fire.*?')
     #treeList = client.simListSceneObjects('.*?Tree.*?')
     
     objectList = fireList
