@@ -135,33 +135,31 @@ def get_image(x, y, z, pitch, roll, yaw, client):
            im[:,:,:3], imScene[:,:,:3] #get rid of alpha channel
 
     
-def combine_img(thermal_img_path, rgb_img_path):
+def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
     """
     title::
         combine_img
 
     description::
         Thermal + RGB composite image: "injects" the heat pixels (whites) detected by 
-        IR-Thermal into the scene image to simulate a FLIR night vision camera device
+        IR-Thermal into the scene image to simulate a FLIR based thermal vision camera device
 
     inputs::
         ir
-            object (vector?) contaning the IR captured pixels (Thermal)
+            Path to the image contaning the IR captured pixels (Thermal grayscale)
         scene
-            object (vector?) contaning the IR captured pixels (RGB)
+            Path to the image contaning the scene captured pixels (RGB)
 
     output::
         flir
-            Thermal+RGB composite image
+            Thermal+RGB composite image (file)
 
     author::
-        Jordi Bericat
+        Jordi Bericat Ruz - Universitat Oberta de Catalunya
 
     references::
         https://www.geeksforgeeks.org/how-to-manipulate-the-pixel-values-of-an-image-using-python/
     """
-    #WORK IN PROGRESS...
-
     # Import an image from directory:
     thermal_image = Image.open(thermal_img_path)
     rgb_image = Image.open(rgb_img_path)
@@ -171,22 +169,33 @@ def combine_img(thermal_img_path, rgb_img_path):
   
     # Extracting the width and height 
     # of the image (both images are equal in size):
-    width, height = thermal_image.size
+    width, height = rgb_image.size
   
     for i in range(width):
         for j in range(height):
-            
+
             # getting the THERMAL pixel value.
             r, g, b = thermal_image.getpixel((i, j))
 
-            # If the pixel is not BLACK (0,0,0) -> then it is grayscaled -> then it's hot! -> Therefore we set its value on the RGB image (scene)
+            # If the pixel is not BLACK (0,0,0) -> then it is grayscaled -> 
+            # -> then it's hot! -> Therefore we set its value on the RGB image (scene)
             if (int(r)!=0 or int(g)!=0 or int(b)!=0):
-                print("Yo!")
                 rgb_pixel_map[i, j] = (int(r), int(g), int(b))
-    
+
+            #If it's not, the we just turn the pixel to its grayscale equivalent
+            else: 
+
+                # getting the RGB pixel value.
+                r, g, b = rgb_image.getpixel((i, j)) 
+
+                # Apply formula of grayscale:
+                grayscale = (0.299*r + 0.587*g + 0.114*b)
+
+                # setting the pixel value.
+                rgb_pixel_map[i, j] = (int(grayscale), int(grayscale), int(grayscale))
+
     # Saving the final output -- DEBUG -> pending to set a relative path 
-    rgb_image.save("/home/jbericat/Documents/AirSim/Images/Composite/composite_001"+str(i)+"_"+str(j), format="png")
-    
+    rgb_image.save(composite_img_path, format="png")
 
 def main(client,
          objectList,
@@ -197,7 +206,8 @@ def main(client,
          writeIR=True,
          writeScene=True,
          irFolder='',
-         sceneFolder=''):
+         sceneFolder='',
+         compositeFolder=''):
     """
     title::
         main
@@ -258,6 +268,7 @@ def main(client,
 
         thermal_img_path = irFolder+'ir_'+str(i).zfill(5)+'.png'
         rgb_img_path = sceneFolder+'scene_'+str(i).zfill(5)+'.png'
+        composite_img_path = compositeFolder+'composite_'+str(i).zfill(5)+'.png'
 
         if writeIR:
             cv2.imwrite(thermal_img_path, ir)
@@ -265,7 +276,7 @@ def main(client,
             cv2.imwrite(rgb_img_path, scene)
         
         #DEBUG: funció "combine_img" TFG Upgrade: 
-        combine_img(thermal_img_path,rgb_img_path)
+        combine_img(thermal_img_path,rgb_img_path,composite_img_path)
 
         i += 1
         pose = client.simGetObjectPose(o);
@@ -295,5 +306,6 @@ if __name__ == '__main__':
     #Sample calls to main
     main(client, 
          objectList, 
-         irFolder='/home/jbericat/Documents/AirSim/Images/IR/',
-         sceneFolder='/home/jbericat/Documents/AirSim/Images/Scenes/') 
+         irFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/IR/',
+         sceneFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/scene/',
+         compositeFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/composite/') 
