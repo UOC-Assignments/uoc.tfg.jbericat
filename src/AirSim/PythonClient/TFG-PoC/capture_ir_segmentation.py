@@ -169,11 +169,11 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
   
     # Extracting the width and height 
     # of the image (both images are equal in size):
-    width, height = thermal_image.size
+    width, height = rgb_image.size
   
     for i in range(width):
         for j in range(height):
-            
+
             # getting the THERMAL pixel value.
             r, g, b = thermal_image.getpixel((i, j))
 
@@ -181,10 +181,21 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
             # -> then it's hot! -> Therefore we set its value on the RGB image (scene)
             if (int(r)!=0 or int(g)!=0 or int(b)!=0):
                 rgb_pixel_map[i, j] = (int(r), int(g), int(b))
-    
+
+            #If it's not, the we just turn the pixel to its grayscale equivalent
+            else: 
+
+                # getting the RGB pixel value.
+                r, g, b = rgb_image.getpixel((i, j)) 
+
+                # Apply formula of grayscale:
+                grayscale = (0.299*r + 0.587*g + 0.114*b)
+
+                # setting the pixel value.
+                rgb_pixel_map[i, j] = (int(grayscale), int(grayscale), int(grayscale))
+
     # Saving the final output -- DEBUG -> pending to set a relative path 
     rgb_image.save(composite_img_path, format="png")
-    
 
 def main(client,
          objectList,
