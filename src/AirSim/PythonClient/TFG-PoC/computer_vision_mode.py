@@ -1,9 +1,37 @@
 # In settings.json first activate computer vision mode:
 # https://github.com/Microsoft/AirSim/blob/master/docs/image_apis.md#computer-vision-mode
 
+
+"""
+title::
+    main
+
+description::
+    Takes images from the LME UE4 environment using the Airsim's CV simulation mode. (WORK IN PROGRESS!)
+
+inputs::
+    TO-DO
+
+author::
+    TO-DO
+
+code adapted by::
+    Jordi Bericat Ruz - Universitat Oberta de Catalunya
+
+notes::
+    Com que aquest script s'utilitzarà per a generar els jocs de proves a fites posteriors, 
+    es deixa la implementació feta sense definir les coordenades que s'utilitzaràn per a prendre 
+    les imatges i quan toqui ja es definiran. També s'haurà d'integrar el codi de capture_ir_segmentation.py 
+    per a afegir la funcionalitat de captura d'imatges tèrmiques.
+
+references::
+    TASK#03.3.1 - Mode "Computer Vision": Captura d'imatges automatitzada per a l’entrenament del model NN
+    https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/66
+    
+"""
+
 import setup_path
 import airsim
-
 import pprint
 import os
 import time
