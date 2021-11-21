@@ -124,7 +124,8 @@ def get_image(x, y, z, pitch, roll, yaw, client):
 
     #Change images into numpy arrays.
 
-   ## S'HA HAGUT DE MODIFICAR EL CODI PER A QUE COMPILI!! (el darrer paràmetre de .reshape ha de ser 3 i no 4, falta validar-ho ) 
+   ## S'HA HAGUT DE MODIFICAR EL CODI PER A QUE COMPILI!! (el darrer paràmetre 
+   # de .reshape ha de ser 3 i no 4, es podria fer un pull request al repo de AirSim) 
     img1d = numpy.fromstring(responses[0].image_data_uint8, dtype=numpy.uint8)
     im = img1d.reshape(responses[0].height, responses[0].width, 3) 
 
@@ -174,11 +175,18 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
     for i in range(width):
         for j in range(height):
 
+            # TODO - This "for" body needs revision. The output composite image has 3 channels 
+            # with the same info on each one (grayscale). It must be just one channel (cheaper). 
+            # There are not needed casts. I should redefine the IF condition (If ITS WHITE), 
+            # since we wont do different scales of heat anymore. DO IT WHILE THE ENV. BUILDING PROCESS 
+            # TODO END 
+
             # getting the THERMAL pixel value.
             r, g, b = thermal_image.getpixel((i, j))
 
             # If the pixel is not BLACK (0,0,0) -> then it is grayscaled -> 
             # -> then it's hot! -> Therefore we set its value on the RGB image (scene)
+            #
             if (int(r)!=0 or int(g)!=0 or int(b)!=0):
                 rgb_pixel_map[i, j] = (int(r), int(g), int(b))
 
@@ -202,7 +210,7 @@ def main(client,
          pitch=numpy.radians(270), #image straight down
          roll=0,
          yaw=0,
-         z=-122,
+         height=-122,
          writeIR=True,
          writeScene=True,
          irFolder='',
@@ -239,6 +247,9 @@ def main(client,
 
     author::
         Elizabeth Bondi
+    modified by::
+        Jordi Bericat Ruz - Universitat Oberta de Catalunya
+
     """
     i = 0
     for o in objectList:
@@ -246,21 +257,13 @@ def main(client,
         
         #Capture image - pose.position x_val access may change w/ AirSim
         #version (pose.position.x_val new, pose.position[b'x_val'] old)
-        """
+
         vector, angle, ir, scene = get_image(pose.position.x_val, 
-                                                100, 
-                                                z, 
-                                                6, 
+                                                pose.position.y_val+100, 
+                                                height, 
+                                                pitch, 
                                                 roll, 
-                                                5, 
-                                                client)
-        """
-        vector, angle, ir, scene = get_image(pose.position.x_val, 
-                                                pose.position.y_val+10, 
-                                                pose.position.z_val, 
-                                                6, 
-                                                roll, 
-                                                5, 
+                                                yaw, 
                                                 client)
         #Convert color scene image to BGR for write out with cv2.
         r,g,b = cv2.split(scene)
@@ -296,16 +299,16 @@ if __name__ == '__main__':
     client = MultirotorClient()
     client.confirmConnection()
 
-    #Look for objects with names that match a regular expression.
-    #landList = client.simListSceneObjects('.*?Landscape.*?')
-    fireList = client.simListSceneObjects('.*?fire.*?')
-    #treeList = client.simListSceneObjects('.*?Tree.*?')
+    #Look for objects with names that match a regular expression. 
+    objectList = client.simListSceneObjects('.*?Z.*?')
     
-    objectList = fireList
-    
-    #Sample calls to main
+    #Call to main
     main(client, 
          objectList, 
+         pitch=numpy.radians(315), #image straight down
+         roll=0,
+         yaw=0,
+         height=-60,
          irFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/IR/',
          sceneFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/scene/',
          compositeFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/composite/') 

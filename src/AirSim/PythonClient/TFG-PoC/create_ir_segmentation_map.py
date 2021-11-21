@@ -152,25 +152,22 @@ if __name__ == '__main__':
     #Connect to AirSim, UAV mode.
     client = MultirotorClient()
     client.confirmConnection()
+
+    # TFG: Comment #03.xx
+    # 
+    # On the UE4 environment created to perform this project's 
+    # proof of concept -based on the LandscapeMountains env-, 
+    # the "StaticMeshActor" actors that include the strings 
+    # "fire" and "grass" on its object name are the ones that
+    # simulate heating emission. 
     
-    segIdDict = {'fire':'fire', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
-                 'Ember':'ember',
-                 'Hot':'hot'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
+    segIdDict = {'grass':'grass', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
+                 'fire':'fire'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
     
     #Choose temperature values 
-    tempEmissivity = numpy.array([['fire',290,0.96], 
-                                  ['ember',298,0.98],
-                                  ['hot',291,0.96]])
-    """
-    tempEmissivity = numpy.array([['fire',290,0.96], 
-                                  ['bigfire',298,0.98],
-                                  ['flame',291,0.96],
-                                  ['smoke',295,0.96],
-                                  ['human',292,0.985], 
-                                  ['tree',273,0.952], 
-                                  ['land',278,0.914], 
-                                  ['water',273,0.96]])
-    """
+    tempEmissivity = numpy.array([['grass',290,0.96], 
+                                  ['fire',298,0.98]])
+
     #Read camera response.
     response = None
     camResponseFile = 'camera_response.npy'
