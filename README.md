@@ -96,30 +96,39 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
 2.5. OPCIONAL: Disseny d’un hexacòpter
 
-3. **FITA#03** – Creació d’un escenari (UE Environment) adequat per a la PoC i implementació de funcionalitats bàsiques de vol als drons mitjançant l’API de AirSim
+3. **FITA#03** – Preparació d'un entorn virtual adequat per a la realització de la PoC 
+
 3.1. Tasques de recerca i investigació
 
 3.1.1.	Estudi de la API de AirSim per a Python
 
-3.2. Simulació de l’escenari (terreny)
+3.1.2. 	Recerca de projectes basats en AirSim
 
-3.2.1. Crear el terreny apropiat per a obtenir el training data-set i efectuar les proves
+3.2. preparació dels elements de l'entorn UE "LandscapeMountains Environment"
 
-3.2.2. Generar diferents escenaris amb incendis de manera aleatòria utilitzant el framework Unreal Engine #45
+3.2.1. Simulació d'incendis forestals
 
-3.2.3. Simular un escenari nocturn mitjançant l’arranjament de paràmetres nadius de AirSim
+3.2.2. Simulació de condicions nocturnes d'iluminació 
 
-3.3. Simulació dels actors (4 drons i/o octocòpters) mitjançant la API de AirSim
+3.3. Preparació dels actors: Modes de AirSim
 
-3.3.1. Simulació de vol autònom: Implementació de vol en mode “patrulla” pre-programat 
+3.3.1. Mode "Computer Vision"
 
-3.3.1.1. Implementació de mode “patrulla” Individual (programa hello “drone”)
+3.3.1.1 Captura aleatòria d'imatges per a generar els jocs de proves
 
-3.3.1.2. Implementació de mode mode “patrulla” Col·lectiu (programa hello “swarm”)
+3.3.1.2 Simulació de visió tèrmica nocturna tipus FLIR per a generar els training data-set
 
-------------------------
+3.3.2. Mode "Multirotor"
+
+3.3.2.1. Implementació de mode “patrulla” Individual (script "drone_patrol.py")
+
+3.3.2.2. Implementació de mode mode “patrulla” Col·lectiu (script "swarm_patrol.py")
+
+3.4. Wrapping-up: Generació de l'entorn final per a la realització de la PoC
 
 4. *FITA#04* - Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim
+
+------------------------
 
 5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes: O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas:
  
