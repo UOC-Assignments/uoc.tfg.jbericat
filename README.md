@@ -59,15 +59,15 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
 1. Dog
 
-    1. German Shepherd
+    1.1. German Shepherd
 
-    2. Belgian Shepherd
+    1.1. Belgian Shepherd
 
-        1. Malinois
+        1.1. Malinois
 
-        2. Groenendael
+        1.1. Groenendael
 
-        3. Tervuren
+        1.1. Tervuren
 
 2. Cat
 
