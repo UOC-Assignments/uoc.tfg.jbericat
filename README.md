@@ -41,7 +41,7 @@ En aquest sentit, d’entrada un dels objectius del TFG estarà orientat a estab
 
 A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d’identificar i classificar de manera totalment autònoma les característiques d’un incendi amb una configuració diferent de les que ha aprés l’arquitectura DCNN durant la fase d’entrenament, i de l’altra, de decidir en temps real i de manera distribuïda en quines zones serà necessari actuar primer, de manera que serà possible repartir la càrrega de feina o workload entre els diferents drons de l’eixam. Ho podem il·lustrar de manera pràctica si posem el cas que, durant un deployment de l’eixam durant la nit, cadascun dels drons està tractant de refredar diferents parts del perímetre d’un incendi amb l’objectiu d’evitar una revifada de les flames, que ja han sigut extingides durant horari diürn pels mitjans aeris tradicionals (e.g. hidroavions i helitancs). En aquest escenari, si suposem que un dels drons conclou que s’està produint una revifada a un dels fronts de l’incendi, aleshores, aquest dron pot comunicar-ho a l’eixam sencer per a què s’avaluï de manera distribuïda si la resta de drons han de deixar estar la tasca que estan realitzant i dirigir-se cap a la seva zona per tal de donar-li suport.
  
-## 3 - Planificació temporal
+## 3 - Definició dels objectius del TFG: Planificació temporal
 
 ### 3.1 – Planificació temporal per fites (Google Calendar)
 
@@ -153,7 +153,7 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 			
         5.5. Estudi del rati d’aprenentatge i optimització dels paràmetres
 		
-		5.6. Wrapping-Up: Adaptació i implementació de les arquitectures DCNN escollides 
+        5.6. Wrapping-Up: Adaptació i implementació de les arquitectures DCNN escollides 
 
 --------------------------------------------------------------
 
