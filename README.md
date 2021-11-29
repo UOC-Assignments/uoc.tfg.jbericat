@@ -55,7 +55,7 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
 ### 3.2 – Descripció de cada fita i detall de tasques relacionades
 
-        1. FITA#01 - Establir i preparar l’entorn de desenvolupament
+    1. FITA#01 - Establir i preparar l’entorn de desenvolupament
  
             1.1. Anàlisi de pre-requisits
 
