@@ -47,7 +47,7 @@ A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d
 
 ### 3.1 – Planificació temporal per fites (Google Calendar)
 
-El següent calendari pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç:
+El calendari de planificació pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç:
 
 https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
 
