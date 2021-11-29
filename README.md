@@ -55,21 +55,21 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
 ### 3.2 – Descripció de cada fita i detall de tasques relacionades
 
-1. **FITA#01** - Establir i preparar l’entorn de desenvolupament
+        1. **FITA#01** - Establir i preparar l’entorn de desenvolupament
  
-    1.1. Anàlisi de pre-requisits
+        1.1. Anàlisi de pre-requisits
 
-    1.2. Característiques del maquinari
+        1.2. Característiques del maquinari
 
-    1.3. Preparació del programari
+        1.3. Preparació del programari
 
-        1.3. Selecció i instal·lació del sistema operatiu (Linux Workstation)
+        1.3.1 Selecció i instal·lació del sistema operatiu (Linux Workstation)
 
-        1.3. Estructura de directoris del projecte
+        1.3.2. Estructura de directoris del projecte
 
-        1.3. Instal·lació i configuració dels paquets de software
+        1.3.3. Instal·lació i configuració dels paquets de software
 
-            1.3. Paquets base i dependències
+            1.3.3.1. Paquets base i dependències
 
             1.3.3.2. Controladors de dispositiu
 
