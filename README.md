@@ -17,9 +17,9 @@ Semestre: Tardor 2021/22 (Aula 1)
 
 3. Planificació temporal	
 
-    1. Descripció de cada fita i detall de tasques relacionades
+    3.1. Descripció de cada fita i detall de tasques relacionades
 
-    2. Planificació temporal per fites (Google Calendar)
+    3.2. Planificació temporal per fites (Google Calendar)
 
 4. Bibliografia
  
