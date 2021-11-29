@@ -11,17 +11,17 @@ Semestre: Tardor 2021/22 (Aula 1)
 
 ## Índex
 
-1. Títol provisional del projecte
+1. [Títol provisional del projecte](#1---t%C3%ADtol-provisional-del-projecte)
 
-2. Resum provisional del projecte: Motivació i definició dels objectius
+2. [Resum provisional del projecte: Motivació i definició dels objectius](#2---resum-provisional-del-projecte-motivaci%C3%B3-i-definici%C3%B3-dels-objectius)
 
-3. Planificació temporal	
+3. [Planificació temporal](#3---planificaci%C3%B3-temporal)
 
-    3.1. Descripció de cada fita i detall de tasques relacionades
+    3.1. [Descripció de cada fita i detall de tasques relacionades](#31--planificaci%C3%B3-temporal-per-fites-google-calendar)
 
-    3.2. Planificació temporal per fites (Google Calendar)
+    3.2. [Planificació temporal per fites (Google Calendar)](#32--descripci%C3%B3-de-cada-fita-i-detall-de-tasques-relacionades)
 
-4. Bibliografia
+4. [Bibliografia](#4---bibliografia)
  
 ## 1 - Títol provisional del projecte
 
