@@ -125,35 +125,39 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
         3.4. Wrapping-up: Generació de l'entorn final per a la realització de la PoC
 
-4. *FITA#04* - Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim
+    4. FITA#04 - Generar el dataset d'imatges per a entrenar i testejar el model de xarxes neuronals profundes
 
-------------------------
-
-5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes: O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas:
+    5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes
  
-5.1. Tasques d’investigació i recerca
+        5.1. Tasques d’investigació i recerca
 
-5.1.1. Fer recerca en l’àrea de Deep Learning, Visió per computador, i concretament, les DCNNA
+        5.2. Estructuració de l'algorisme de DL i configuració d'hyperparàmetres
 
-5.1.2. Definir per què és necessària la Visió per Computador per assolir els objectius definits al abstract i associar aquells aspectes en aquest àrea que siguin d’especial interès i/o que aplicables per al projecte (background tecnològic)
- 
-5.1.3.	Estudiar altres models de DCNNA i avaluar la seva conveniència per a ser utilitzades en aquest projecte.
+            5.2.1. Identificació / definició de les mètriques de rendiment
 
-5.2. Disseny teòric de l’arquitectura de xarxes neuronals DCNN
+            5.2.2. Establiment / disseny d'un model base (baseline model)
 
-5.2.1.	Definir les classes de la capa de sortida o completa de l’arquitectura DCNN que necessitem
+                5.2.2.1. AlexNet
+				
+				5.2.2.2. DenseNet121
 
-5.2.2.	Seguidament es decidirà de quina manera (mida, colors, etc) es normalitzarà el training data-set d’imatges per tal de conèixer de partida la complexitat computacional i de memòria a la que haurem de fer front, i s’adaptarà el data-set en conseqüència
+            5.2.3. Preparació de les dades per a l'entrenament del model
 
-5.2.3.	Després cal determinar quines característiques o features s’hauran de reconèixer en funció de les classes que haguem determinat al punt anterior i en funció d’això definirem els hyperparàmetres (knobs) que necessitarem i com els haurem de configurar (fine-tuning). També caldrà veure quins haurien de ser els seus valors inicials (default).
+                    5.2.3.1. Pre-processament de les imatges del dataset 
+					
+					5.2.3.2. Divisió dels dataset en grups 
 
-5.2.4.	Establir quins filtres o Kernels necessitarem aplicar a les deep / hidden layers de la DCNN
+        5.3. Avaluació del model i interpretació del seu rendiment
 
-5.2.5.	Acabar de depurar / definir la resta de capes que ha d’incloure l’arquitectura (pools, etc.) 
+        5.4. Millores en el rendiment de la xarxa neuronal i reajustament d’hiper-paràmetres 
+		
+		    5.4.1. Dropout Regularization
+			
+        5.5. Estudi del rati d’aprenentatge i optimització dels paràmetres
+		
+		5.6. Wrapping-Up: Adaptació i implementació de les arquitectures DCNN escollides 
 
-5.3. Selecció i utilització d’un model existent que presenti característiques similars als de l’arquitectura dissenyada al punt 3.2 i que puguem entrenar amb el nostre training data-set.
-
-5.4. OPCIONAL: Implementació d’un algorisme DCNN d’elaboració pròpia amb Keras/Tensor-Flow
+--------------------------------------------------------------
 
 6.	FITA#06 - Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
 
