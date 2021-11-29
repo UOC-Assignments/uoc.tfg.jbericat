@@ -11,21 +11,21 @@ Semestre: Tardor 2021/22 (Aula 1)
 
 ## Índex
 
-1 - Títol provisional del projecte
+1. Títol provisional del projecte
 
-2 - Resum provisional del projecte: Motivació i definició dels objectius
+2. Resum provisional del projecte: Motivació i definició dels objectius
 
-3 - Planificació temporal	
+3. Planificació temporal	
 
-3.1 – Descripció de cada fita i detall de tasques relacionades
+    3.1. Descripció de cada fita i detall de tasques relacionades
 
-3.2 – Planificació temporal per fites (Google Calendar)
+    3.2. Planificació temporal per fites (Google Calendar)
 
-4 - Bibliografia
+4. Bibliografia
  
 ## 1 - Títol provisional del projecte
 
-**Simulació d’un conjunt de mitjans aeris específics per a la extinció d’incendis forestals durant períodes nocturns i dirigits de manera autònoma mitjançant tècniques d’intel·ligència artificial.**
+**Entrenament d’un model d'intel·ligència artificial en un entorn virtual per a la seva aplicació en la extinció d’incendis forestals: Prova de concepte**
 
 ## 2 - Resum provisional del projecte: Motivació i definició dels objectius
 
@@ -47,7 +47,7 @@ A tall de resum; el sistema estarà dissenyat per a ser capaç, d’una banda, d
 
 ### 3.1 – Planificació temporal per fites (Google Calendar)
 
-El següent calendari pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç:
+El calendari de planificació pot ser consultat a la aplicació web “Google Calendar” mitjançant el següent enllaç:
 
 https://calendar.google.com/calendar/u/1?cid=Y19lc3VvZnFqMmM1NGJsMmM0NTJ1b3VvMnA0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t 
 
@@ -55,106 +55,109 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
 ### 3.2 – Descripció de cada fita i detall de tasques relacionades
 
-1. **FITA#01** - Establir i preparar l’entorn de desenvolupament
+    1. FITA#01 - Establir i preparar l’entorn de desenvolupament
  
-1.1. Anàlisi de pre-requisits
+        1.1. Anàlisi de pre-requisits
 
-1.2.  Característiques del maquinari
+        1.2. Característiques del maquinari
 
-1.3. Preparació del programari
+        1.3. Preparació del programari
 
-1.3.1.	Selecció i instal·lació del sistema operatiu (Linux Workstation)
+            1.3.1 Selecció i instal·lació del sistema operatiu (Linux Workstation)
 
-1.3.2.	Estructura de directoris del projecte
+            1.3.2. Estructura de directoris del projecte
 
-1.3.3.	Instal·lació i configuració dels paquets de software
+            1.3.3. Instal·lació i configuració dels paquets de software
 
-1.3.3.1. Paquets base i dependències
+                1.3.3.1. Paquets base i dependències
 
-1.3.3.2. Controladors de dispositiu
+                1.3.3.2. Controladors de dispositiu
 
-1.3.3.3. IDE “Visual Studio Code”
+                1.3.3.3. IDE “Visual Studio Code”
 
-1.3.3.4. Motor gràfic: Unreal Engine
+                1.3.3.4. Motor gràfic: Unreal Engine
 
-1.3.3.5. Plataforma de simulació: AirSim (Aerial Informatics and Robotics Simulation)
+                1.3.3.5. Plataforma de simulació: AirSim (Aerial Informatics and Robotics Simulation)
 
-1.3.3.6. Paquet d’entorn LandscapeMountains per al motor gràfic Unreal Engine
+                1.3.3.6. Paquet d’entorn LandscapeMountains per al motor gràfic Unreal Engine
 
-1.3.3.7. Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
+                1.3.3.7. Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
 
+    2. FITA#02 - Adaptació i personalització de l’entorn de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
 
-2. **FITA#02** - Adaptació i personalització de l’entorn de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
+        2.1. Obtenir l’entorn Landscape Environment de Unreal Engine per a Windows i Mac i adaptar-lo per a ser utilitzat amb l’editor UE4Editor d’Ubuntu Linux.
 
-2.1. Obtenir l’entorn Landscape Environment de Unreal Engine per a Windows i Mac i adaptar-lo per a ser utilitzat amb l’editor UE4Editor d’Ubuntu Linux.
+        2.2. Editar l'entorn "Landscape environment" per a adequar-lo al requeriments del projecte
 
-2.2. Editar l'entorn "Landscape environment" per a adequar-lo al requeriments del projecte
+        2.3. Ús de múltiples drons (simulació de l’eixam)
 
-2.3. Ús de múltiples drons (simulació de l’eixam)
+        2.4. Configuració de dispositius accessoris per a tasques de depuració i testeig
 
-2.4. Configuració de dispositius accessoris per a tasques de depuració i testeig
+        2.5. OPCIONAL: Disseny d’un hexacòpter
 
-2.5. OPCIONAL: Disseny d’un hexacòpter
+    3. FITA#03 – Preparació d'un entorn virtual adequat per a la realització de la PoC 
 
-3. **FITA#03** – Preparació d'un entorn virtual adequat per a la realització de la PoC 
+        3.1. Tasques de recerca i investigació
 
-3.1. Tasques de recerca i investigació
+            3.1.1.	Estudi de la API de AirSim per a Python
+	
+            3.1.2. 	Recerca de projectes basats en AirSim
 
-3.1.1.	Estudi de la API de AirSim per a Python
+        3.2. preparació dels elements de l'entorn UE "LandscapeMountains Environment"
 
-3.1.2. 	Recerca de projectes basats en AirSim
+            3.2.1. Simulació d'incendis forestals
 
-3.2. preparació dels elements de l'entorn UE "LandscapeMountains Environment"
+            3.2.2. Simulació de condicions nocturnes d'iluminació 
 
-3.2.1. Simulació d'incendis forestals
+        3.3. Preparació dels actors: Modes de AirSim
 
-3.2.2. Simulació de condicions nocturnes d'iluminació 
+            3.3.1. Mode "Computer Vision"
 
-3.3. Preparació dels actors: Modes de AirSim
+                3.3.1.1. Captura aleatòria d'imatges per a generar els jocs de proves
 
-3.3.1. Mode "Computer Vision"
+                3.3.1.2. Simulació de visió tèrmica nocturna tipus FLIR per a generar els training data-set
 
-3.3.1.1 Captura aleatòria d'imatges per a generar els jocs de proves
+            3.3.2. Mode "Multirotor"
 
-3.3.1.2 Simulació de visió tèrmica nocturna tipus FLIR per a generar els training data-set
+                3.3.2.1. Implementació de mode “patrulla” Individual (script "drone_patrol.py")
 
-3.3.2. Mode "Multirotor"
+                3.3.2.2. Implementació de mode mode “patrulla” Col·lectiu (script "swarm_patrol.py")
 
-3.3.2.1. Implementació de mode “patrulla” Individual (script "drone_patrol.py")
+        3.4. Wrapping-up: Generació de l'entorn final per a la realització de la PoC
 
-3.3.2.2. Implementació de mode mode “patrulla” Col·lectiu (script "swarm_patrol.py")
+    4. FITA#04 - Generar el dataset d'imatges per a entrenar i testejar el model de xarxes neuronals profundes
 
-3.4. Wrapping-up: Generació de l'entorn final per a la realització de la PoC
-
-4. *FITA#04* - Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim
-
-------------------------
-
-5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes: O bé dissenyar i implementar l’arquitectura DCNN mitjançant els frameworks Keras o Tensor-Flow per a Python, o bé adaptar-ne una de ja existent en funció dels casos d’ús. En tot cas:
+    5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes
  
-5.1. Tasques d’investigació i recerca
+        5.1. Tasques d’investigació i recerca
 
-5.1.1. Fer recerca en l’àrea de Deep Learning, Visió per computador, i concretament, les DCNNA
+        5.2. Estructuració de l'algorisme de DL i configuració d'hyperparàmetres
 
-5.1.2. Definir per què és necessària la Visió per Computador per assolir els objectius definits al abstract i associar aquells aspectes en aquest àrea que siguin d’especial interès i/o que aplicables per al projecte (background tecnològic)
- 
-5.1.3.	Estudiar altres models de DCNNA i avaluar la seva conveniència per a ser utilitzades en aquest projecte.
+            5.2.1. Identificació / definició de les mètriques de rendiment
 
-5.2. Disseny teòric de l’arquitectura de xarxes neuronals DCNN
+            5.2.2. Establiment / disseny d'un model base (baseline model)
 
-5.2.1.	Definir les classes de la capa de sortida o completa de l’arquitectura DCNN que necessitem
+                5.2.2.1. AlexNet
+				
+				5.2.2.2. DenseNet121
 
-5.2.2.	Seguidament es decidirà de quina manera (mida, colors, etc) es normalitzarà el training data-set d’imatges per tal de conèixer de partida la complexitat computacional i de memòria a la que haurem de fer front, i s’adaptarà el data-set en conseqüència
+            5.2.3. Preparació de les dades per a l'entrenament del model
 
-5.2.3.	Després cal determinar quines característiques o features s’hauran de reconèixer en funció de les classes que haguem determinat al punt anterior i en funció d’això definirem els hyperparàmetres (knobs) que necessitarem i com els haurem de configurar (fine-tuning). També caldrà veure quins haurien de ser els seus valors inicials (default).
+                    5.2.3.1. Pre-processament de les imatges del dataset 
+					
+					5.2.3.2. Divisió dels dataset en grups 
 
-5.2.4.	Establir quins filtres o Kernels necessitarem aplicar a les deep / hidden layers de la DCNN
+        5.3. Avaluació del model i interpretació del seu rendiment
 
-5.2.5.	Acabar de depurar / definir la resta de capes que ha d’incloure l’arquitectura (pools, etc.) 
+        5.4. Millores en el rendiment de la xarxa neuronal i reajustament d’hiper-paràmetres 
+		
+		    5.4.1. Dropout Regularization
+			
+        5.5. Estudi del rati d’aprenentatge i optimització dels paràmetres
+		
+		5.6. Wrapping-Up: Adaptació i implementació de les arquitectures DCNN escollides 
 
-5.3. Selecció i utilització d’un model existent que presenti característiques similars als de l’arquitectura dissenyada al punt 3.2 i que puguem entrenar amb el nostre training data-set.
-
-5.4. OPCIONAL: Implementació d’un algorisme DCNN d’elaboració pròpia amb Keras/Tensor-Flow
+--------------------------------------------------------------
 
 6.	FITA#06 - Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
 
