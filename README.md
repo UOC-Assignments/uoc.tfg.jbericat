@@ -25,7 +25,7 @@ Semestre: Tardor 2021/22 (Aula 1)
  
 ## 1 - Títol provisional del projecte
 
-**Simulació d’un conjunt de mitjans aeris específics per a la extinció d’incendis forestals durant períodes nocturns i dirigits de manera autònoma mitjançant tècniques d’intel·ligència artificial.**
+**Entrenament d’un model d'intel·ligència artificial en un entorn virtual per a la seva aplicació en la extinció d’incendis forestals: Prova de concepte**
 
 ## 2 - Resum provisional del projecte: Motivació i definició dels objectius
 
