@@ -57,11 +57,11 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
     1. FITA#01 - Establir i preparar l’entorn de desenvolupament
  
-            1.1. Anàlisi de pre-requisits
+        1.1. Anàlisi de pre-requisits
 
-            1.2. Característiques del maquinari
+        1.2. Característiques del maquinari
 
-            1.3. Preparació del programari
+        1.3. Preparació del programari
 
             1.3.1 Selecció i instal·lació del sistema operatiu (Linux Workstation)
 
@@ -83,47 +83,47 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
                 1.3.3.7. Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
 
-2. **FITA#02** - Adaptació i personalització de l’entorn de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
+    2. FITA#02 - Adaptació i personalització de l’entorn de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
 
-2.1. Obtenir l’entorn Landscape Environment de Unreal Engine per a Windows i Mac i adaptar-lo per a ser utilitzat amb l’editor UE4Editor d’Ubuntu Linux.
+        2.1. Obtenir l’entorn Landscape Environment de Unreal Engine per a Windows i Mac i adaptar-lo per a ser utilitzat amb l’editor UE4Editor d’Ubuntu Linux.
 
-2.2. Editar l'entorn "Landscape environment" per a adequar-lo al requeriments del projecte
+        2.2. Editar l'entorn "Landscape environment" per a adequar-lo al requeriments del projecte
 
-2.3. Ús de múltiples drons (simulació de l’eixam)
+        2.3. Ús de múltiples drons (simulació de l’eixam)
 
-2.4. Configuració de dispositius accessoris per a tasques de depuració i testeig
+        2.4. Configuració de dispositius accessoris per a tasques de depuració i testeig
 
-2.5. OPCIONAL: Disseny d’un hexacòpter
+        2.5. OPCIONAL: Disseny d’un hexacòpter
 
-3. **FITA#03** – Preparació d'un entorn virtual adequat per a la realització de la PoC 
+    3. FITA#03 – Preparació d'un entorn virtual adequat per a la realització de la PoC 
 
-3.1. Tasques de recerca i investigació
+        3.1. Tasques de recerca i investigació
 
-3.1.1.	Estudi de la API de AirSim per a Python
+            3.1.1.	Estudi de la API de AirSim per a Python
+	
+            3.1.2. 	Recerca de projectes basats en AirSim
 
-3.1.2. 	Recerca de projectes basats en AirSim
+        3.2. preparació dels elements de l'entorn UE "LandscapeMountains Environment"
 
-3.2. preparació dels elements de l'entorn UE "LandscapeMountains Environment"
+            3.2.1. Simulació d'incendis forestals
 
-3.2.1. Simulació d'incendis forestals
+            3.2.2. Simulació de condicions nocturnes d'iluminació 
 
-3.2.2. Simulació de condicions nocturnes d'iluminació 
+        3.3. Preparació dels actors: Modes de AirSim
 
-3.3. Preparació dels actors: Modes de AirSim
+            3.3.1. Mode "Computer Vision"
 
-3.3.1. Mode "Computer Vision"
+                3.3.1.1. Captura aleatòria d'imatges per a generar els jocs de proves
 
-3.3.1.1 Captura aleatòria d'imatges per a generar els jocs de proves
+                3.3.1.2. Simulació de visió tèrmica nocturna tipus FLIR per a generar els training data-set
 
-3.3.1.2 Simulació de visió tèrmica nocturna tipus FLIR per a generar els training data-set
+            3.3.2. Mode "Multirotor"
 
-3.3.2. Mode "Multirotor"
+                3.3.2.1. Implementació de mode “patrulla” Individual (script "drone_patrol.py")
 
-3.3.2.1. Implementació de mode “patrulla” Individual (script "drone_patrol.py")
+                3.3.2.2. Implementació de mode mode “patrulla” Col·lectiu (script "swarm_patrol.py")
 
-3.3.2.2. Implementació de mode mode “patrulla” Col·lectiu (script "swarm_patrol.py")
-
-3.4. Wrapping-up: Generació de l'entorn final per a la realització de la PoC
+        3.4. Wrapping-up: Generació de l'entorn final per a la realització de la PoC
 
 4. *FITA#04* - Generar training data-set que servirà per a entrenar la DCNN (segons els paràmetres establerts al punt 3) amb imatges virtuals d’incendis obtingudes del rendering generat des de la mateixa plataforma AirSim
 
