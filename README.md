@@ -13,7 +13,7 @@ Semestre: Tardor 2021/22 (Aula 1)
 
 2. [Resum provisional del projecte: Motivació i definició dels objectius](#2---resum-provisional-del-projecte-motivaci%C3%B3-i-definici%C3%B3-dels-objectius)
 
-3. [Definició dels objectius del TFG: Planificació temporal](#3---planificaci%C3%B3-temporal)
+3. [Definició dels objectius del TFG: Planificació temporal](#3---definici%C3%B3-dels-objectius-del-tfg-planificaci%C3%B3-temporal)
 
     3.1. [Descripció de cada fita i detall de tasques relacionades](#31--planificaci%C3%B3-temporal-per-fites-google-calendar)
 
