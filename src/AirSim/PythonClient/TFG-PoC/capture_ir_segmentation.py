@@ -108,12 +108,13 @@ def get_image(x, y, z, pitch, roll, yaw, client):
         Shital Shah
     """
 
-    #Set pose and sleep after to ensure the pose sticks before capturing image.
+    # Set pose and sleep after to ensure the pose sticks before capturing 
+    # image AND to wait for the fire VFX objects to start rendering.
     client.simSetVehiclePose(Pose(Vector3r(x, y, z), \
                       to_quaternion(pitch, roll, yaw)), True)
     time.sleep(0.1)
 
-    #Capture segmentation (IR) and scene images.
+    # Capture segmentation (IR) and scene images.
     responses = \
         client.simGetImages([ImageRequest("0", ImageType.Infrared,
                                           False, False),
@@ -177,15 +178,14 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
 
             # TODO - This "for" body needs revision. The output composite image has 3 channels 
             # with the same info on each one (grayscale). It must be just one channel (cheaper). 
-            # There are not needed casts. I should redefine the IF condition (If ITS WHITE), 
+            # There is not need for casts. I should redefine the IF condition (If ITS WHITE), 
             # since we wont do different scales of heat anymore. DO IT WHILE THE ENV. BUILDING PROCESS 
             # TODO END 
 
             # getting the THERMAL pixel value.
             r, g, b = thermal_image.getpixel((i, j))
 
-            # If the pixel is not BLACK (0,0,0) -> then it is grayscaled -> 
-            # -> then it's hot! -> Therefore we set its value on the RGB image (scene)
+            # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the 255 value on the RGB image (scene)
             #
             if (int(r)!=0 or int(g)!=0 or int(b)!=0):
                 rgb_pixel_map[i, j] = (int(r), int(g), int(b))
@@ -266,13 +266,45 @@ def main(client,
                                                 yaw, 
                                                 client)
         #Convert color scene image to BGR for write out with cv2.
-        r,g,b = cv2.split(scene)
-        scene = cv2.merge((b,g,r))
+        #r,g,b = cv2.split(scene)
+        #scene = cv2.merge((b,g,r))
 
-        thermal_img_path = irFolder+'ir_'+str(i).zfill(5)+'.png'
-        rgb_img_path = sceneFolder+'scene_'+str(i).zfill(5)+'.png'
-        composite_img_path = compositeFolder+'composite_'+str(i).zfill(5)+'.png'
+        thermal_img_path = (irFolder +
+                                'segment_'+ 
+                                str(i).zfill(5) +
+                                str(pose.position.x_val) +
+                                str(pose.position.y_val) + 
+                                str(pose.position.z_val) + 
+                                str(height) + 
+                                str(pitch) + 
+                                str(roll) + 
+                                str(yaw) +
+                                '.png')
+        
+        rgb_img_path = (sceneFolder + 
+                                'RGB_' +
+                                str(i).zfill(5) +
+                                str(pose.position.x_val) +
+                                str(pose.position.y_val) + 
+                                str(pose.position.z_val) + 
+                                str(height) + 
+                                str(pitch) + 
+                                str(roll) + 
+                                str(yaw) +
+                                '.png')
 
+        composite_img_path = (compositeFolder +
+                                'FLIR_' +
+                                str(i).zfill(5) + '_' +
+                                str(pose.position.x_val) + '_' +
+                                str(pose.position.y_val) + '_' +
+                                str(pose.position.z_val) + '_' +
+                                str(height) + '_' +
+                                str(pitch) + '_' +
+                                str(roll) + '_' +
+                                str(yaw) +
+                                '.png')
+        
         if writeIR:
             cv2.imwrite(thermal_img_path, ir)
         if writeScene:
@@ -299,9 +331,13 @@ if __name__ == '__main__':
     client = MultirotorClient()
     client.confirmConnection()
 
-    #Look for objects with names that match a regular expression. 
-    objectList = client.simListSceneObjects('.*?Z.*?')
-    
+    # Look for objects with names that match a regular expression. 
+    # On the case of this PoC, we're looking for objects that include 
+    # the "firewood" and the "grass" strings on the UE4 env. objects 
+    # that simulate heat emission  (see the project's report, section  )
+    objectList = client.simListSceneObjects('.*?firewood.*?')
+    objectList += client.simListSceneObjects('.*?grass.*?')
+
     #Call to main
     main(client, 
          objectList, 
@@ -309,6 +345,6 @@ if __name__ == '__main__':
          roll=0,
          yaw=0,
          height=-60,
-         irFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/IR/',
-         sceneFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/scene/',
-         compositeFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/composite/') 
+         irFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/segment/',
+         sceneFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/RGB/',
+         compositeFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/FLIR/') 
