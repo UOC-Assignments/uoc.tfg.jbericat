@@ -68,7 +68,7 @@ def project_3d_point_to_screen(subjectXYZ, camXYZ, camQuaternion, camProjMatrix4
         imageWidthHeight[1] * normY
     ]).reshape(2,)
    
-def get_image(x, y, z, pitch, roll, yaw, client):
+def get_image(camera, x, y, z, pitch, roll, yaw, client):
     """
     title::
         get_image
@@ -116,11 +116,11 @@ def get_image(x, y, z, pitch, roll, yaw, client):
 
     # Capture segmentation (IR) and scene images.
     responses = \
-        client.simGetImages([ImageRequest("0", ImageType.Infrared,
+        client.simGetImages([ImageRequest(camera, ImageType.Infrared,
                                           False, False),
-                            ImageRequest("0", ImageType.Scene, \
+                            ImageRequest(camera, ImageType.Scene, \
                                           False, False),
-                            ImageRequest("0", ImageType.Segmentation, \
+                            ImageRequest(camera, ImageType.Segmentation, \
                                           False, False)])
 
     #Change images into numpy arrays.
@@ -137,10 +137,10 @@ def get_image(x, y, z, pitch, roll, yaw, client):
            im[:,:,:3], imScene[:,:,:3] #get rid of alpha channel
 
     
-def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
+def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path):
     """
     title::
-        combine_img
+        create_flir_img
 
     description::
         Thermal + RGB composite image: "injects" the heat pixels (whites) detected by 
@@ -172,6 +172,15 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
     # Extracting the width and height 
     # of the image (both images are equal in size):
     width, height = rgb_image.size
+
+    # We should set a filter to discard the images that did not show any of the virtual 
+    # wildfire features captured by the built-in AirSim infrared camera simulator -that is, 
+    # images that do not include ANY white pixels. For this purpose, we'll be using the 
+    # "fire_img" bool variable set as False by default, and then we'll set it to true if 
+    # there are pixels with their RGB value as 255, which simulate the fire detected by the 
+    # FLIR camera simulator we're embedding in this code -> create_flir_img() method
+
+    fire_img = False
   
     for i in range(width):
         for j in range(height):
@@ -189,8 +198,9 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
             #
             if (int(r)!=0 or int(g)!=0 or int(b)!=0):
                 rgb_pixel_map[i, j] = (int(r), int(g), int(b))
+                fire_img = True
 
-            #If it's not, the we just turn the pixel to its grayscale equivalent
+            #If it's not, the we just turn the pixel on the RGB image to its grayscale equivalent
             else: 
 
                 # getting the RGB pixel value.
@@ -203,19 +213,21 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
                 rgb_pixel_map[i, j] = (int(grayscale), int(grayscale), int(grayscale))
 
     # Saving the final output -- DEBUG -> pending to set a relative path 
-    rgb_image.save(composite_img_path, format="png")
+    if (fire_img):
+        rgb_image.save(composite_img_path, format="png")
 
 def main(client,
-         objectList,
-         pitch=numpy.radians(270), #image straight down
-         roll=0,
-         yaw=0,
-         height=-122,
-         writeIR=True,
-         writeScene=True,
-         irFolder='',
-         sceneFolder='',
-         compositeFolder=''):
+        objectList,
+        camera,
+        height,
+        pitch, #image straight down
+        roll=0,
+        yaw=0,
+        writeIR=True,
+        writeScene=True,
+        irFolder='',
+        sceneFolder='',
+        compositeFolder=''):
     """
     title::
         main
@@ -258,38 +270,40 @@ def main(client,
         #Capture image - pose.position x_val access may change w/ AirSim
         #version (pose.position.x_val new, pose.position[b'x_val'] old)
 
-        vector, angle, ir, scene = get_image(pose.position.x_val, 
-                                                pose.position.y_val+100, 
-                                                height, 
-                                                pitch, 
-                                                roll, 
-                                                yaw, 
-                                                client)
+        vector, angle, ir, scene = get_image(camera,
+                                pose.position.x_val, 
+                                pose.position.y_val, #DEBUG: pose.position.y_val+100, 
+                                height, 
+                                numpy.radians(pitch), 
+                                roll, 
+                                yaw, 
+                                client)
+        
         #Convert color scene image to BGR for write out with cv2.
         #r,g,b = cv2.split(scene)
         #scene = cv2.merge((b,g,r))
 
         thermal_img_path = (irFolder +
                                 'segment_'+ 
-                                str(i).zfill(5) +
-                                str(pose.position.x_val) +
-                                str(pose.position.y_val) + 
-                                str(pose.position.z_val) + 
-                                str(height) + 
-                                str(pitch) + 
-                                str(roll) + 
+                                str(i).zfill(5) + '_' +
+                                str(pose.position.x_val) + '_' +
+                                str(pose.position.y_val) + '_' +
+                                str(pose.position.z_val) + '_' +
+                                str(height) + '_' +
+                                str(pitch) + '_' +
+                                str(roll) + '_' +
                                 str(yaw) +
                                 '.png')
         
         rgb_img_path = (sceneFolder + 
                                 'RGB_' +
-                                str(i).zfill(5) +
-                                str(pose.position.x_val) +
-                                str(pose.position.y_val) + 
-                                str(pose.position.z_val) + 
-                                str(height) + 
-                                str(pitch) + 
-                                str(roll) + 
+                                str(i).zfill(5) + '_' +
+                                str(pose.position.x_val) + '_' +
+                                str(pose.position.y_val) + '_' +
+                                str(pose.position.z_val) + '_' +
+                                str(height) + '_' +
+                                str(pitch) + '_' +
+                                str(roll) + '_' +
                                 str(yaw) +
                                 '.png')
 
@@ -310,9 +324,8 @@ def main(client,
         if writeScene:
             cv2.imwrite(rgb_img_path, scene)
         
-        #DEBUG: funció "combine_img" TFG Upgrade: 
-        combine_img(thermal_img_path,rgb_img_path,composite_img_path)
-
+        #"create_flir_img" Method implementation
+        create_flir_img(thermal_img_path,rgb_img_path,composite_img_path)
         i += 1
         pose = client.simGetObjectPose(o);
         camInfo = client.simGetCameraInfo("0")
@@ -338,13 +351,24 @@ if __name__ == '__main__':
     objectList = client.simListSceneObjects('.*?firewood.*?')
     objectList += client.simListSceneObjects('.*?grass.*?')
 
+    # Retrieve custom parameters from std input: Drone camera, height, pitch, roll & yall
+    print ("Choose the multicopter camera you want to use to retrieve the images:\n\n", 
+    "front_center=0\n",
+    "front_right=1\n",
+    "front_left=2\n",
+    "fpv=3\n",
+    "back_center=4\n"
+    )
+    camera = input("Please enter a number (0-4):\n\n")
+    height = input("Set the multicopter's height (negative integer value - Default = -60):\n\n")
+    pitch = input("Set the camera's pitch (Integer degrees - Default = 315):\n\n")
+    
     #Call to main
     main(client, 
          objectList, 
-         pitch=numpy.radians(315), #image straight down
-         roll=0,
-         yaw=0,
-         height=-60,
+         camera,
+         int(height),
+         int(pitch), #image straight down
          irFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/segment/',
          sceneFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/RGB/',
          compositeFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/FLIR/') 
