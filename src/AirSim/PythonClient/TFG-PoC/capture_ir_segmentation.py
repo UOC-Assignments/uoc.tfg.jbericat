@@ -196,7 +196,7 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path):
 
             # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the 255 value on the RGB image (scene)
             #
-            if (int(r)!=0 or int(g)!=0 or int(b)!=0):
+            if (int(r)==255 or int(g)==255 or int(b)==255):
                 rgb_pixel_map[i, j] = (int(r), int(g), int(b))
                 fire_img = True
 
@@ -218,6 +218,7 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path):
 
 def main(client,
         objectList,
+        ue4_zone,
         camera,
         height,
         pitch, #image straight down
@@ -285,6 +286,7 @@ def main(client,
 
         thermal_img_path = (irFolder +
                                 'segment_'+ 
+                                str(ue4_zone) + "_" +
                                 str(i).zfill(5) + '_' +
                                 str(pose.position.x_val) + '_' +
                                 str(pose.position.y_val) + '_' +
@@ -297,6 +299,7 @@ def main(client,
         
         rgb_img_path = (sceneFolder + 
                                 'RGB_' +
+                                str(ue4_zone) + "_" +
                                 str(i).zfill(5) + '_' +
                                 str(pose.position.x_val) + '_' +
                                 str(pose.position.y_val) + '_' +
@@ -309,6 +312,7 @@ def main(client,
 
         composite_img_path = (compositeFolder +
                                 'FLIR_' +
+                                str(ue4_zone) + "_" +
                                 str(i).zfill(5) + '_' +
                                 str(pose.position.x_val) + '_' +
                                 str(pose.position.y_val) + '_' +
@@ -344,31 +348,52 @@ if __name__ == '__main__':
     client = MultirotorClient()
     client.confirmConnection()
 
+    # Retrieve custom parameters from std input: Drone camera, height, pitch, roll, yall & UE4 environment zone
+    wrong_option=True;
+    while (wrong_option):
+        print("Specify the class of the simulated night/thermal vision wildfires images you want to generate for the training+validation+testing dataset:\n\n",
+                "Zone 0 (Class 0: no wildfire) = 0\n",
+                "Zone 1 (Class 1: high intensity wildfires) = 1\n",
+                "Zone 2 (Class 2: moderate intensity wildfires) = 2\n",
+                "Zone 3 (Class 3: low intensity wildfires) = 3\n",
+                "Zone 4 (Class 3: low intensity wildfires) = 4\n",
+                "Zone 5 (Class 3: low intensity wildfires) = 5\n")
+        ue4_zone = int(input("Please choose an option (0-5 - Default = 1): ") or '1')
+        if ue4_zone==0 or ue4_zone==2:
+            print("\nERROR: Class not implemented yet\n")
+            time.sleep(3)
+        elif ue4_zone==4 or ue4_zone==5:
+            print("\nERROR: Zone reserved to perfom the PoC (so we avoid overfitting the model by memorizing features)\n")
+            time.sleep(3)
+        else:
+            wrong_option=False;
+
+    print("Choose the multicopter camera you want to use to retrieve the images:\n\n", 
+            "front_center=0\n",
+            "front_right=1\n",
+            "front_left=2\n",
+            "fpv=3\n",
+            "back_center=4\n")
+    camera = int(input("Please choose an option (0-4 - Default = 0):\n\n") or '0')
+
+    height = int(input("Set the multicopter's height (negative integer value - Default = -60):\n\n") or '-60')
+
+    pitch = int(input("Set the camera's pitch angle (Integer degrees - Default = 315):\n\n") or '315')
+
     # Look for objects with names that match a regular expression. 
     # On the case of this PoC, we're looking for objects that include 
     # the "firewood" and the "grass" strings on the UE4 env. objects 
-    # that simulate heat emission  (see the project's report, section  )
-    objectList = client.simListSceneObjects('.*?firewood.*?')
-    objectList += client.simListSceneObjects('.*?grass.*?')
-
-    # Retrieve custom parameters from std input: Drone camera, height, pitch, roll & yall
-    print ("Choose the multicopter camera you want to use to retrieve the images:\n\n", 
-    "front_center=0\n",
-    "front_right=1\n",
-    "front_left=2\n",
-    "fpv=3\n",
-    "back_center=4\n"
-    )
-    camera = input("Please enter a number (0-4):\n\n")
-    height = input("Set the multicopter's height (negative integer value - Default = -60):\n\n")
-    pitch = input("Set the camera's pitch (Integer degrees - Default = 315):\n\n")
+    # that simulate heat emission (see the project's report, section XXX)
+    objectList = client.simListSceneObjects('.*?firewood_.*?'+ "%s" % ue4_zone)
+    objectList += client.simListSceneObjects('.*?grass_.*?'+str(ue4_zone))
     
     #Call to main
     main(client, 
-         objectList, 
+         objectList,
+         ue4_zone, 
          camera,
-         int(height),
-         int(pitch), #image straight down
+         height,
+         pitch, #image straight down
          irFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/segment/',
          sceneFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/RGB/',
          compositeFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/FLIR/') 
