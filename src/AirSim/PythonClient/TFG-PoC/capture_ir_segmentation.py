@@ -226,6 +226,7 @@ def main(client,
         yaw=0,
         writeIR=True,
         writeScene=True,
+        rootFolder='',
         irFolder='',
         sceneFolder='',
         compositeFolder=''):
@@ -258,7 +259,7 @@ def main(client,
             path to a particular folder that should be used (then within that
             folder, expected folders are ir and scene)
 
-    author::
+    original author::
         Elizabeth Bondi
     modified by::
         Jordi Bericat Ruz - Universitat Oberta de Catalunya
@@ -273,50 +274,55 @@ def main(client,
 
         vector, angle, ir, scene = get_image(camera,
                                 pose.position.x_val, 
-                                pose.position.y_val, #DEBUG: pose.position.y_val+100, 
+                                pose.position.y_val, 
                                 height, 
                                 numpy.radians(pitch), 
                                 roll, 
                                 yaw, 
                                 client)
-        
-        #Convert color scene image to BGR for write out with cv2.
-        #r,g,b = cv2.split(scene)
-        #scene = cv2.merge((b,g,r))
 
-        thermal_img_path = (irFolder +
-                                'segment_'+ 
-                                str(ue4_zone) + "_" +
+        if (ue4_zone == 0 or ue4_zone == 1):
+            class_folder = 'high-intensity-wildfires/'
+        elif (ue4_zone == 2 or ue4_zone == 3):
+            class_folder = 'medium-intensity-wildfires/'
+        elif (ue4_zone == 4 or ue4_zone == 5):
+            class_folder = 'low-intensity-wildfires/'
+        elif (ue4_zone == 6):
+            class_folder = 'no-wildfires/'
+
+        thermal_img_path = (rootFolder + 
+                                class_folder + 
+                                irFolder +                                                
+                                'SEGMENT_'+ 
                                 str(i).zfill(5) + '_' +
-                                str(pose.position.x_val) + '_' +
-                                str(pose.position.y_val) + '_' +
-                                str(pose.position.z_val) + '_' +
+                                str('%.5f'%(pose.position.x_val)) + '_' +
+                                str('%.5f'%(pose.position.y_val)) + '_' +
                                 str(height) + '_' +
                                 str(pitch) + '_' +
                                 str(roll) + '_' +
                                 str(yaw) +
                                 '.png')
         
-        rgb_img_path = (sceneFolder + 
+        rgb_img_path = (rootFolder + 
+                                class_folder + 
+                                sceneFolder + 
                                 'RGB_' +
-                                str(ue4_zone) + "_" +
                                 str(i).zfill(5) + '_' +
-                                str(pose.position.x_val) + '_' +
-                                str(pose.position.y_val) + '_' +
-                                str(pose.position.z_val) + '_' +
+                                str('%.5f'%(pose.position.x_val)) + '_' +
+                                str('%.5f'%(pose.position.y_val)) + '_' +
                                 str(height) + '_' +
                                 str(pitch) + '_' +
                                 str(roll) + '_' +
                                 str(yaw) +
                                 '.png')
 
-        composite_img_path = (compositeFolder +
+        composite_img_path = (rootFolder + 
+                                class_folder + 
+                                compositeFolder +
                                 'FLIR_' +
-                                str(ue4_zone) + "_" +
                                 str(i).zfill(5) + '_' +
-                                str(pose.position.x_val) + '_' +
-                                str(pose.position.y_val) + '_' +
-                                str(pose.position.z_val) + '_' +
+                                str('%.5f'%(pose.position.x_val)) + '_' +
+                                str('%.5f'%(pose.position.y_val)) + '_' +
                                 str(height) + '_' +
                                 str(pitch) + '_' +
                                 str(roll) + '_' +
@@ -328,7 +334,9 @@ def main(client,
         if writeScene:
             cv2.imwrite(rgb_img_path, scene)
         
-        #"create_flir_img" Method implementation
+        # with the "create_flir_img" method we combine both the RGB and SEGMENT 
+        # images, obtaining the simulated FLIR thermal vision images as a result.
+        
         create_flir_img(thermal_img_path,rgb_img_path,composite_img_path)
         i += 1
         pose = client.simGetObjectPose(o);
@@ -352,40 +360,60 @@ if __name__ == '__main__':
     wrong_option=True;
     while (wrong_option):
         print("Specify the class of the simulated night/thermal vision wildfires images you want to generate for the training+validation+testing dataset:\n\n",
-                "Zone 0 (Class 0: no wildfire) = 0\n",
-                "Zone 1 (Class 1: high intensity wildfires) = 1\n",
-                "Zone 2 (Class 2: moderate intensity wildfires) = 2\n",
-                "Zone 3 (Class 3: low intensity wildfires) = 3\n",
-                "Zone 4 (Class 3: low intensity wildfires) = 4\n",
-                "Zone 5 (Class 3: low intensity wildfires) = 5\n")
+                "Zone 0 (Class 1: high intensity wildfire images - small size area) = 0\n",
+                "Zone 1 (Class 1: high intensity wildfire images - big size area) = 1\n",
+                "Zone 2 (Class 2: medium intensity wildfire images - small size area) = 2\n",
+                "Zone 3 (Class 2: medium intensity wildfire images - big size area) = 3\n",
+                "Zone 4 (Class 3: low intensity wildfire images - small size area) = 4\n",
+                "Zone 5 (Class 3: low intensity wildfire images - big size area) = 5\n",
+                "Zone 6 (Class 4: images with no wildfires) = 6\n")
         ue4_zone = int(input("Please choose an option (0-5 - Default = 1): ") or '1')
-        if ue4_zone==0 or ue4_zone==2:
-            print("\nERROR: Class not implemented yet\n")
-            time.sleep(3)
-        elif ue4_zone==4 or ue4_zone==5:
-            print("\nERROR: Zone reserved to perfom the PoC (so we avoid overfitting the model by memorizing features)\n")
-            time.sleep(3)
+        if ue4_zone==0 or ue4_zone==6:
+            print("\nERROR: Class not implemented yet.\n")
+            time.sleep(2)
+        elif ue4_zone==1 or ue4_zone==2 or ue4_zone==5:
+            print("\nERROR: Zone reserved to perfom the PoC experiments (so we avoid overfitting the model by memorizing features).\n")
+            time.sleep(4)
+        elif ue4_zone<0 or ue4_zone>6:
+            print('\nERROR: Wrong option, try again.')
+            time.sleep(2)
         else:
             wrong_option=False;
 
-    print("Choose the multicopter camera you want to use to retrieve the images:\n\n", 
-            "front_center=0\n",
-            "front_right=1\n",
-            "front_left=2\n",
-            "fpv=3\n",
-            "back_center=4\n")
-    camera = int(input("Please choose an option (0-4 - Default = 0):\n\n") or '0')
+    wrong_option=True;
+    while (wrong_option):
+        print("Choose the multicopter's camera you want to use to retrieve the images:\n\n", 
+                "front_center=0\n",
+                "front_right=1\n",
+                "front_left=2\n",
+                "fpv=3\n",
+                "back_center=4\n")
+        camera = int(input("Please choose an option (0-4 - Default = 0):\n\n") or '0')
+        if camera<0 or camera>4:
+            print('\nERROR: Wrong option, try again.')
+            time.sleep(2)
+        else:
+            wrong_option=False;
 
-    height = int(input("Set the multicopter's height (negative integer value - Default = -60):\n\n") or '-60')
+    height = int(input("Set the multicopter's height (negative integer value - Default = 20 -> lowest hight):\n\n") or '20')
 
-    pitch = int(input("Set the camera's pitch angle (Integer degrees - Default = 315):\n\n") or '315')
+    pitch = int(input("Set the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270):\n\n") or '270')
 
     # Look for objects with names that match a regular expression. 
     # On the case of this PoC, we're looking for objects that include 
     # the "firewood" and the "grass" strings on the UE4 env. objects 
-    # that simulate heat emission (see the project's report, section XXX)
-    objectList = client.simListSceneObjects('.*?firewood_.*?'+ "%s" % ue4_zone)
-    objectList += client.simListSceneObjects('.*?grass_.*?'+str(ue4_zone))
+    # that simulate heat emission (see the project's report, section XXX).
+    #
+    # V4.6 -> Enabling the possiblity of generating only specific image classes 
+    #         (see section 4.x.x of the project's report) by "injecting" the zone
+    #         variable into the regex expression that filters the objects we want
+    #         to take pictures of.
+
+    my_regex1 = r".*?mesh_firewood_" + str(ue4_zone) +r".*?"
+    my_regex2 = r".*?grass_mesh_" + str(ue4_zone) +r".*?"
+    
+    objectList = client.simListSceneObjects(my_regex1)
+    objectList += client.simListSceneObjects(my_regex2)
     
     #Call to main
     main(client, 
@@ -393,7 +421,8 @@ if __name__ == '__main__':
          ue4_zone, 
          camera,
          height,
-         pitch, #image straight down
-         irFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/segment/',
-         sceneFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/RGB/',
-         compositeFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/FLIR/') 
+         pitch, 
+         rootFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/',
+         irFolder='segment/',
+         sceneFolder='RGB/',
+         compositeFolder='FLIR/') 
