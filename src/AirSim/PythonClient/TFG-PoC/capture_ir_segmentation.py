@@ -418,7 +418,7 @@ if __name__ == '__main__':
 
     if height==-60:
         dataset = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/dataset#1_long-range-images/'
-    elif height>-20 or height<100:
+    elif height>-50 or height<100:
         dataset = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/dataset#2_close-range-images/'
 
     pitch = int(input("Set the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270):\n\n") or '270')
