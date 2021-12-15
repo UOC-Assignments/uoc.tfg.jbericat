@@ -221,15 +221,15 @@ def main(client,
         ue4_zone,
         camera,
         height,
-        pitch, #image straight down
+        pitch,
         roll=0,
         yaw=0,
         writeIR=True,
         writeScene=True,
-        rootFolder='',
-        irFolder='',
-        sceneFolder='',
-        compositeFolder=''):
+        datasetFolder='',
+        irFolder='SEGMENT/',
+        sceneFolder='RGB/',
+        compositeFolder='FLIR/'):
     """
     title::
         main
@@ -281,16 +281,34 @@ def main(client,
                                 yaw, 
                                 client)
 
-        if (ue4_zone == 0 or ue4_zone == 1):
-            class_folder = 'high-intensity-wildfires/'
-        elif (ue4_zone == 2 or ue4_zone == 3):
-            class_folder = 'medium-intensity-wildfires/'
-        elif (ue4_zone == 4 or ue4_zone == 5):
-            class_folder = 'low-intensity-wildfires/'
-        elif (ue4_zone == 6):
-            class_folder = 'no-wildfires/'
+        # Image class labeling - We use the dataset's directory tree structure to set 
+        # the image class labeling depending on the UE4 environment zone we're 
+        # taking the pictures of. We can implement this using an elif 
+        # ladder, since there is no buit-in switch construct in Python 
+        # -> https://pythongeeks.org/switch-in-python/
 
-        thermal_img_path = (rootFolder + 
+        def set_class_folder(input):
+            if (ue4_zone == 0):
+                selection = 'test/high-intensity-wildfires/'
+            elif (ue4_zone == 1):
+                selection = 'training+validation/high-intensity-wildfires/'
+            elif (ue4_zone == 2): 
+                selection = 'test/medium-intensity-wildfires/'
+            elif (ue4_zone == 3):
+                selection = 'training+validation/medium-intensity-wildfires/'
+            elif (ue4_zone == 4): 
+                selection = 'test/low-intensity-wildfires/'
+            elif (ue4_zone == 5):
+                selection = 'training+validation/low-intensity-wildfires/'
+            # TODO elif (ue4_zone == 7):
+            #     class_folder = 'no-wildfires/'
+            return selection
+
+        class_folder = set_class_folder(ue4_zone)
+
+        # Adding positional metadata into the images filename and saving into the class folder
+
+        thermal_img_path = (datasetFolder + 
                                 class_folder + 
                                 irFolder +                                                
                                 'SEGMENT_'+ 
@@ -303,7 +321,7 @@ def main(client,
                                 str(yaw) +
                                 '.png')
         
-        rgb_img_path = (rootFolder + 
+        rgb_img_path = (datasetFolder + 
                                 class_folder + 
                                 sceneFolder + 
                                 'RGB_' +
@@ -316,7 +334,7 @@ def main(client,
                                 str(yaw) +
                                 '.png')
 
-        composite_img_path = (rootFolder + 
+        composite_img_path = (datasetFolder + 
                                 class_folder + 
                                 compositeFolder +
                                 'FLIR_' +
@@ -359,22 +377,23 @@ if __name__ == '__main__':
     # Retrieve custom parameters from std input: Drone camera, height, pitch, roll, yall & UE4 environment zone
     wrong_option=True;
     while (wrong_option):
-        print("Specify the class of the simulated night/thermal vision wildfires images you want to generate for the training+validation+testing dataset:\n\n",
+        print("Specify the class of the simulated night/thermal vision wildfire images you want to generate:\n\n",
                 "Zone 0 (Class 1: high intensity wildfire images - small size area) = 0\n",
                 "Zone 1 (Class 1: high intensity wildfire images - big size area) = 1\n",
                 "Zone 2 (Class 2: medium intensity wildfire images - small size area) = 2\n",
                 "Zone 3 (Class 2: medium intensity wildfire images - big size area) = 3\n",
                 "Zone 4 (Class 3: low intensity wildfire images - small size area) = 4\n",
                 "Zone 5 (Class 3: low intensity wildfire images - big size area) = 5\n",
-                "Zone 6 (Class 4: images with no wildfires) = 6\n")
-        ue4_zone = int(input("Please choose an option (0-5 - Default = 1): ") or '1')
-        if ue4_zone==0 or ue4_zone==6:
+                "Zone 6 (Class 1+2+3: PoC experiments zone = 6\n",
+                "Zone 7 (Class 4: images with no wildfires) = 7\n")
+        ue4_zone = int(input("Please choose an option (0-7 - Default = 1): ") or '1')
+        if ue4_zone==7:
             print("\nERROR: Class not implemented yet.\n")
             time.sleep(2)
-        elif ue4_zone==1 or ue4_zone==2 or ue4_zone==5:
+        elif ue4_zone==6:
             print("\nERROR: Zone reserved to perfom the PoC experiments (so we avoid overfitting the model by memorizing features).\n")
             time.sleep(4)
-        elif ue4_zone<0 or ue4_zone>6:
+        elif ue4_zone<0 or ue4_zone>7:
             print('\nERROR: Wrong option, try again.')
             time.sleep(2)
         else:
@@ -396,6 +415,11 @@ if __name__ == '__main__':
             wrong_option=False;
 
     height = int(input("Set the multicopter's height (negative integer value - Default = 20 -> lowest hight):\n\n") or '20')
+
+    if height==-60:
+        dataset = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/dataset#1_long-range-images/'
+    elif height>-20 or height<100:
+        dataset = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/dataset#2_short-range-images/'
 
     pitch = int(input("Set the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270):\n\n") or '270')
 
@@ -422,7 +446,4 @@ if __name__ == '__main__':
          camera,
          height,
          pitch, 
-         rootFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/',
-         irFolder='segment/',
-         sceneFolder='RGB/',
-         compositeFolder='FLIR/') 
+         datasetFolder = dataset) 
