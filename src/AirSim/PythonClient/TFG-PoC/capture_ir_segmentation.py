@@ -4,6 +4,19 @@ import time
 from PIL import Image
 from airsim import *
 
+# CONSTANTS AND LITERALS
+
+UE4_ZONE_0 = 0
+UE4_ZONE_1 = 1
+UE4_ZONE_2 = 2
+UE4_ZONE_3 = 3
+UE4_ZONE_4 = 4
+UE4_ZONE_5 = 5
+UE4_ZONE_6 = 6
+UE4_ZONE_7 = 7
+
+# METHODS
+
 def rotation_matrix_from_angles(pry):
     pitch = pry[0]
     roll = pry[1]
@@ -137,7 +150,7 @@ def get_image(camera, x, y, z, pitch, roll, yaw, client):
            im[:,:,:3], imScene[:,:,:3] #get rid of alpha channel
 
     
-def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path):
+def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone):
     """
     title::
         create_flir_img
@@ -195,9 +208,10 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path):
             r, g, b = thermal_image.getpixel((i, j))
 
             # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the 255 value on the RGB image (scene)
-            #
-            if (int(r)==255 or int(g)==255 or int(b)==255):
-                rgb_pixel_map[i, j] = (int(r), int(g), int(b))
+            # HOWEVER, if we're going to take images WITHOUT wildfires (UE_ZONE == 7), then we don't set it up
+        
+            if (int(r)==255 or int(g)==255 or int(b)==255) and ue4_zone != UE4_ZONE_7:
+                rgb_pixel_map[i, j] = (int(r), int(g), int(b))            
                 fire_img = True
 
             #If it's not, the we just turn the pixel on the RGB image to its grayscale equivalent
@@ -213,7 +227,8 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path):
                 rgb_pixel_map[i, j] = (int(grayscale), int(grayscale), int(grayscale))
 
     # Saving the final output -- DEBUG -> pending to set a relative path 
-    if (fire_img):
+    # We discard images with no white pixels, except in the case we are taking no-wildfire images (zone 7)
+    if fire_img or ue4_zone == UE4_ZONE_7:
         rgb_image.save(composite_img_path, format="png")
 
 def main(client,
@@ -288,20 +303,24 @@ def main(client,
         # -> https://pythongeeks.org/switch-in-python/
 
         def set_class_folder(input):
-            if (ue4_zone == 0):
+            if (ue4_zone == UE4_ZONE_0):
                 selection = 'test/high-intensity-wildfires/'
-            elif (ue4_zone == 1):
+            elif (ue4_zone == UE4_ZONE_1):
                 selection = 'training+validation/high-intensity-wildfires/'
-            elif (ue4_zone == 2): 
+            elif (ue4_zone == UE4_ZONE_2): 
                 selection = 'test/medium-intensity-wildfires/'
-            elif (ue4_zone == 3):
+            elif (ue4_zone == UE4_ZONE_3):
                 selection = 'training+validation/medium-intensity-wildfires/'
-            elif (ue4_zone == 4): 
+            elif (ue4_zone == UE4_ZONE_4): 
                 selection = 'test/low-intensity-wildfires/'
-            elif (ue4_zone == 5):
+            elif (ue4_zone == UE4_ZONE_5):
                 selection = 'training+validation/low-intensity-wildfires/'
-            # TODO elif (ue4_zone == 7):
-            #     class_folder = 'no-wildfires/'
+                '''            
+                elif (ue4_zone == UE4_ZONE_6):
+                selection = ''
+                '''
+            elif (ue4_zone == UE4_ZONE_7):
+                selection = 'training+validation/no-wildfires/'
             return selection
 
         class_folder = set_class_folder(ue4_zone)
@@ -353,9 +372,10 @@ def main(client,
             cv2.imwrite(rgb_img_path, scene)
         
         # with the "create_flir_img" method we combine both the RGB and SEGMENT 
-        # images, obtaining the simulated FLIR thermal vision images as a result.
-        
-        create_flir_img(thermal_img_path,rgb_img_path,composite_img_path)
+        # images, obtaining the simulated FLIR thermal vision images as a result. 
+
+        create_flir_img(thermal_img_path,rgb_img_path,composite_img_path,ue4_zone)
+
         i += 1
         pose = client.simGetObjectPose(o);
         camInfo = client.simGetCameraInfo("0")
@@ -387,10 +407,7 @@ if __name__ == '__main__':
                 "Zone 6 (Class 1+2+3: PoC experiments zone = 6\n",
                 "Zone 7 (Class 4: images with no wildfires) = 7\n")
         ue4_zone = int(input("Please choose an option (0-7 - Default = 1): ") or '1')
-        if ue4_zone==7:
-            print("\nERROR: Class not implemented yet.\n")
-            time.sleep(2)
-        elif ue4_zone==6:
+        if ue4_zone==UE4_ZONE_6:
             print("\nERROR: Zone reserved to perfom the PoC experiments (so we avoid overfitting the model by memorizing features).\n")
             time.sleep(4)
         elif ue4_zone<0 or ue4_zone>7:
@@ -428,8 +445,15 @@ if __name__ == '__main__':
     #         variable into the regex expression that filters the objects we want
     #         to take pictures of.
 
-    my_regex1 = r".*?mesh_firewood_" + str(ue4_zone) +r".*?"
-    my_regex2 = r".*?grass_mesh_" + str(ue4_zone) +r".*?"
+    # No-Wildfire / Class #4 images: Since there are no objects tagged as zone == 7 on the Unreal
+    # environment, we'll have to use other zones to take class #4 images. For this matter, we we
+
+    if ue4_zone == UE4_ZONE_7:
+        my_regex1 = r".*?mesh_firewood_5.*?"
+        my_regex2 = r".*?grass_mesh_5.*?"
+    else:
+        my_regex1 = r".*?mesh_firewood_" + str(ue4_zone) + r".*?"
+        my_regex2 = r".*?grass_mesh_" + str(ue4_zone) + r".*?"
     
     objectList = client.simListSceneObjects(my_regex1)
     objectList += client.simListSceneObjects(my_regex2)
