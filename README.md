@@ -15,9 +15,9 @@ Semestre: Tardor 2021/22 (Aula 1)
 
 3. [Definició dels objectius del TFG: Planificació temporal](#3---definici%C3%B3-dels-objectius-del-tfg-planificaci%C3%B3-temporal)
 
-    3.1. [Descripció de cada fita i detall de tasques relacionades](#31--planificaci%C3%B3-temporal-per-fites-google-calendar)
+    3.1. [Planificació temporal per fites (Google Calendar)](#31--planificaci%C3%B3-temporal-per-fites-google-calendar)
 
-    3.2. [Planificació temporal per fites (Google Calendar)](#32--descripci%C3%B3-de-cada-fita-i-detall-de-tasques-relacionades)
+    3.2. [Descripció de cada fita i detall de tasques relacionades](#32--descripci%C3%B3-de-cada-fita-i-detall-de-tasques-relacionades)
 
 4. [Bibliografia](#4---bibliografia)
  

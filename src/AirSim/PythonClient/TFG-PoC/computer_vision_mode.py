@@ -75,7 +75,7 @@ print ("Choose the image type:\n\n",
     "Segmentation = 5\n",
     "SurfaceNormals = 6\n",
     "Infrared = 7\n",
-    "Thermal(Not implemented yet) = 8\n"
+    "Thermal FLIR (Not implemented yet) = 8\n"
     )
 
 img_type = input("Please enter a number (0-8):\n")

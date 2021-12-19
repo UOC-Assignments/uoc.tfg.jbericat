@@ -2,6 +2,7 @@
 
 usr/*
 !usr/GIT-README.md
+!usr/datasets/
 bin/*
 !bin/GIT-README.md
 !src/

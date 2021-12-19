@@ -68,7 +68,7 @@ def project_3d_point_to_screen(subjectXYZ, camXYZ, camQuaternion, camProjMatrix4
         imageWidthHeight[1] * normY
     ]).reshape(2,)
    
-def get_image(x, y, z, pitch, roll, yaw, client):
+def get_image(camera, x, y, z, pitch, roll, yaw, client):
     """
     title::
         get_image
@@ -108,18 +108,19 @@ def get_image(x, y, z, pitch, roll, yaw, client):
         Shital Shah
     """
 
-    #Set pose and sleep after to ensure the pose sticks before capturing image.
+    # Set pose and sleep after to ensure the pose sticks before capturing 
+    # image AND to wait for the fire VFX objects to start rendering.
     client.simSetVehiclePose(Pose(Vector3r(x, y, z), \
                       to_quaternion(pitch, roll, yaw)), True)
     time.sleep(0.1)
 
-    #Capture segmentation (IR) and scene images.
+    # Capture segmentation (IR) and scene images.
     responses = \
-        client.simGetImages([ImageRequest("0", ImageType.Infrared,
+        client.simGetImages([ImageRequest(camera, ImageType.Infrared,
                                           False, False),
-                            ImageRequest("0", ImageType.Scene, \
+                            ImageRequest(camera, ImageType.Scene, \
                                           False, False),
-                            ImageRequest("0", ImageType.Segmentation, \
+                            ImageRequest(camera, ImageType.Segmentation, \
                                           False, False)])
 
     #Change images into numpy arrays.
@@ -136,10 +137,10 @@ def get_image(x, y, z, pitch, roll, yaw, client):
            im[:,:,:3], imScene[:,:,:3] #get rid of alpha channel
 
     
-def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
+def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path):
     """
     title::
-        combine_img
+        create_flir_img
 
     description::
         Thermal + RGB composite image: "injects" the heat pixels (whites) detected by 
@@ -171,26 +172,35 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
     # Extracting the width and height 
     # of the image (both images are equal in size):
     width, height = rgb_image.size
+
+    # We should set a filter to discard the images that did not show any of the virtual 
+    # wildfire features captured by the built-in AirSim infrared camera simulator -that is, 
+    # images that do not include ANY white pixels. For this purpose, we'll be using the 
+    # "fire_img" bool variable set as False by default, and then we'll set it to true if 
+    # there are pixels with their RGB value as 255, which simulate the fire detected by the 
+    # FLIR camera simulator we're embedding in this code -> create_flir_img() method
+
+    fire_img = False
   
     for i in range(width):
         for j in range(height):
 
             # TODO - This "for" body needs revision. The output composite image has 3 channels 
             # with the same info on each one (grayscale). It must be just one channel (cheaper). 
-            # There are not needed casts. I should redefine the IF condition (If ITS WHITE), 
+            # There is not need for casts. I should redefine the IF condition (If ITS WHITE), 
             # since we wont do different scales of heat anymore. DO IT WHILE THE ENV. BUILDING PROCESS 
             # TODO END 
 
             # getting the THERMAL pixel value.
             r, g, b = thermal_image.getpixel((i, j))
 
-            # If the pixel is not BLACK (0,0,0) -> then it is grayscaled -> 
-            # -> then it's hot! -> Therefore we set its value on the RGB image (scene)
+            # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the 255 value on the RGB image (scene)
             #
-            if (int(r)!=0 or int(g)!=0 or int(b)!=0):
+            if (int(r)==255 or int(g)==255 or int(b)==255):
                 rgb_pixel_map[i, j] = (int(r), int(g), int(b))
+                fire_img = True
 
-            #If it's not, the we just turn the pixel to its grayscale equivalent
+            #If it's not, the we just turn the pixel on the RGB image to its grayscale equivalent
             else: 
 
                 # getting the RGB pixel value.
@@ -203,19 +213,23 @@ def combine_img(thermal_img_path, rgb_img_path, composite_img_path):
                 rgb_pixel_map[i, j] = (int(grayscale), int(grayscale), int(grayscale))
 
     # Saving the final output -- DEBUG -> pending to set a relative path 
-    rgb_image.save(composite_img_path, format="png")
+    if (fire_img):
+        rgb_image.save(composite_img_path, format="png")
 
 def main(client,
-         objectList,
-         pitch=numpy.radians(270), #image straight down
-         roll=0,
-         yaw=0,
-         height=-122,
-         writeIR=True,
-         writeScene=True,
-         irFolder='',
-         sceneFolder='',
-         compositeFolder=''):
+        objectList,
+        ue4_zone,
+        camera,
+        height,
+        pitch,
+        roll=0,
+        yaw=0,
+        writeIR=True,
+        writeScene=True,
+        datasetFolder='',
+        irFolder='SEGMENT/',
+        sceneFolder='RGB/',
+        compositeFolder='FLIR/'):
     """
     title::
         main
@@ -245,7 +259,7 @@ def main(client,
             path to a particular folder that should be used (then within that
             folder, expected folders are ir and scene)
 
-    author::
+    original author::
         Elizabeth Bondi
     modified by::
         Jordi Bericat Ruz - Universitat Oberta de Catalunya
@@ -258,29 +272,90 @@ def main(client,
         #Capture image - pose.position x_val access may change w/ AirSim
         #version (pose.position.x_val new, pose.position[b'x_val'] old)
 
-        vector, angle, ir, scene = get_image(pose.position.x_val, 
-                                                pose.position.y_val+100, 
-                                                height, 
-                                                pitch, 
-                                                roll, 
-                                                yaw, 
-                                                client)
-        #Convert color scene image to BGR for write out with cv2.
-        r,g,b = cv2.split(scene)
-        scene = cv2.merge((b,g,r))
+        vector, angle, ir, scene = get_image(camera,
+                                pose.position.x_val, 
+                                pose.position.y_val, 
+                                height, 
+                                numpy.radians(pitch), 
+                                roll, 
+                                yaw, 
+                                client)
 
-        thermal_img_path = irFolder+'ir_'+str(i).zfill(5)+'.png'
-        rgb_img_path = sceneFolder+'scene_'+str(i).zfill(5)+'.png'
-        composite_img_path = compositeFolder+'composite_'+str(i).zfill(5)+'.png'
+        # Image class labeling - We use the dataset's directory tree structure to set 
+        # the image class labeling depending on the UE4 environment zone we're 
+        # taking the pictures of. We can implement this using an elif 
+        # ladder, since there is no buit-in switch construct in Python 
+        # -> https://pythongeeks.org/switch-in-python/
 
+        def set_class_folder(input):
+            if (ue4_zone == 0):
+                selection = 'test/high-intensity-wildfires/'
+            elif (ue4_zone == 1):
+                selection = 'training+validation/high-intensity-wildfires/'
+            elif (ue4_zone == 2): 
+                selection = 'test/medium-intensity-wildfires/'
+            elif (ue4_zone == 3):
+                selection = 'training+validation/medium-intensity-wildfires/'
+            elif (ue4_zone == 4): 
+                selection = 'test/low-intensity-wildfires/'
+            elif (ue4_zone == 5):
+                selection = 'training+validation/low-intensity-wildfires/'
+            # TODO elif (ue4_zone == 7):
+            #     class_folder = 'no-wildfires/'
+            return selection
+
+        class_folder = set_class_folder(ue4_zone)
+
+        # Adding positional metadata into the images filename and saving into the class folder
+
+        thermal_img_path = (datasetFolder + 
+                                class_folder + 
+                                irFolder +                                                
+                                'SEGMENT_'+ 
+                                str(i).zfill(5) + '_' +
+                                str('%.5f'%(pose.position.x_val)) + '_' +
+                                str('%.5f'%(pose.position.y_val)) + '_' +
+                                str(height) + '_' +
+                                str(pitch) + '_' +
+                                str(roll) + '_' +
+                                str(yaw) +
+                                '.png')
+        
+        rgb_img_path = (datasetFolder + 
+                                class_folder + 
+                                sceneFolder + 
+                                'RGB_' +
+                                str(i).zfill(5) + '_' +
+                                str('%.5f'%(pose.position.x_val)) + '_' +
+                                str('%.5f'%(pose.position.y_val)) + '_' +
+                                str(height) + '_' +
+                                str(pitch) + '_' +
+                                str(roll) + '_' +
+                                str(yaw) +
+                                '.png')
+
+        composite_img_path = (datasetFolder + 
+                                class_folder + 
+                                compositeFolder +
+                                'FLIR_' +
+                                str(i).zfill(5) + '_' +
+                                str('%.5f'%(pose.position.x_val)) + '_' +
+                                str('%.5f'%(pose.position.y_val)) + '_' +
+                                str(height) + '_' +
+                                str(pitch) + '_' +
+                                str(roll) + '_' +
+                                str(yaw) +
+                                '.png')
+        
         if writeIR:
             cv2.imwrite(thermal_img_path, ir)
         if writeScene:
             cv2.imwrite(rgb_img_path, scene)
         
-        #DEBUG: funció "combine_img" TFG Upgrade: 
-        combine_img(thermal_img_path,rgb_img_path,composite_img_path)
-
+        # with the "create_flir_img" method we combine both the RGB and SEGMENT 
+        # images, obtaining the simulated FLIR thermal vision images as a result.
+        
+        create_flir_img(thermal_img_path,rgb_img_path,composite_img_path)
         i += 1
         pose = client.simGetObjectPose(o);
         camInfo = client.simGetCameraInfo("0")
@@ -299,16 +374,76 @@ if __name__ == '__main__':
     client = MultirotorClient()
     client.confirmConnection()
 
-    #Look for objects with names that match a regular expression. 
-    objectList = client.simListSceneObjects('.*?Z.*?')
+    # Retrieve custom parameters from std input: Drone camera, height, pitch, roll, yall & UE4 environment zone
+    wrong_option=True;
+    while (wrong_option):
+        print("Specify the class of the simulated night/thermal vision wildfire images you want to generate:\n\n",
+                "Zone 0 (Class 1: high intensity wildfire images - small size area) = 0\n",
+                "Zone 1 (Class 1: high intensity wildfire images - big size area) = 1\n",
+                "Zone 2 (Class 2: medium intensity wildfire images - small size area) = 2\n",
+                "Zone 3 (Class 2: medium intensity wildfire images - big size area) = 3\n",
+                "Zone 4 (Class 3: low intensity wildfire images - small size area) = 4\n",
+                "Zone 5 (Class 3: low intensity wildfire images - big size area) = 5\n",
+                "Zone 6 (Class 1+2+3: PoC experiments zone = 6\n",
+                "Zone 7 (Class 4: images with no wildfires) = 7\n")
+        ue4_zone = int(input("Please choose an option (0-7 - Default = 1): ") or '1')
+        if ue4_zone==7:
+            print("\nERROR: Class not implemented yet.\n")
+            time.sleep(2)
+        elif ue4_zone==6:
+            print("\nERROR: Zone reserved to perfom the PoC experiments (so we avoid overfitting the model by memorizing features).\n")
+            time.sleep(4)
+        elif ue4_zone<0 or ue4_zone>7:
+            print('\nERROR: Wrong option, try again.')
+            time.sleep(2)
+        else:
+            wrong_option=False;
+
+    wrong_option=True;
+    while (wrong_option):
+        print("Choose the multicopter's camera you want to use to retrieve the images:\n\n", 
+                "front_center=0\n",
+                "front_right=1\n",
+                "front_left=2\n",
+                "fpv=3\n",
+                "back_center=4\n")
+        camera = int(input("Please choose an option (0-4 - Default = 0):\n\n") or '0')
+        if camera<0 or camera>4:
+            print('\nERROR: Wrong option, try again.')
+            time.sleep(2)
+        else:
+            wrong_option=False;
+
+    height = int(input("Set the multicopter's height (negative integer value - Default = 20 -> lowest hight):\n\n") or '20')
+
+    if height==-60:
+        dataset = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/dataset#1_long-range-images/'
+    elif height>-50 or height<100:
+        dataset = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/dataset#2_close-range-images/'
+
+    pitch = int(input("Set the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270):\n\n") or '270')
+
+    # Look for objects with names that match a regular expression. 
+    # On the case of this PoC, we're looking for objects that include 
+    # the "firewood" and the "grass" strings on the UE4 env. objects 
+    # that simulate heat emission (see the project's report, section XXX).
+    #
+    # V4.6 -> Enabling the possiblity of generating only specific image classes 
+    #         (see section 4.x.x of the project's report) by "injecting" the zone
+    #         variable into the regex expression that filters the objects we want
+    #         to take pictures of.
+
+    my_regex1 = r".*?mesh_firewood_" + str(ue4_zone) +r".*?"
+    my_regex2 = r".*?grass_mesh_" + str(ue4_zone) +r".*?"
+    
+    objectList = client.simListSceneObjects(my_regex1)
+    objectList += client.simListSceneObjects(my_regex2)
     
     #Call to main
     main(client, 
-         objectList, 
-         pitch=numpy.radians(315), #image straight down
-         roll=0,
-         yaw=0,
-         height=-60,
-         irFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/IR/',
-         sceneFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/scene/',
-         compositeFolder='/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/composite/') 
+         objectList,
+         ue4_zone, 
+         camera,
+         height,
+         pitch, 
+         datasetFolder = dataset) 

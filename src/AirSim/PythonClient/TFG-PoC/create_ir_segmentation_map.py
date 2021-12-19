@@ -161,12 +161,12 @@ if __name__ == '__main__':
     # "fire" and "grass" on its object name are the ones that
     # simulate heating emission. 
     
-    segIdDict = {'grass':'grass', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
-                 'fire':'fire'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
+    segIdDict = {'grass':'big_fire', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
+                 'firewood':'small_fire'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
     
     #Choose temperature values 
-    tempEmissivity = numpy.array([['grass',290,0.96], 
-                                  ['fire',298,0.98]])
+    tempEmissivity = numpy.array([['big_fire',298,0.98], 
+                                  ['small_fire',298,0.98]])
 
     #Read camera response.
     response = None
