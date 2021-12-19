@@ -157,12 +157,12 @@ if __name__ == '__main__':
     # 
     # On the UE4 environment created to perform this project's 
     # proof of concept -based on the LandscapeMountains env-, 
-    # the "StaticMeshActor" actors that include the strings 
+    # the "StaticMeshActor" objects that include the strings 
     # "fire" and "grass" on its object name are the ones that
     # simulate heating emission. 
-    
+
     segIdDict = {'grass':'big_fire', #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a VFX foc
-                 'firewood':'small_fire'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
+                'firewood':'small_fire'} #DEBUG: Assignem una temperatura (color en la escala de grisos) als pixels corresponents a vegetació (arbres)
     
     #Choose temperature values 
     tempEmissivity = numpy.array([['big_fire',298,0.98], 
