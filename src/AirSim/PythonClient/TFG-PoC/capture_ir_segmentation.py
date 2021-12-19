@@ -14,6 +14,7 @@ UE4_ZONE_4 = 4
 UE4_ZONE_5 = 5
 UE4_ZONE_6 = 6
 UE4_ZONE_7 = 7
+UE4_ZONE_8 = 8
 
 # METHODS
 
@@ -210,7 +211,7 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
             # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the 255 value on the RGB image (scene)
             # HOWEVER, if we're going to take images WITHOUT wildfires (UE_ZONE == 7), then we don't set it up
         
-            if (int(r)==255 or int(g)==255 or int(b)==255) and ue4_zone != UE4_ZONE_7:
+            if (int(r)==255 or int(g)==255 or int(b)==255) and ue4_zone != UE4_ZONE_6 and ue4_zone != UE4_ZONE_7:
                 rgb_pixel_map[i, j] = (int(r), int(g), int(b))            
                 fire_img = True
 
@@ -228,7 +229,7 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
 
     # Saving the final output -- DEBUG -> pending to set a relative path 
     # We discard images with no white pixels, except in the case we are taking no-wildfire images (zone 7)
-    if fire_img or ue4_zone == UE4_ZONE_7:
+    if fire_img or ue4_zone == UE4_ZONE_6 or ue4_zone == UE4_ZONE_7:
         rgb_image.save(composite_img_path, format="png")
 
 def main(client,
@@ -305,23 +306,35 @@ def main(client,
         def set_class_folder(input):
             if (ue4_zone == UE4_ZONE_0):
                 selection = 'test/high-intensity-wildfires/'
+                
             elif (ue4_zone == UE4_ZONE_1):
                 selection = 'training+validation/high-intensity-wildfires/'
+
             elif (ue4_zone == UE4_ZONE_2): 
                 selection = 'test/medium-intensity-wildfires/'
+
             elif (ue4_zone == UE4_ZONE_3):
                 selection = 'training+validation/medium-intensity-wildfires/'
+
             elif (ue4_zone == UE4_ZONE_4): 
                 selection = 'test/low-intensity-wildfires/'
+
             elif (ue4_zone == UE4_ZONE_5):
                 selection = 'training+validation/low-intensity-wildfires/'
-                '''            
-                elif (ue4_zone == UE4_ZONE_6):
-                selection = ''
-                '''
+
+            elif (ue4_zone == UE4_ZONE_6):
+                selection = 'test/no-wildfires/'
+
             elif (ue4_zone == UE4_ZONE_7):
                 selection = 'training+validation/no-wildfires/'
+
+            '''            
+            elif (ue4_zone == UE4_ZONE_8):
+            selection = ''
+            '''
+
             return selection
+
 
         class_folder = set_class_folder(ue4_zone)
 
@@ -404,13 +417,14 @@ if __name__ == '__main__':
                 "Zone 3 (Class 2: medium intensity wildfire images - big size area) = 3\n",
                 "Zone 4 (Class 3: low intensity wildfire images - small size area) = 4\n",
                 "Zone 5 (Class 3: low intensity wildfire images - big size area) = 5\n",
-                "Zone 6 (Class 1+2+3: PoC experiments zone = 6\n",
-                "Zone 7 (Class 4: images with no wildfires) = 7\n")
-        ue4_zone = int(input("Please choose an option (0-7 - Default = 1): ") or '1')
-        if ue4_zone==UE4_ZONE_6:
+                "Zone 6 (Class 4: images with no wildfires - small size area) = 6\n",
+                "Zone 7 (Class 4: images with no wildfires - big size area) = 7\n"
+                "Zone 8 (Class 1+2+3: PoC experiments zone = 8\n")
+        ue4_zone = int(input("Please choose an option (0-8 - Default = 1): ") or '1')
+        if ue4_zone==UE4_ZONE_8:
             print("\nERROR: Zone reserved to perfom the PoC experiments (so we avoid overfitting the model by memorizing features).\n")
             time.sleep(4)
-        elif ue4_zone<0 or ue4_zone>7:
+        elif ue4_zone<0 or ue4_zone>8:
             print('\nERROR: Wrong option, try again.')
             time.sleep(2)
         else:
@@ -446,9 +460,13 @@ if __name__ == '__main__':
     #         to take pictures of.
 
     # No-Wildfire / Class #4 images: Since there are no objects tagged as zone == 7 on the Unreal
-    # environment, we'll have to use other zones to take class #4 images. For this matter, we we
+    # environment, we'll have to use other zones to take class #4 images. 
 
-    if ue4_zone == UE4_ZONE_7:
+    if ue4_zone == UE4_ZONE_6:
+        my_regex1 = r".*?mesh_firewood_4.*?"
+        my_regex2 = r".*?grass_mesh_4.*?"
+
+    elif ue4_zone == UE4_ZONE_7:
         my_regex1 = r".*?mesh_firewood_5.*?"
         my_regex2 = r".*?grass_mesh_5.*?"
     else:
