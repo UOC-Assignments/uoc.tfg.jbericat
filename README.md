@@ -125,6 +125,38 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
     4. FITA#04 - Generar el dataset d'imatges per a entrenar i testejar el model de xarxes neuronals profundes
 
+        4.1. Tasques de recerca i investigació
+		
+            4.1.1. Estructura del dataset
+
+            4.1.2. Estudi de la API d’AirSim per a Python
+
+            4.1.3. Recerca de projectes basats en AirSim
+			
+        4.2. Establiment dels objectius de classificació
+		
+        4.3. Definició de l’estructura d’etiquetat del classificador
+		
+            4.3.1. Elaboració de l’estructura d’etiquetat
+
+            4.3.2. Representació de l’etiquetat: Estructura de directoris i noms d’arxiu
+
+            4.3.3. Quantitat de mostres necessàries per a l’entrenament i testeig del model
+		
+        4.4. Assignació de les zones definides a l’entorn per a l’obtenció d’imatges
+		
+        4.5. Configuració dels paràmetres de captura de les imatges
+
+        4.6. Modificació de l'script Python utilitzar per a la captura d'imatges
+	
+            4.6.1. Simulació de visió tèrmica nocturna tipus FLIR durant la obtenció d’imatges del dataset
+
+            4.6.2. Automatització de la presa d’imatges i del seu etiquetat (labeling)
+
+        4.7. Recol·lecció i etiquetat d'imatges (execució de l’script de captura d’imatges capture_ir_segment.py)
+		
+        4.8. Empaquetament i publicació del dataset d’imatges per a la realització de la PdC
+			
     5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes
  
         5.1. Tasques d’investigació i recerca
