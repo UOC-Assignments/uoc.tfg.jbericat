@@ -414,19 +414,14 @@ if __name__ == '__main__':
         else:
             wrong_option=False;
 
-    height = int(input("Set the multicopter's height (negative integer value - Default = 20 -> lowest hight):\n\n") or '20')
-
-    if height==-60:
-        dataset = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/dataset#1_long-range-images/'
-    elif height>-50 or height<100:
-        dataset = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/dataset#2_close-range-images/'
+    height = int(input("Set the multicopter's height (negative integer value - Default = -20 -> lowest hight):\n\n") or '-20')
 
     pitch = int(input("Set the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270):\n\n") or '270')
 
     # Look for objects with names that match a regular expression. 
     # On the case of this PoC, we're looking for objects that include 
     # the "firewood" and the "grass" strings on the UE4 env. objects 
-    # that simulate heat emission (see the project's report, section XXX).
+    # that simulate heat emission (see the project's report, section 4.6.2).
     #
     # V4.6 -> Enabling the possiblity of generating only specific image classes 
     #         (see section 4.x.x of the project's report) by "injecting" the zone
@@ -446,4 +441,4 @@ if __name__ == '__main__':
          camera,
          height,
          pitch, 
-         datasetFolder = dataset) 
+         datasetFolder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/') 
