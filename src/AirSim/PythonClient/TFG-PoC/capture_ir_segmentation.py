@@ -401,22 +401,22 @@ if __name__ == '__main__':
 
     wrong_option=True;
     while (wrong_option):
-        print("Choose the multicopter's camera you want to use to retrieve the images:\n\n", 
+        print("\n\nChoose the multicopter's camera you want to use to retrieve the images:\n\n", 
                 "front_center=0\n",
                 "front_right=1\n",
                 "front_left=2\n",
                 "fpv=3\n",
                 "back_center=4\n")
-        camera = int(input("Please choose an option (0-4 - Default = 0):\n\n") or '0')
+        camera = int(input("Please choose an option (0-4 - Default = 0): ") or '0')
         if camera<0 or camera>4:
             print('\nERROR: Wrong option, try again.')
             time.sleep(2)
         else:
             wrong_option=False;
 
-    height = int(input("Set the multicopter's height (negative integer value - Default = -20 -> lowest hight):\n\n") or '-20')
+    height = int(input("\n\nSet the multicopter's height (negative integer value - Default = -20 -> lowest hight): ") or '-20')
 
-    pitch = int(input("Set the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270):\n\n") or '270')
+    pitch = int(input("\n\nSet the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270): ") or '270')
 
     # Look for objects with names that match a regular expression. 
     # On the case of this PoC, we're looking for objects that include 
