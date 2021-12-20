@@ -402,14 +402,14 @@ if __name__ == '__main__':
                 "Zone 4 (Class 3: low intensity wildfire images - small size area) = 4\n",
                 "Zone 5 (Class 3: low intensity wildfire images - big size area) = 5\n",
                 "Zone 6 (Class 4: images with no wildfires - small size area) = 6\n",
-                "Zone 7 (Class 4: images with no wildfires - big size area) = 7\n"
+                "Zone 7 (Class 4: images with no wildfires - big size area) = 7\n",
                 "Zone 8 (Class 1+2+3: PoC experiments zone = 8\n")
         ue4_zone = int(input("Please choose an option (0-8 - Default = 1): ") or '1')
 
         # We control data input correctness and stuff...
 
         if ue4_zone==UE4_ZONE_6 or ue4_zone==UE4_ZONE_7:
-            print("\nIMPORTANT NOTICE: To retrieve no-wildfire images you should load the ***LandscapeEnvironment_v31b*** UE4 file.\n")
+            print("\nIMPORTANT NOTICE: To retrieve no-wildfire images you MUST load the ***LandscapeEnvironment_v31b*** UE4 file.\n")
             time.sleep(4)
         
         if ue4_zone==UE4_ZONE_8:
