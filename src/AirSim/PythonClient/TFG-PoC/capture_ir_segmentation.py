@@ -177,60 +177,44 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
         https://www.geeksforgeeks.org/how-to-manipulate-the-pixel-values-of-an-image-using-python/
     """
     # Import an image from directory:
-    thermal_image = Image.open(thermal_img_path)
-    rgb_image = Image.open(rgb_img_path)
+    thermal_image = cv2.imread(thermal_img_path, cv2.IMREAD_GRAYSCALE)
+    rgb_image = cv2.imread(rgb_img_path, cv2.IMREAD_COLOR)
+    #rgb_image = Image.open(rgb_img_path)
+
+    # Convert RGB image to grayscale -> https://stackoverflow.com/questions/48190894/how-to-convert-rgb-images-dataset-to-single-channel-grayscale
+     
+    grayscale_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
     
-    # Extracting pixel map:
-    rgb_pixel_map = rgb_image.load()
-  
     # Extracting the width and height 
-    # of the image (both images are equal in size):
-    width, height = rgb_image.size
+    # of the image (both images are equal in size): --> https://appdividend.com/2020/09/09/python-cv2-image-size-how-to-get-image-size-in-python/
+    height, width = grayscale_image.shape
 
     # We should set a filter to discard the images that did not show any of the virtual 
     # wildfire features captured by the built-in AirSim infrared camera simulator -that is, 
     # images that do not include ANY white pixels. For this purpose, we'll be using the 
     # "fire_img" bool variable set as False by default, and then we'll set it to true if 
     # there are pixels with their RGB value as 255, which simulate the fire detected by the 
-    # FLIR camera simulator we're embedding in this code -> create_flir_img() method
+    # FLIR camera simulator 
 
     fire_img = False
   
-    for i in range(width):
-        for j in range(height):
-
-            # TODO - This "for" body needs revision. The output composite image has 3 channels 
-            # with the same info on each one (grayscale). It must be just one channel (cheaper). 
-            # There is not need for casts. I should redefine the IF condition (If ITS WHITE), 
-            # since we wont do different scales of heat anymore. DO IT WHILE THE ENV. BUILDING PROCESS 
-            # TODO END 
+    for i in range(height):
+        for j in range(width):
 
             # getting the THERMAL pixel value.
-            r, g, b = thermal_image.getpixel((i, j))
+            p = thermal_image[i,j]
 
-            # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the 255 value on the RGB image (scene)
-            # HOWEVER, if we're going to take images WITHOUT wildfires (UE_ZONE == 7), then we don't set it up
-        
-            if (int(r)==255 or int(g)==255 or int(b)==255) and ue4_zone != UE4_ZONE_6 and ue4_zone != UE4_ZONE_7:
-                rgb_pixel_map[i, j] = (int(r), int(g), int(b))            
+            # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the #FFFFFF=255 
+            # value on the RGB image (scene) HOWEVER, if we're going to take images WITHOUT 
+            # wildfires (UE_ZONE == 7), then we don't set it up
+            if (p==255) and ue4_zone != UE4_ZONE_6 and ue4_zone != UE4_ZONE_7:
+                grayscale_image[i, j] = p           
                 fire_img = True
-
-            #If it's not, the we just turn the pixel on the RGB image to its grayscale equivalent
-            else: 
-
-                # getting the RGB pixel value.
-                r, g, b = rgb_image.getpixel((i, j)) 
-
-                # Apply formula of grayscale:
-                grayscale = (0.299*r + 0.587*g + 0.114*b)
-
-                # setting the pixel value.
-                rgb_pixel_map[i, j] = (int(grayscale), int(grayscale), int(grayscale))
 
     # Saving the final output -- DEBUG -> pending to set a relative path 
     # We discard images with no white pixels, except in the case we are taking no-wildfire images (zone 7)
     if fire_img or ue4_zone == UE4_ZONE_6 or ue4_zone == UE4_ZONE_7:
-        rgb_image.save(composite_img_path, format="png")
+        cv2.imwrite(composite_img_path,grayscale_image)
 
 def main(client,
         objectList,
@@ -421,6 +405,13 @@ if __name__ == '__main__':
                 "Zone 7 (Class 4: images with no wildfires - big size area) = 7\n"
                 "Zone 8 (Class 1+2+3: PoC experiments zone = 8\n")
         ue4_zone = int(input("Please choose an option (0-8 - Default = 1): ") or '1')
+
+        # We control data input correctness and stuff...
+
+        if ue4_zone==UE4_ZONE_6 or ue4_zone==UE4_ZONE_7:
+            print("\nIMPORTANT NOTICE: To retrieve no-wildfire images you should load the ***LandscapeEnvironment_v31b*** UE4 file.\n")
+            time.sleep(4)
+        
         if ue4_zone==UE4_ZONE_8:
             print("\nERROR: Zone reserved to perfom the PoC experiments (so we avoid overfitting the model by memorizing features).\n")
             time.sleep(4)
@@ -444,6 +435,7 @@ if __name__ == '__main__':
             time.sleep(2)
         else:
             wrong_option=False;
+
 
     height = int(input("\n\nSet the multicopter's height (negative integer value - Default = -20 -> lowest hight): ") or '-20')
 
