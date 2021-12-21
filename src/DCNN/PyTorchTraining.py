@@ -1,17 +1,86 @@
 # https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-train-model
 
+
+# PARAMETRIZATION
+
+DATASET_IMG_SIZE = 255;
+TRAIN_DATA_DIR = './data/training+validation/'
+TEST_DATA_DIR = './data/test/'
+
+###################################################################################################
+###################################################################################################
+####                                                                                           ####   
+####                                       1. IMPORTING THE DATA                               ####
+####                                                                                           ####   
+###################################################################################################
+###################################################################################################
+
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
+
+# 1.1 - Loading and normalizing the data.
+# Define transformations for the training and test sets
+
+transformations = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+    transforms.Resize(DATASET_IMG_SIZE),
+    transforms.CenterCrop(DATASET_IMG_SIZE)
+    ])
+
+# 1.2 - Create an instance for training. 
+train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations)
+
+# the PoC's dataset consists of almost 400 training images and 200 test images. 
+# We define the batch size of 4 to load 100 & 50 batches of images respectively:
+batch_size = 4
+
+# The number of labels correspond to the amount of classes we defined on previous
+# stages of this project. To sum-up, we have: 
+# 
+# - Class #1: High-intensity wildfires 
+# - Class #2: Medium-intensity wildfires 
+# - Class #3: Low-intensity wildfires
+# - Class #4: Images with no wildfires at all
+number_of_labels = 4 
+
+# 1.3 - Create a loader for the training set which will read the data within batch size and put into memory.
+train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=0)
+print("The number of images in a training set is: ", len(train_loader)*batch_size)
+
+# 1.4 - Create an instance for testing, note that train is set to False.
+test_data = ImageFolder(root=TEST_DATA_DIR, transform=transformations, train=False)
+
+# 1.5 - Create a loader for the test set which will read the data within batch size and put into memory. 
+# Note that each shuffle is set to false for the test loader.
+test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=0)
+print("The number of images in a test set is: ", len(test_loader)*batch_size)
+
+print("The number of batches per epoch is: ", len(train_loader))
+classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensity-wildfire ', 'no-wildfire')
+
+
+###################################################################################################
+###################################################################################################
+####                                                                                           ####   
+####                                       2. TRAINING THE MODEL                               ####
+####                                                                                           ####   
+###################################################################################################
+###################################################################################################
+
+
+################################################################
+################################################################
+####                                                        ####
+####     STEP 2.1:  Define a convolution neural network     ####
+####                                                        ####
+################################################################
+################################################################
+
 import torch
 import torch.nn as nn
 import torchvision
 import torch.nn.functional as F
-
-##############################################################
-##############################################################
-####                                                      ####
-####     STEP 1:  Define a convolution neural network     ####
-####                                                      ####
-##############################################################
-##############################################################
 
 # Define a convolution neural network
 class Network(nn.Module):
@@ -46,7 +115,7 @@ model = Network()
 ##############################################################
 ##############################################################
 ####                                                      ####
-####            STEP 2:  Define a loss function           ####
+####            STEP 2.2:  Define a loss function         ####
 ####                                                      ####
 ##############################################################
 ##############################################################
@@ -61,7 +130,7 @@ optimizer = Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
 ##############################################################
 ##############################################################
 ####                                                      ####
-####     STEP 3:  Train the model on the training data    ####
+####     STEP 2.3:  Train the model on the training data    ####
 ####                                                      ####
 ##############################################################
 ##############################################################
@@ -150,7 +219,7 @@ def train(num_epochs):
 ##############################################################
 ##############################################################
 ####                                                      ####
-####       STEP 4:  Test the model on the test data       ####
+####       STEP 2.4:  Test the model on the test data       ####
 ####                                                      ####
 ##############################################################
 ##############################################################
@@ -193,7 +262,7 @@ def testBatch():
 ##############################################################
 ##############################################################
 ####                                                      ####
-####            STEP 5:  Adding the main code             ####
+####            STEP 2.5:  Adding the main code             ####
 ####                                                      ####
 ##############################################################
 ##############################################################
@@ -205,7 +274,8 @@ if __name__ == "__main__":
     print('Finished Training')
 
     # Test which classes performed well
-    testModelAccuracy()
+    # DEBUG - UNCOMMENT NEXT LINE! 
+    # testModelAccuracy()
     
     # Let's load the model we just created and test the accuracy per label
     model = Network()
