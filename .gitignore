@@ -15,7 +15,7 @@ src/AirSim/PythonClient/*
 !src/AirSim/PythonClient/TFG-PoC/
 
 ### VS Code 
-*.vscode
+.vscode
 
 ### Python extensions
 

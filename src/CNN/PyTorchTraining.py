@@ -4,10 +4,10 @@
 # PARAMETRIZATION
 
 import os
-
+ROOT_PATH = 'src/CNN/data/'
 DATASET_VERSION = input("Type the dataset version you want to use to train the model (4 = v4 / 5 = v5): ")
-TRAIN_DATA_DIR = os.path.abspath('src/CNN/data/v'+ DATASET_VERSION +'.0/training+validation/')  
-TEST_DATA_DIR = os.path.abspath('src/CNN/data/v'+ DATASET_VERSION +'.0/test/')  
+TRAIN_DATA_DIR = os.path.abspath(ROOT_PATH + 'v' + DATASET_VERSION +'.0/training+validation/')  
+TEST_DATA_DIR = os.path.abspath(ROOT_PATH + 'v' + DATASET_VERSION +'.0/test/')  
 DATASET_IMG_SIZE = 229
 IMG_CHANNELS = 3
 
@@ -34,7 +34,8 @@ transformations = transforms.Compose([
     # Normalizing the images ___________
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     # We need square images to feed the model (the raw dataset has 640x512 size images)
-    transforms.RandomResizedCrop(512),
+    # DEBUG - COMMENT NEXT LINE FOR v5 DATASET
+    #transforms.RandomResizedCrop(512),
     # Now we just resize into any of the common input layer sizes (32×32, 64×64, 96×96, 224×224, 227×227, and 229×229)
     transforms.Resize(DATASET_IMG_SIZE)
     ])
@@ -128,7 +129,7 @@ from torch.autograd import Variable
 
 # Function to save the model
 def saveModel():
-    path = "./bin/CNN_Model_batch-size_" + str(batch_size) + ".pth"
+    path = "bin/CNN/CNN-Model-v1_dataset-v" + DATASET_VERSION + "_batch-size-" + str(batch_size) + ".pth"
     torch.save(model.state_dict(), path)
 
 # Function to test the model with the test dataset and print the accuracy for the test images
@@ -253,7 +254,10 @@ if __name__ == "__main__":
     
     # Let's load the model we just created and test the accuracy per label
     model = Network()
-    path = "./bin/CNN_Model_batch-size_" + str(batch_size) + ".pth"
+    model_version = ''
+    dataset_version = ''
+
+    path = "bin/CNN/CNN-Model-v1_dataset-v" + DATASET_VERSION + "_batch-size-" + str(batch_size) + ".pth"
     model.load_state_dict(torch.load(path))
 
     # Test with batch of images
