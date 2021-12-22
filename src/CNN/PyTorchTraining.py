@@ -5,10 +5,13 @@
 
 import os
 
+DATASET_VERSION = input("Type the dataset version you want to use to train the model (4 = v4 / 5 = v5): ")
+TRAIN_DATA_DIR = os.path.abspath('src/CNN/data/v'+ DATASET_VERSION +'.0/training+validation/')  
+TEST_DATA_DIR = os.path.abspath('src/CNN/data/v'+ DATASET_VERSION +'.0/test/')  
 DATASET_IMG_SIZE = 229
-TRAIN_DATA_DIR = os.path.abspath('src/CNN/data/training+validation/')  
-TEST_DATA_DIR = os.path.abspath('src/CNN/data/test/')  
 IMG_CHANNELS = 3
+
+
 
 ###################################################################################################
 ###################################################################################################
