@@ -5,8 +5,9 @@ usr/*
 !usr/datasets/
 bin/*
 !bin/GIT-README.md
+!bin/CNN/
 src/*
-!src/DCNN/
+!src/CNN/
 !src/AirSim/
 src/AirSim/*
 !src/AirSim/PythonClient/
