@@ -1,4 +1,4 @@
-# TEST CODE: Checking the dataset images's number of channels
+# TEST CODE: Checking pyTorch + CUDA installation 
 
 import torch 
 

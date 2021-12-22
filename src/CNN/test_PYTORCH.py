@@ -1,4 +1,4 @@
-# Testing pyTorch installation
+# TEST CODE: Testing pyTorch installation
 
 from __future__ import print_function 
 
