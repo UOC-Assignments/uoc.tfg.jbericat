@@ -476,4 +476,4 @@ if __name__ == '__main__':
          camera,
          height,
          pitch, 
-         datasetFolder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/') 
+         datasetFolder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/raw_datasets/buffer/') 
