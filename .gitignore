@@ -2,7 +2,7 @@
 
 usr/*
 !usr/GIT-README.md
-!usr/raw-datasets/
+!usr/raw_datasets/
 bin/*
 !bin/GIT-README.md
 !bin/CNN/
