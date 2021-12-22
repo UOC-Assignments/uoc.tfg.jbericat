@@ -125,7 +125,7 @@ from torch.autograd import Variable
 
 # Function to save the model
 def saveModel():
-    path = "./bin/myFirstModel.pth"
+    path = "./bin/CNN_Model_batch-size_" + str(batch_size) + ".pth"
     torch.save(model.state_dict(), path)
 
 # Function to test the model with the test dataset and print the accuracy for the test images
@@ -136,8 +136,8 @@ def testAccuracy():
     total = 0.0
     
     with torch.no_grad():
-        for images, labels in test_loader: ## FIX BUG#05.x.y - RuntimeError: Input type (torch.FloatTensor) and weight type (torch.cuda.FloatTensor) should be the same or input should be a MKLDNN tensor and weight is a dense tensor -> https://stackoverflow.com/questions/63339144/training-a-cnn-model-with-dataloader-on-a-gpu-in-pytorch
-            images, labels = images.cuda(), labels.cuda() # FIX BUG#05.x.y - RuntimeError: Input type (torch.FloatTensor) and weight type (torch.cuda.FloatTensor) should be the same or input should be a MKLDNN tensor and weight is a dense tensor
+        for images, labels in test_loader: # BUGFIX #126 ->  See TASK05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
+            images, labels = images.cuda(), labels.cuda() # # BUGFIX #126 ->  See TASK05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96 
             # run the model on the test set to predict labels
             outputs = model(images)
             # the label with the highest energy will be our prediction
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     
     # Let's load the model we just created and test the accuracy per label
     model = Network()
-    path = "./bin/myFirstModel.pth"
+    path = "./bin/CNN_Model_batch-size_" + str(batch_size) + ".pth"
     model.load_state_dict(torch.load(path))
 
     # Test with batch of images
