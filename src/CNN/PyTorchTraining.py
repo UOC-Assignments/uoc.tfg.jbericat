@@ -11,7 +11,18 @@ TEST_DATA_DIR = os.path.abspath(ROOT_PATH + 'v' + DATASET_VERSION +'.0/test/')
 DATASET_IMG_SIZE = 229
 IMG_CHANNELS = 3
 
+# the PoC's dataset consists of 608 training images and 204 test images. 
+# We define the batch size of X to load YY & ZZ batches of images respectively:
+batch_size = 10
 
+# The number of labels correspond to the amount of classes we defined on previous
+# stages of this project. To sum-up, we have: 
+# 
+# - Class #1: High-intensity wildfires 
+# - Class #2: Medium-intensity wildfires 
+# - Class #3: Low-intensity wildfires
+# - Class #4: Images with no wildfires at all
+number_of_labels = 4 
 
 ###################################################################################################
 ###################################################################################################
@@ -40,28 +51,27 @@ transformations = transforms.Compose([
     transforms.Resize(DATASET_IMG_SIZE)
     ])
 
+augmentations = transforms.Compose([
+transforms.ToTensor(),
+# Normalizing the images ___________
+transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+transforms.RandomHorizontalFlip(p=0.5), # Augmentation techique: Horizontal Mirroring
+# We need square images to feed the model (the raw dataset has 640x512 size images)
+# DEBUG - UNCOMMENT NEXT LINE FOR v4 DATASET
+#transforms.RandomResizedCrop(512),
+# Now we just resize into any of the common input layer sizes (32×32, 64×64, 96×96, 224×224, 227×227, and 229×229)
+transforms.Resize(DATASET_IMG_SIZE)
+])
+
 # 1.2 - Create an instance for training. 
-train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations)
-
-# the PoC's dataset consists of 608 training images and 204 test images. 
-# We define the batch size of X to load YY & ZZ batches of images respectively:
-batch_size = 20
-
-# The number of labels correspond to the amount of classes we defined on previous
-# stages of this project. To sum-up, we have: 
-# 
-# - Class #1: High-intensity wildfires 
-# - Class #2: Medium-intensity wildfires 
-# - Class #3: Low-intensity wildfires
-# - Class #4: Images with no wildfires at all
-number_of_labels = 4 
+train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=augmentations)
 
 # 1.3 - Create a loader for the training set which will read the data within batch size and put into memory.
 train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=0)
 print("The number of images in a training set is: ", len(train_loader)*batch_size)
 
 # 1.4 - Create an instance for testing
-test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations)
+test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TEST_DATA_DIR, transform=augmentations)
 
 # 1.5 - Create a loader for the test set which will read the data within batch size and put into memory. 
 # Note that each shuffle is set to false for the test loader.
@@ -122,7 +132,7 @@ from torch.optim import Adam
  
 # Define the loss function with Classification Cross-Entropy loss and an optimizer with Adam optimizer
 loss_fn = nn.CrossEntropyLoss()
-optimizer = Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
+optimizer = Adam(model.parameters(), lr=0.0001, weight_decay=0.0001) # setting lr = 0.0001 increases accuracy, but reduces training time significantly
 
 # 2.3 - Train the model on the training data
 from torch.autograd import Variable
