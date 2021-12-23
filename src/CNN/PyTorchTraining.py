@@ -34,7 +34,7 @@ transformations = transforms.Compose([
     # Normalizing the images ___________
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     # We need square images to feed the model (the raw dataset has 640x512 size images)
-    # DEBUG - COMMENT NEXT LINE FOR v5 DATASET
+    # DEBUG - UNCOMMENT NEXT LINE FOR v4 DATASET
     #transforms.RandomResizedCrop(512),
     # Now we just resize into any of the common input layer sizes (32×32, 64×64, 96×96, 224×224, 227×227, and 229×229)
     transforms.Resize(DATASET_IMG_SIZE)
@@ -45,7 +45,7 @@ train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations
 
 # the PoC's dataset consists of 608 training images and 204 test images. 
 # We define the batch size of X to load YY & ZZ batches of images respectively:
-batch_size = 10
+batch_size = 20
 
 # The number of labels correspond to the amount of classes we defined on previous
 # stages of this project. To sum-up, we have: 
@@ -101,7 +101,7 @@ class Network(nn.Module):
         self.bn4 = nn.BatchNorm2d(IMG_CHANNELS*8)
         self.conv5 = nn.Conv2d(in_channels=IMG_CHANNELS*8, out_channels=IMG_CHANNELS*8, kernel_size=5, stride=1, padding=1)
         self.bn5 = nn.BatchNorm2d(IMG_CHANNELS*8)
-        self.fc1 = nn.Linear(264600, 10)
+        self.fc1 = nn.Linear(264600, number_of_labels) # The second argument must be the number of classes (4)
 
     def forward(self, input):
         output = F.relu(self.bn1(self.conv1(input)))      
