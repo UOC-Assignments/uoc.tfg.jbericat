@@ -1,4 +1,3 @@
-
 """
 title:: 
 
@@ -12,8 +11,10 @@ inputs::
 output::
 
 
-author::
+original author::
     Microsoft Docs - Windows AI - Windows Machine Learning
+
+Modified / adapted by:    
     Jordi Bericat Ruz - Universitat Oberta de Catalunya
 
 references::
@@ -56,7 +57,13 @@ INNER_KERNEL  = 5
 STRIDE = 1
 PADDING = 1
 
-# the PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
+# We can set as many epochs as desired, considering that there is a threshold when the 
+# model stops improving it's performance after each training iteration (plotting the 
+# loss function at the end of the training process could be useful to optimize the training 
+# time vs perfomance balance.
+EPOCHS = 5
+
+# TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
 BATCH_SIZE = 10
 
@@ -74,20 +81,21 @@ OUT_FILE = open(MODEL_BIN_PATH + ".info", "w")
 
 # storing all the training environment on the results .info file's preface
 
-OUT_FILE.writelines([ "***************************************\n",
-                      "*** PoC's CNN Model Training Stats  ***\n", 
-                      "***************************************\n\n", 
-                      "Model version: v" + str(MODEL_VERSION) + ".0\n",
-                      "Dataset version: v" + str(DATASET_VERSION) + ".0\n",
-                      "***************************************\n\n",
-                      "HYPER-PARAMETERS:\n\n",
-                      "Image size = (" + str(DATASET_IMG_SIZE) + " x " + str(DATASET_IMG_SIZE) + " x " + str(IMG_CHANNELS) + ")\n",
-                      "Number of classes / labels = "  + str(NUMBER_OF_LABELS) + "\n",
-                      "Input layer kernel size = "  + str(INPUT_KERNEL) + "\n",
-                      "Inner layers kernel size = " + str(INNER_KERNEL) + "\n",
-                      "Stride size = "  + str(STRIDE) + "\n",
-                      "Padding size = "  + str(PADDING) + "\n",
-                      "Batch size = "  + str(BATCH_SIZE) + "\n\n"                     
+OUT_FILE.writelines([ "***********************************************\n",
+                      "***     PoC's CNN Model Training Summary     ***\n", 
+                      "***********************************************\n", 
+                      "              Model version: v" + str(MODEL_VERSION) + ".0\n",
+                      "             Dataset version: v" + str(DATASET_VERSION) + ".0\n",
+                      "***********************************************\n\n",
+                      " HYPER-PARAMETERS:\n\n",
+                      " - Image size = (" + str(DATASET_IMG_SIZE) + " x " + str(DATASET_IMG_SIZE) + " x " + str(IMG_CHANNELS) + ")\n",
+                      " - Number of classes / labels = "  + str(NUMBER_OF_LABELS) + "\n",
+                      " - Input layer kernel size = "  + str(INPUT_KERNEL) + "\n",
+                      " - Inner layers kernel size = " + str(INNER_KERNEL) + "\n",
+                      " - Stride size = "  + str(STRIDE) + "\n",
+                      " - Padding size = "  + str(PADDING) + "\n",
+                      " - Batch size = "  + str(BATCH_SIZE) + "\n\n",
+                      "***********************************************\n\n"                     
                       ])
 
 
@@ -246,14 +254,18 @@ def train(num_epochs):
     best_accuracy = 0.0
 
     # INFO
-    print("\nTraining the model and generating report. Hold-on tight...\n")
+    print("\nTraining the model and creating the summary, hold-on tight...\n")
 
     # Define your execution device
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("The model will be running on", device, "device",file=OUT_FILE)
+    print("\nThe model will be running on", device, "device\n",file=OUT_FILE)
     # Convert model parameters and buffers to CPU or Cuda
     model.to(device)
 
+    # In order to plot the losses we need a data structure to accumulate each epoch's loss value
+    # https://discuss.pytorch.org/t/plotting-loss-curve/42632/2
+    losses = []
+    accuracies = []
     for epoch in range(num_epochs):  # loop over the dataset multiple times
         running_loss = 0.0
         running_acc = 0.0
@@ -277,12 +289,17 @@ def train(num_epochs):
 
             # Let's print statistics for every 1,000 images
             running_loss += loss.item()     # extract the loss value
+            
             if i % 1000 == 999:    
                 # print every 1000 (twice per epoch) 
                 print('[%d, %5d] loss: %.3f' %
                       (epoch + 1, i + 1, running_loss / 1000), file=OUT_FILE)
                 # zero the loss
                 running_loss = 0.0
+        
+        # Here we need to save this epoch's running loss, so we can plot it later
+        losses.append(running_loss / len(train_data))
+        # TODO -> accuracy.append(running_acc)
 
         # Compute and print the average accuracy fo this epoch when tested over all 10000 test images
         accuracy = testAccuracy()
@@ -292,6 +309,18 @@ def train(num_epochs):
         if accuracy > best_accuracy:
             saveModel()
             best_accuracy = accuracy
+
+        # accumulating accuracies to draw the plot
+        accuracies.append(accuracy)
+
+    # Now we can plot the loss curve 
+    plt.plot(losses)
+    plt.savefig(MODEL_BIN_PATH + '_loss-curve.png')
+    plt.show()
+
+    plt.plot(accuracies)
+    plt.savefig(MODEL_BIN_PATH + '_epoch-accuracies.png')
+    plt.show()
 
 
 ###################################################################################################
@@ -313,8 +342,6 @@ def imageshow(img):
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.show()
 
-
-
 # 4.2 - Function to test the model with a batch of images and show the labels predictions
 
 def testBatch():
@@ -326,7 +353,7 @@ def testBatch():
     imageshow(torchvision.utils.make_grid(images))
    
     # Show the real labels on the screen 
-    print('Real labels: ', ' '.join('%5s' % classes[labels[j]] 
+    print('\nReal labels: ', ' '.join('%5s' % classes[labels[j]] 
                                for j in range(BATCH_SIZE)),file=OUT_FILE)
   
     # Let's see what if the model identifiers the  labels of those example
@@ -336,7 +363,7 @@ def testBatch():
     _, predicted = torch.max(outputs, 1)
     
     # Let's show the predicted labels on the screen to compare with the real ones
-    print('Predicted: ', ' '.join('%5s' % classes[predicted[j]] 
+    print('\nPredicted: ', ' '.join('%5s' % classes[predicted[j]] 
                               for j in range(BATCH_SIZE)),file=OUT_FILE)
 
 
@@ -352,7 +379,7 @@ def testBatch():
 if __name__ == "__main__":
     
     # Let's build our model
-    train(5) # DEBUG: WHAT'S WITH THIS "5"!?
+    train(EPOCHS)
     print('Finished Training')
 
     # Test which classes performed well
@@ -367,5 +394,7 @@ if __name__ == "__main__":
     testBatch()
 
     # RESULTS REPORTS
-    print("\nTrained model binary file -> " + MODEL_BIN_PATH + ".pth\n")
-    print("Accuracy report and environment details -> " + MODEL_BIN_PATH + ".info\n")
+    print("\nTrained model binary file -> " + os.path.abspath(MODEL_BIN_PATH) + ".pth\n")
+    print("Training summary file -> " + os.path.abspath(MODEL_BIN_PATH) + ".info\n")
+    print("Loss function curve -> " + os.path.abspath(MODEL_BIN_PATH) + "_loss-curve.png\n")
+    print("Epoch accuracy stats -> " + os.path.abspath(MODEL_BIN_PATH) + "_epoch-accuracy.png\n")
