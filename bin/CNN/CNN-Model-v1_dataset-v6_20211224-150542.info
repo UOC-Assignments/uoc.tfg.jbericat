@@ -1,0 +1,29 @@
+***************************************
+*** PoC's CNN Model Training Stats  ***
+***************************************
+
+Model version: v1.0
+Dataset version: v6.0
+***************************************
+
+HYPER-PARAMETERS:
+
+Image size = (229 x 229 x 3)
+Number of classes / labels = 3
+Input layer kernel size = 11
+Inner layers kernel size = 5
+Stride size = 1
+Padding size = 1
+Batch size = 10
+
+The number of images in a training set is:  710
+The number of images in a test set is:  320
+The number of batches per epoch is:  71
+The model will be running on cuda:0 device
+For epoch 1 the test accuracy over the whole test set is 65 %
+For epoch 2 the test accuracy over the whole test set is 49 %
+For epoch 3 the test accuracy over the whole test set is 61 %
+For epoch 4 the test accuracy over the whole test set is 62 %
+For epoch 5 the test accuracy over the whole test set is 60 %
+Real labels:  high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire
+Predicted:  high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire low-intensity-wildfire 
