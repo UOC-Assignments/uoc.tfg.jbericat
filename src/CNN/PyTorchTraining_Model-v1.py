@@ -61,7 +61,7 @@ PADDING = 1
 # model stops improving it's performance after each training iteration (plotting the 
 # loss function at the end of the training process could be useful to optimize the training 
 # time vs perfomance balance.
-EPOCHS = 5
+EPOCHS = 10
 
 # TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
@@ -299,7 +299,6 @@ def train(num_epochs):
         
         # Here we need to save this epoch's running loss, so we can plot it later
         losses.append(running_loss / len(train_data))
-        # TODO -> accuracy.append(running_acc)
 
         # Compute and print the average accuracy fo this epoch when tested over all 10000 test images
         accuracy = testAccuracy()
@@ -313,12 +312,22 @@ def train(num_epochs):
         # accumulating accuracies to draw the plot
         accuracies.append(accuracy)
 
-    # Now we can plot the loss curve 
-    plt.plot(losses)
+    # Now we can plot the loss curve... 
+    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html 
+    plt.plot(losses, color='red')
+    plt.xlabel("training epoch")
+    plt.ylabel("running loss")
+    plt.title("LOSS CURVE")
+    plt.legend("LOSS CURVE")
     plt.savefig(MODEL_BIN_PATH + '_loss-curve.png')
     plt.show()
 
-    plt.plot(accuracies)
+    # ...as well as the accuracy progression
+    plt.plot(accuracies, color='purple')
+    plt.xlabel("training epoch")
+    plt.ylabel("model accuracy")
+    plt.title("MODEL ACCURACY PROGRESSION")
+    plt.legend("MODEL ACCURACY PROGRESSION")
     plt.savefig(MODEL_BIN_PATH + '_epoch-accuracies.png')
     plt.show()
 

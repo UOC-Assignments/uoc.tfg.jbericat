@@ -13,11 +13,11 @@ src/AirSim/*
 !src/AirSim/PythonClient/
 src/AirSim/PythonClient/*
 !src/AirSim/PythonClient/TFG-PoC/
-.vscode/*
 
 # Ignore IDE specific files
 .idea/
 .vscode/
+.vscode/*
 *.sw*
 
 ### Python extensions
