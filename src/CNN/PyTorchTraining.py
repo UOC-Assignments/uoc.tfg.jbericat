@@ -1,7 +1,32 @@
-# https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-train-model
+
+"""
+title:: 
 
 
-# PARAMETRIZATION
+description::
+
+
+inputs::
+
+
+output::
+
+
+author::
+    Microsoft Docs - Windows AI - Windows Machine Learning
+    Jordi Bericat Ruz - Universitat Oberta de Catalunya
+
+references::
+    1 - https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-train-model
+"""
+
+###################################################################################################
+###################################################################################################
+####                                                                                           ####   
+####                                       0. PARAMETRIZATION                                  ####
+####                                                                                           ####   
+###################################################################################################
+###################################################################################################
 
 import os
 ROOT_PATH = 'src/CNN/data/'
@@ -10,10 +35,14 @@ TRAIN_DATA_DIR = os.path.abspath(ROOT_PATH + 'v' + DATASET_VERSION +'.0/training
 TEST_DATA_DIR = os.path.abspath(ROOT_PATH + 'v' + DATASET_VERSION +'.0/test/')  
 DATASET_IMG_SIZE = 229
 IMG_CHANNELS = 3
+INPUT_KERNEL = 11
+INNER_KERNEL  = 5
+STRIDE = 1
+PADDING = 1
 
-# the PoC's dataset consists of 608 training images and 204 test images. 
-# We define the batch size of X to load YY & ZZ batches of images respectively:
-batch_size = 10
+# the PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
+# Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
+BATCH_SIZE = 10
 
 # The number of labels correspond to the amount of classes we defined on previous
 # stages of this project. To sum-up, we have: 
@@ -22,7 +51,8 @@ batch_size = 10
 # - Class #2: Medium-intensity wildfires 
 # - Class #3: Low-intensity wildfires
 # - Class #4: Images with no wildfires at all
-number_of_labels = 4 
+NUMBER_OF_LABELS = 4 
+
 
 ###################################################################################################
 ###################################################################################################
@@ -32,7 +62,8 @@ number_of_labels = 4
 ###################################################################################################
 ###################################################################################################
 
-#https://towardsdatascience.com/how-to-apply-a-cnn-from-pytorch-to-your-images-18515416bba1
+# https://towardsdatascience.com/how-to-apply-a-cnn-from-pytorch-to-your-images-18515416bba1
+
 
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
@@ -67,16 +98,16 @@ transforms.Resize(DATASET_IMG_SIZE)
 train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=augmentations)
 
 # 1.3 - Create a loader for the training set which will read the data within batch size and put into memory.
-train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=0)
-print("The number of images in a training set is: ", len(train_loader)*batch_size)
+train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
+print("The number of images in a training set is: ", len(train_loader)*BATCH_SIZE)
 
 # 1.4 - Create an instance for testing
 test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TEST_DATA_DIR, transform=augmentations)
 
 # 1.5 - Create a loader for the test set which will read the data within batch size and put into memory. 
 # Note that each shuffle is set to false for the test loader.
-test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=0)
-print("The number of images in a test set is: ", len(test_loader)*batch_size)
+test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
+print("The number of images in a test set is: ", len(test_loader)*BATCH_SIZE)
 
 print("The number of batches per epoch is: ", len(train_loader))
 classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensity-wildfire ', 'no-wildfire')
@@ -85,7 +116,7 @@ classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensit
 ###################################################################################################
 ###################################################################################################
 ####                                                                                           ####   
-####                                       2. TRAINING THE MODEL                               ####
+####                                       2. DEFINE THE CNN STRUCTURE                         ####
 ####                                                                                           ####   
 ###################################################################################################
 ###################################################################################################
@@ -102,16 +133,16 @@ class Network(nn.Module):
     def __init__(self):
         super(Network, self).__init__()
     
-        self.conv1 = nn.Conv2d(in_channels=IMG_CHANNELS, out_channels=IMG_CHANNELS*4, kernel_size=11, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(in_channels=IMG_CHANNELS, out_channels=IMG_CHANNELS*4, kernel_size=INPUT_KERNEL, stride=STRIDE, padding=PADDING)
         self.bn1 = nn.BatchNorm2d(IMG_CHANNELS*4)
-        self.conv2 = nn.Conv2d(in_channels=IMG_CHANNELS*4, out_channels=IMG_CHANNELS*4, kernel_size=5, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(in_channels=IMG_CHANNELS*4, out_channels=IMG_CHANNELS*4, kernel_size=INNER_KERNEL, stride=STRIDE, padding=PADDING)
         self.bn2 = nn.BatchNorm2d(IMG_CHANNELS*4)
         self.pool = nn.MaxPool2d(2,2)
-        self.conv4 = nn.Conv2d(in_channels=IMG_CHANNELS*4, out_channels=IMG_CHANNELS*8, kernel_size=5, stride=1, padding=1)
+        self.conv4 = nn.Conv2d(in_channels=IMG_CHANNELS*4, out_channels=IMG_CHANNELS*8, kernel_size=INNER_KERNEL, stride=STRIDE, padding=PADDING)
         self.bn4 = nn.BatchNorm2d(IMG_CHANNELS*8)
-        self.conv5 = nn.Conv2d(in_channels=IMG_CHANNELS*8, out_channels=IMG_CHANNELS*8, kernel_size=5, stride=1, padding=1)
+        self.conv5 = nn.Conv2d(in_channels=IMG_CHANNELS*8, out_channels=IMG_CHANNELS*8, kernel_size=INNER_KERNEL, stride=STRIDE, padding=PADDING)
         self.bn5 = nn.BatchNorm2d(IMG_CHANNELS*8)
-        self.fc1 = nn.Linear(264600, number_of_labels) # The second argument must be the number of classes (4)
+        self.fc1 = nn.Linear(264600, NUMBER_OF_LABELS) # The second argument must be the number of classes (4). The first one I'm not so sure, though...
 
     def forward(self, input):
         output = F.relu(self.bn1(self.conv1(input)))      
@@ -119,7 +150,7 @@ class Network(nn.Module):
         output = self.pool(output)                        
         output = F.relu(self.bn4(self.conv4(output)))     
         output = F.relu(self.bn5(self.conv5(output)))     
-        output = output.view(-1, 264600)
+        output = output.view(-1, 264600) # The same as in line 143: I think the second argument could be the size of the receptive field (outputWidth == outputHeight) -> https://medium.com/@RaghavPrabhu/cnn-architectures-lenet-alexnet-vgg-googlenet-and-resnet-7c81c017b848
         output = self.fc1(output)
 
         return output
@@ -134,12 +165,21 @@ from torch.optim import Adam
 loss_fn = nn.CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=0.0001, weight_decay=0.0001) # setting lr = 0.0001 increases accuracy, but reduces training time significantly
 
-# 2.3 - Train the model on the training data
+
+###################################################################################################
+###################################################################################################
+####                                                                                           ####   
+####                                         3. TRAIN THE MODEL                                ####
+####                                                                                           ####   
+###################################################################################################
+###################################################################################################
+
+
 from torch.autograd import Variable
 
 # Function to save the model
 def saveModel():
-    path = "bin/CNN/CNN-Model-v1_dataset-v" + DATASET_VERSION + "_batch-size-" + str(batch_size) + ".pth"
+    path = "bin/CNN/CNN-Model-v1_dataset-v" + DATASET_VERSION + "_batch-size-" + str(BATCH_SIZE) + ".pth"
     torch.save(model.state_dict(), path)
 
 # Function to test the model with the test dataset and print the accuracy for the test images
@@ -150,8 +190,8 @@ def testAccuracy():
     total = 0.0
     
     with torch.no_grad():
-        for images, labels in test_loader: # BUGFIX #126 ->  See TASK05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
-            images, labels = images.cuda(), labels.cuda() # # BUGFIX #126 ->  See TASK05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96 
+        for images, labels in test_loader: # BUGFIX PR #126 ->  See TASK#05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
+            images, labels = images.cuda(), labels.cuda() # BUGFIX PR #126 ->  See TASK#05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
             # run the model on the test set to predict labels
             outputs = model(images)
             # the label with the highest energy will be our prediction
@@ -163,7 +203,6 @@ def testAccuracy():
     accuracy = (100 * accuracy / total)
     return(accuracy)
 
-
 # Training function. We simply have to loop over our data iterator and feed the inputs to the network and optimize.
 def train(num_epochs):
     
@@ -174,7 +213,6 @@ def train(num_epochs):
     print("The model will be running on", device, "device")
     # Convert model parameters and buffers to CPU or Cuda
     model.to(device)
-
 
     for epoch in range(num_epochs):  # loop over the dataset multiple times
         running_loss = 0.0
@@ -216,7 +254,15 @@ def train(num_epochs):
             best_accuracy = accuracy
 
 
-# 2.4:  Test the model on the test data
+###################################################################################################
+###################################################################################################
+####                                                                                           ####   
+####                                4. TEST THE MODEL ON THE TEST DATA                         ####
+####                                                                                           ####   
+###################################################################################################
+###################################################################################################
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -226,7 +272,6 @@ def imageshow(img):
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.show()
-
 
 # Function to test the model with a batch of images and show the labels predictions
 def testBatch():
@@ -238,7 +283,7 @@ def testBatch():
    
     # Show the real labels on the screen 
     print('Real labels: ', ' '.join('%5s' % classes[labels[j]] 
-                               for j in range(batch_size)))
+                               for j in range(BATCH_SIZE)))
   
     # Let's see what if the model identifiers the  labels of those example
     outputs = model(images)
@@ -248,10 +293,18 @@ def testBatch():
     
     # Let's show the predicted labels on the screen to compare with the real ones
     print('Predicted: ', ' '.join('%5s' % classes[predicted[j]] 
-                              for j in range(batch_size)))
+                              for j in range(BATCH_SIZE)))
 
 
-# 2.5:  Adding the main code  
+###################################################################################################
+###################################################################################################
+####                                                                                           ####   
+####                                            5. MAIN CODE                                   ####
+####                                                                                           ####   
+###################################################################################################
+###################################################################################################
+
+
 if __name__ == "__main__":
     
     # Let's build our model
@@ -267,7 +320,7 @@ if __name__ == "__main__":
     model_version = ''
     dataset_version = ''
 
-    path = "bin/CNN/CNN-Model-v1_dataset-v" + DATASET_VERSION + "_batch-size-" + str(batch_size) + ".pth"
+    path = "bin/CNN/CNN-Model-v1_dataset-v" + DATASET_VERSION + "_batch-size-" + str(BATCH_SIZE) + ".pth"
     model.load_state_dict(torch.load(path))
 
     # Test with batch of images
