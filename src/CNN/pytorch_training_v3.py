@@ -173,11 +173,8 @@ import torchvision
 import torch.nn.functional as F
 from CNN_models import *
 
-
-
-
 # Instantiate the selected neural network model class imported from file CNN_Models.py)
-model = Network_v2()
+model = Network_v1()
 print("\n***********************************************\n\n",
       "CCN STRUCTURE:\n\n",  
       model,

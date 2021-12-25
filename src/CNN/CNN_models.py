@@ -23,15 +23,15 @@ class Network_v1(nn.Module):
         super(Network_v1, self).__init__()
 
         # Next we set the convolutional, pass-through (batch norm, pooling) and output layers
-        self.conv1 = nn.Conv2d(in_channels=IMG_CHANNELS, out_channels=IMG_CHANNELS*6, kernel_size=INPUT_KERNEL, stride=STRIDE, padding=PADDING)
-        self.conv2 = nn.Conv2d(in_channels=IMG_CHANNELS*6, out_channels=IMG_CHANNELS*12, kernel_size=INNER_KERNEL, stride=STRIDE, padding=PADDING)
-        self.fc1 = nn.Linear(IMG_CHANNELS*12*4*4 , OUTPUT_FEATURES) 
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=2)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=16, kernel_size=5, stride=1, padding=2)
+        self.fc1 = nn.Linear(229*229*16, 3) 
 
 # 2.2 - Implement the forward function:
     def forward(self, input):
         output = F.relu(self.conv1(input))      
         output = F.relu(self.conv2(output))        
-        output = output.view(-1, 12*4*4 ) 
+        output = output.view(-1, 229*229*16 ) 
         output = self.fc1(output)
 
         return output
