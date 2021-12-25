@@ -47,8 +47,10 @@ ROOT_DATA_DIR = 'src/CNN/data/'
 TRAIN_DATA_DIR = os.path.abspath(ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/training+validation/')  
 TEST_DATA_DIR = os.path.abspath(ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/test/') 
 
-# Data-preparation
+# DATA-BOND PARAMETERS:
+
 DATASET_IMG_SIZE = 229
+
 
 # The number of labels correspond to the number of classes we defined on previous
 # stages of this project. To sum-up, we have: 
@@ -58,21 +60,22 @@ DATASET_IMG_SIZE = 229
 # - Class #3: Low-intensity wildfires
 # - Class #4: Images with no wildfires at all
 NUMBER_OF_LABELS = 3 
-
-#Hyper-parameters
 IMG_CHANNELS = 3
+
+# DEBUG: I guessed this value by running the code (I took it from the returned error) 
+# could it be the number of trainable parameters of the CNN?
+INPUT_FEATURES = 264600 
+
+# ARBITRARY HYPER-PARAMETERS:
+
 INPUT_KERNEL = 11
 INNER_KERNEL  = 5
 STRIDE = 1
 PADDING = 1
-
-# DEBUG: I guessed this value by running the code (I took it from the returned error) 
-#
-# could it be the number of trainable parameters of the CNN?
-# # 
-
-INPUT_FEATURES = 264600 
 OUTPUT_FEATURES = NUMBER_OF_LABELS
+
+
+
 
 # We can set as many epochs as desired, considering that there is a threshold when the 
 # model stops improving it's performance after each training iteration (plotting the 
@@ -204,7 +207,7 @@ class Network(nn.Module):
         self.bn4 = nn.BatchNorm2d(IMG_CHANNELS*8)
         self.conv5 = nn.Conv2d(in_channels=IMG_CHANNELS*8, out_channels=IMG_CHANNELS*8, kernel_size=INNER_KERNEL, stride=STRIDE, padding=PADDING)
         self.bn5 = nn.BatchNorm2d(IMG_CHANNELS*8)
-        self.fc1 = nn.Linear(INPUT_FEATURES, OUTPUT_FEATURES) 
+        self.fc1 = nn.Linear(264600 , OUTPUT_FEATURES) 
 
 # 2.2 - Implement the forward function:
     def forward(self, input):
@@ -213,7 +216,7 @@ class Network(nn.Module):
         output = self.pool(output)                        
         output = F.relu(self.bn4(self.conv4(output)))     
         output = F.relu(self.bn5(self.conv5(output)))     
-        output = output.view(-1, INPUT_FEATURES) 
+        output = output.view(-1, 264600 ) 
         output = self.fc1(output)
 
         return output
