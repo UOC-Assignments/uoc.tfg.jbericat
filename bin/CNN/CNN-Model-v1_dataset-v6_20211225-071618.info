@@ -1,0 +1,57 @@
+***********************************************
+***     PoC's CNN Model Training Summary    ***
+***********************************************
+              Model version: v1.0
+             Dataset version: v6.0
+***********************************************
+
+ HYPER-PARAMETERS:
+
+ - Image size = (229 x 229 x 3)
+ - Number of classes / labels = 3
+ - Input layer kernel size = 11
+ - Inner layers kernel size = 5
+ - Stride size = 1
+ - Padding size = 1
+ - Batch size = 10
+
+***********************************************
+
+ DATASET TOTALS:
+
+ - The number of images in a training set is:  710
+ - The number of images in a test set is:  320
+ - The number of batches per epoch is:  71
+
+***********************************************
+
+ CCN STRUCTURE:
+
+ Network(
+  (conv1): Conv2d(3, 12, kernel_size=(11, 11), stride=(1, 1), padding=(1, 1))
+  (bn1): BatchNorm2d(12, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (conv2): Conv2d(12, 12, kernel_size=(5, 5), stride=(1, 1), padding=(1, 1))
+  (bn2): BatchNorm2d(12, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (pool): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+  (conv4): Conv2d(12, 24, kernel_size=(5, 5), stride=(1, 1), padding=(1, 1))
+  (bn4): BatchNorm2d(24, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (conv5): Conv2d(24, 24, kernel_size=(5, 5), stride=(1, 1), padding=(1, 1))
+  (bn5): BatchNorm2d(24, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (fc1): Linear(in_features=264600, out_features=3, bias=True)
+) 
+
+***********************************************
+
+ TRAINING STATS:
+
+ Model trained on cuda:0 device
+
+For epoch 1 the test accuracy over the whole test set is 61 %
+For epoch 2 the test accuracy over the whole test set is 57 %
+For epoch 3 the test accuracy over the whole test set is 58 %
+For epoch 4 the test accuracy over the whole test set is 62 %
+For epoch 5 the test accuracy over the whole test set is 61 %
+
+Real labels:  high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire
+
+Predicted:  medium-intensity-wildfire high-intensity-wildfire medium-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire medium-intensity-wildfire high-intensity-wildfire medium-intensity-wildfire

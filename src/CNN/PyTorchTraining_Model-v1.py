@@ -50,23 +50,6 @@ TEST_DATA_DIR = os.path.abspath(ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/test
 # Data-preparation
 DATASET_IMG_SIZE = 229
 
-#Hyper-parameters
-IMG_CHANNELS = 3
-INPUT_KERNEL = 11
-INNER_KERNEL  = 5
-STRIDE = 1
-PADDING = 1
-
-# We can set as many epochs as desired, considering that there is a threshold when the 
-# model stops improving it's performance after each training iteration (plotting the 
-# loss function at the end of the training process could be useful to optimize the training 
-# time vs perfomance balance.
-EPOCHS = 10
-
-# TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
-# Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 10
-
 # The number of labels correspond to the number of classes we defined on previous
 # stages of this project. To sum-up, we have: 
 # 
@@ -76,13 +59,38 @@ BATCH_SIZE = 10
 # - Class #4: Images with no wildfires at all
 NUMBER_OF_LABELS = 3 
 
+#Hyper-parameters
+IMG_CHANNELS = 3
+INPUT_KERNEL = 11
+INNER_KERNEL  = 5
+STRIDE = 1
+PADDING = 1
+
+# DEBUG: I guessed this value by running the code (I took it from the returned error) 
+#
+# could it be the number of trainable parameters of the CNN?
+# # 
+
+INPUT_FEATURES = 264600 
+OUTPUT_FEATURES = NUMBER_OF_LABELS
+
+# We can set as many epochs as desired, considering that there is a threshold when the 
+# model stops improving it's performance after each training iteration (plotting the 
+# loss function at the end of the training process could be useful to optimize the training 
+# time vs perfomance balance.
+EPOCHS = 5
+
+# TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
+# Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
+BATCH_SIZE = 10
+
 # opening / creating the file where to store the results
 OUT_FILE = open(MODEL_BIN_PATH + ".info", "w")
 
 # storing all the training environment on the results .info file's preface
 
 OUT_FILE.writelines([ "***********************************************\n",
-                      "***     PoC's CNN Model Training Summary     ***\n", 
+                      "***     PoC's CNN Model Training Summary    ***\n", 
                       "***********************************************\n", 
                       "              Model version: v" + str(MODEL_VERSION) + ".0\n",
                       "             Dataset version: v" + str(DATASET_VERSION) + ".0\n",
@@ -145,7 +153,10 @@ train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations
 
 # 1.3 - Create a loader for the training set which will read the data within batch size and put into memory.
 train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-print("The number of images in a training set is: ", len(train_loader)*BATCH_SIZE, file=OUT_FILE)
+
+# .info file data
+print(" DATASET TOTALS:\n", file=OUT_FILE)
+print(" - The number of images in a training set is: ", len(train_loader)*BATCH_SIZE, file=OUT_FILE)
 
 # 1.4 - Create an instance for testing
 test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TEST_DATA_DIR, transform=augmentations)
@@ -153,9 +164,9 @@ test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) 
 # 1.5 - Create a loader for the test set which will read the data within batch size and put into memory. 
 # Note that each shuffle is set to false for the test loader.
 test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
-print("The number of images in a test set is: ", len(test_loader)*BATCH_SIZE, file=OUT_FILE)
+print(" - The number of images in a test set is: ", len(test_loader)*BATCH_SIZE, file=OUT_FILE)
 
-print("The number of batches per epoch is: ", len(train_loader), file=OUT_FILE)
+print(" - The number of batches per epoch is: ", len(train_loader), file=OUT_FILE)
 classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensity-wildfire ', 'no-wildfire')
 
 
@@ -168,15 +179,20 @@ classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensit
 ###################################################################################################
 
 
-# 2.1 - Define a convolution neural network  
 import torch
 import torch.nn as nn
 import torchvision
 import torch.nn.functional as F
 
+# 2.1 - First we define a 14 layer convolution neural network:
+#
+#
+#
 class Network(nn.Module):
      
     def __init__(self):
+        # By inheriting from thorch.nn's Network() class, we are able to use it's extended features in our 
+        # own class definition (such as printing the model architecure) wehen invoking the class constructor
         super(Network, self).__init__()
     
         self.conv1 = nn.Conv2d(in_channels=IMG_CHANNELS, out_channels=IMG_CHANNELS*4, kernel_size=INPUT_KERNEL, stride=STRIDE, padding=PADDING)
@@ -188,22 +204,27 @@ class Network(nn.Module):
         self.bn4 = nn.BatchNorm2d(IMG_CHANNELS*8)
         self.conv5 = nn.Conv2d(in_channels=IMG_CHANNELS*8, out_channels=IMG_CHANNELS*8, kernel_size=INNER_KERNEL, stride=STRIDE, padding=PADDING)
         self.bn5 = nn.BatchNorm2d(IMG_CHANNELS*8)
-        self.fc1 = nn.Linear(264600, NUMBER_OF_LABELS) # The second argument must be the number of classes (4). The first one I'm not so sure, though...
+        self.fc1 = nn.Linear(INPUT_FEATURES, OUTPUT_FEATURES) 
 
+# 2.2 - Implement the forward function:
     def forward(self, input):
         output = F.relu(self.bn1(self.conv1(input)))      
         output = F.relu(self.bn2(self.conv2(output)))     
         output = self.pool(output)                        
         output = F.relu(self.bn4(self.conv4(output)))     
         output = F.relu(self.bn5(self.conv5(output)))     
-        output = output.view(-1, 264600) # The same as in line 143: I think the second argument could be the size of the receptive field (outputWidth == outputHeight) -> https://medium.com/@RaghavPrabhu/cnn-architectures-lenet-alexnet-vgg-googlenet-and-resnet-7c81c017b848
+        output = output.view(-1, INPUT_FEATURES) 
         output = self.fc1(output)
 
         return output
 
 # Instantiate a neural network model 
 model = Network()
-
+print("\n***********************************************\n\n",
+      "CCN STRUCTURE:\n\n",  
+      model,
+      "\n\n***********************************************\n",
+      file=OUT_FILE)
 # 2.2 - Define a loss function
 from torch.optim import Adam
  
@@ -258,7 +279,8 @@ def train(num_epochs):
 
     # Define your execution device
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("\nThe model will be running on", device, "device\n",file=OUT_FILE)
+    print(" TRAINING STATS:\n\n", 
+        "Model trained on", device, "device\n",file=OUT_FILE)
     # Convert model parameters and buffers to CPU or Cuda
     model.to(device)
 
