@@ -1,0 +1,50 @@
+***********************************************
+***     PoC's CNN Model Training Summary    ***
+***********************************************
+              Model version: v1.0
+             Dataset version: v6.0
+***********************************************
+
+ HYPER-PARAMETERS:
+
+ - Image size = (229 x 229 x 1)
+ - Number of classes / labels = 3
+ - Input layer kernel size = 154
+ - Inner layers kernel size = 77
+ - Stride size = 1
+ - Padding size = 1
+ - Batch size = 10
+
+***********************************************
+
+ DATASET TOTALS:
+
+ - The number of images in a training set is:  710
+ - The number of images in a test set is:  320
+ - The number of batches per epoch is:  71
+
+***********************************************
+
+ CCN STRUCTURE:
+
+ Network(
+  (conv1): Conv2d(1, 6, kernel_size=(154, 154), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(6, 12, kernel_size=(77, 77), stride=(1, 1), padding=(1, 1))
+  (fc1): Linear(in_features=192, out_features=3, bias=True)
+) 
+
+***********************************************
+
+ TRAINING STATS:
+
+ Model trained on cuda:0 device
+
+ For epoch 1 the test accuracy over the whole test set is 31 %
+ For epoch 2 the test accuracy over the whole test set is 32 %
+ For epoch 3 the test accuracy over the whole test set is 32 %
+ For epoch 4 the test accuracy over the whole test set is 33 %
+ For epoch 5 the test accuracy over the whole test set is 38 %
+
+Real labels:  high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire high-intensity-wildfire
+
+Predicted:  medium-intensity-wildfire medium-intensity-wildfire high-intensity-wildfire medium-intensity-wildfire medium-intensity-wildfire medium-intensity-wildfire medium-intensity-wildfire medium-intensity-wildfire low-intensity-wildfire  medium-intensity-wildfire
