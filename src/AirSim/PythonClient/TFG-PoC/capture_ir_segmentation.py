@@ -288,6 +288,7 @@ def main(client,
         # ladder, since there is no buit-in switch construct in Python 
         # -> https://pythongeeks.org/switch-in-python/
 
+        # TODO - This implementation is wrong! the if condition must evaluate the local var "input" instead of the global "ue4zone"
         def set_class_folder(input):
             if (ue4_zone == UE4_ZONE_0):
                 selection = 'test/high-intensity-wildfires/'

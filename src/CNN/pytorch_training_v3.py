@@ -38,8 +38,8 @@ import time
 EXEC_TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
 
 # CNN model & Dataset versions
-MODEL_VERSION = 2
-DATASET_VERSION = input("Type the dataset version you want to train the model against (4 = v4.0 / 5 = v5.0 / 6 = v6.0): ")
+MODEL_VERSION = input("Set the model version you want to train (1 = v1.0, 2 = v2.0, 3 = v3.0): ")
+DATASET_VERSION = input("Set the dataset version you want to use to train the model (4 = v4.0 / 5 = v5.0 / 6 = v6.0): ")
 
 # model storage path
 MODEL_BIN_PATH = "bin/CNN/CNN-Model-v" + str(MODEL_VERSION) + "_dataset-v" + str(DATASET_VERSION) + "_" + str(EXEC_TIMESTAMP)
@@ -94,11 +94,10 @@ OUT_FILE.writelines([ "***********************************************\n",
                       "***********************************************\n\n"                     
                       ])
 
-
 ###################################################################################################
 ###################################################################################################
 ####                                                                                           ####   
-####                                       1. IMPORTING THE DATA                               ####
+####                                      2. IMPORTING THE DATA                                ####
 ####                                                                                           ####   
 ###################################################################################################
 ###################################################################################################
@@ -108,9 +107,9 @@ OUT_FILE.writelines([ "***********************************************\n",
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-# 1.1 - Loading and normalizing the data.
-# Define transformations for the training and test sets
+###################################### 2.1 - DATA TRANSFORMATIONS #################################
 
+# Define transformations for the training and test subsets
 transformations = transforms.Compose([
     transforms.ToTensor(),
     # Normalizing the images ___________
@@ -123,6 +122,7 @@ transformations = transforms.Compose([
     transforms.Resize(DATASET_IMG_SIZE)
     ])
 
+# Define augmentation techniques (mirroring) to increase the number of samples / images on the training and test subsets
 augmentations = transforms.Compose([
     transforms.ToTensor(),
     # Normalizing the images ___________
@@ -136,20 +136,22 @@ augmentations = transforms.Compose([
     transforms.Resize(DATASET_IMG_SIZE)
 ])
 
-# 1.2 - Create an instance for training. 
+################################## 2.2 - LOADING TRAINING & TEST DATA #############################
+
+# Create an instance for training. 
 train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=augmentations)
 
-# 1.3 - Create a loader for the training set which will read the data within batch size and put into memory.
+# Create a loader for the training set which will read the data within batch size and put into memory.
 train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
-# .info file data
+# .info file (output data)
 print(" DATASET TOTALS:\n", file=OUT_FILE)
 print(" - The number of images in a training set is: ", len(train_loader)*BATCH_SIZE, file=OUT_FILE)
 
-# 1.4 - Create an instance for testing
+# Create an instance for testing
 test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TEST_DATA_DIR, transform=augmentations)
 
-# 1.5 - Create a loader for the test set which will read the data within batch size and put into memory. 
+# Create a loader for the test set which will read the data within batch size and put into memory. 
 # Note that each shuffle is set to false for the test loader.
 test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
 print(" - The number of images in a test set is: ", len(test_loader)*BATCH_SIZE, file=OUT_FILE)
@@ -157,46 +159,61 @@ print(" - The number of images in a test set is: ", len(test_loader)*BATCH_SIZE,
 print(" - The number of batches per epoch is: ", len(train_loader), file=OUT_FILE)
 classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensity-wildfire ', 'no-wildfire')
 
-
 ###################################################################################################
 ###################################################################################################
 ####                                                                                           ####   
-####                                     2. DEFINE THE CNN STRUCTURE                           ####
+####                                   3. DEFINE THE CNN STRUCTURE                             ####
 ####                                                                                           ####   
 ###################################################################################################
 ###################################################################################################
 
-
-import torch
-import torch.nn as nn
-import torchvision
-import torch.nn.functional as F
 from CNN_models import *
 
-# Instantiate the selected neural network model class imported from file CNN_Models.py)
-model = Network_v1()
+def set_model_version(input):
+    if (input == '1'):
+        selection = Network_v1()
+        
+    elif (input == '2'):
+        selection = Network_v2()
+
+    elif (input == '3'): 
+        selection = Network_v3()
+
+    return selection
+
+# Instantiate the selected neural network model class imported from the src/CNN/CNN_Models.py file
+model = set_model_version(MODEL_VERSION)
+
 print("\n***********************************************\n\n",
       "CCN STRUCTURE:\n\n",  
       model,
       "\n\n***********************************************\n",
       file=OUT_FILE)
-# 2.2 - Define a loss function
+
+###################################################################################################
+###################################################################################################
+####                                                                                           ####   
+####                                    4. DEFINE THE LOSS FUNCTION                            ####
+####                                                                                           ####   
+###################################################################################################
+###################################################################################################
+
+# Define a loss function
 from torch.optim import Adam
  
 # Define the loss function with Classification Cross-Entropy loss and an optimizer with Adam optimizer
 loss_fn = nn.CrossEntropyLoss()
-optimizer = Adam(model.parameters(), lr=0.0001, weight_decay=0.0001) # setting lr = 0.0001 increases accuracy, but reduces training time significantly
-
+optimizer = Adam(model.parameters(), lr=0.001, weight_decay=0.0001) # setting lr = 0.0001 DO NOT increases accuracy, and training time is more or less the same 
 
 ###################################################################################################
 ###################################################################################################
 ####                                                                                           ####   
-####                                         3. TRAIN THE MODEL                                ####
+####                                        5. TRAIN THE MODEL                                 ####
 ####                                                                                           ####   
 ###################################################################################################
 ###################################################################################################
 
-
+import torch
 from torch.autograd import Variable
 
 # Function to save the model
@@ -308,27 +325,26 @@ def train(num_epochs):
     plt.savefig(MODEL_BIN_PATH + '_epoch-accuracies.png')
     plt.show()
 
-
 ###################################################################################################
 ###################################################################################################
 ####                                                                                           ####   
-####                                4. TEST THE MODEL ON THE TEST DATA                         ####
+####                                6. TEST THE MODEL ON THE TEST DATA                         ####
 ####                                                                                           ####   
 ###################################################################################################
 ###################################################################################################
 
-
+import torchvision
 import matplotlib.pyplot as plt
 import numpy as np
 
-# 4.1 - Function to show the images
+# Function to show the images
 def imageshow(img):
     img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.show()
 
-# 4.2 - Function to test the model with a batch of images and show the labels predictions
+# Function to test the model with a batch of images and show the labels predictions
 
 def testBatch():
 
@@ -352,7 +368,6 @@ def testBatch():
     print('\nPredicted: ', ' '.join('%5s' % classes[predicted[j]] 
                               for j in range(BATCH_SIZE)),file=OUT_FILE)
 
-
 ###################################################################################################
 ###################################################################################################
 ####                                                                                           ####   
@@ -360,7 +375,6 @@ def testBatch():
 ####                                                                                           ####   
 ###################################################################################################
 ###################################################################################################
-
 
 if __name__ == "__main__":
     
@@ -373,7 +387,7 @@ if __name__ == "__main__":
     #testModelAccuracy()
     
     # Let's load the model we just created and test the accuracy per label
-    model = Network_v2()
+    model = set_model_version(MODEL_VERSION)
     model.load_state_dict(torch.load(MODEL_BIN_PATH + ".pth"))
 
     # Test with batch of images

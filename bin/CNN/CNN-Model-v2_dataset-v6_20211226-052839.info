@@ -1,0 +1,20 @@
+***********************************************
+***     PoC's CNN Model Training Summary    ***
+***********************************************
+              Model version: v2.0
+             Dataset version: v6.0
+***********************************************
+
+ DATA PARAMETERS:
+
+ - Image size = (229 x 229 x 1)
+ - Number of classes / labels = 3
+ - Batch size = 10
+
+***********************************************
+
+ DATASET TOTALS:
+
+ - The number of images in a training set is:  710
+ - The number of images in a test set is:  320
+ - The number of batches per epoch is:  71
