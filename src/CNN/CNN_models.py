@@ -32,7 +32,7 @@ import torch.nn.functional as F
 ###################################################################################################
 ###################################################################################################
 
-# 2.1 - First we define a pretty simple, 2-layer convolution neural network in order to guess the
+# First we define a pretty simple, 2-layer convolution neural network in order to guess the
 # best hyper-parameter configuration possible - That is, the one that works with the given data
 # (229 x 229 x 1 images) as well as provides with best accuracy results:
 
@@ -72,10 +72,10 @@ class Network_v2(nn.Module):
     def __init__(self):
 
         super(Network_v2, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=2)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=11, stride=2, padding=2)
         self.bn1 = nn.BatchNorm2d(16)
         self.pool1 = nn.MaxPool2d(2,1)
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=1, padding=2)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=3, padding=2)
         self.bn2 = nn.BatchNorm2d(32)
         self.pool2 = nn.MaxPool2d(2,2)
         self.fc1 = nn.Linear(114*114*32 , 3) 
@@ -108,16 +108,16 @@ class Network_v3(nn.Module):
     def __init__(self):
         super(Network_v3, self).__init__()
         
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=2)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=9, stride=2, padding=2)
         self.bn1 = nn.BatchNorm2d(16)
-        self.conv2 = nn.Conv2d(in_channels=16, out_channels=16, kernel_size=5, stride=1, padding=2)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=16, kernel_size=5, stride=2, padding=2)
         self.bn2 = nn.BatchNorm2d(16)
         self.pool = nn.MaxPool2d(2,1)
-        self.conv3 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=1, padding=2)
+        self.conv3 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=2)
         self.bn3 = nn.BatchNorm2d(32)
         self.conv4 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=1, padding=2)
         self.bn4 = nn.BatchNorm2d(32)
-        self.fc1 = nn.Linear(32*228*228, 3)
+        self.fc1 = nn.Linear(32*58*58, 3)
 
     def forward(self, input):
         output = F.relu(self.bn1(self.conv1(input)))      
@@ -125,7 +125,7 @@ class Network_v3(nn.Module):
         output = self.pool(output)                        
         output = F.relu(self.bn3(self.conv3(output)))     
         output = F.relu(self.bn4(self.conv4(output)))     
-        output = output.view(-1, 32*228*228)
+        output = output.view(-1, 32*58*58)
         output = self.fc1(output)
 
         return output

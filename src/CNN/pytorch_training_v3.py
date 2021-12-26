@@ -1,24 +1,51 @@
 """
-title:: 
+Title::
 
+    pytorch_training.py 
 
-description::
+Description::
 
+    this program sets the appropiate envionment hyper-parameters and then loads the
+    selected CNN model (implemented on the CNN_models.py file) in order to train it using
+    the synthetic data (thermal / night-vision simulated wildfire images) previosly created 
+    using the Unreal Engine editor. Once the model gets trained, a summary file is created
+    including the trained CNN architecure blueprint and other performance data.
 
-inputs::
+Inputs::
 
+    STDIN data: Model & Dataset versions
 
-output::
+Output::
 
+    Tarball file "$WORKSPACE$/bin/CNN/cnn-training_%TIMESTAMP%.tar.gz" including:
 
-original author::
+    - Trained model binary file -> trained-model.pth
+    - Training summary report -> trained-model.info
+    - Loss function plot -> loss-curve.png
+    - Accuraccy progression plot -> epoch-accuracies.png
+    - Label predictions image grid -> labels-prediction.png
+
+Original author::
+
     Microsoft Docs - Windows AI - Windows Machine Learning
 
-Modified / adapted by:    
+Modified / adapted by:   
+
     Jordi Bericat Ruz - Universitat Oberta de Catalunya
 
-references::
+References::
+
     1 - https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-train-model
+    2 - https://www.pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/ 
+    3 - https://towardsdatascience.com/how-to-apply-a-cnn-from-pytorch-to-your-images-18515416bba1
+
+TODO LIST: 
+
+    - Define training+validation data split -> https://www.pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/
+    - track training time and add to report 
+    - investigate why sometimes the predicted labels on the summary are way far below the best prediction accuracy. 
+      Maybe the microsoft algorythm is buggy and is saving the FIRST trained model (first epoch) instead of the BEST 
+      trained model (which uses to provide the worse accuracy results).
 """
 
 ###################################################################################################
@@ -77,7 +104,7 @@ EPOCHS = 5
 
 # TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 10
+BATCH_SIZE = 40
 
 ####################################### 1.5 - OUTPUT TO SUMMARY FILE #################################
 
@@ -102,8 +129,6 @@ OUT_FILE.writelines([ "***********************************************\n",
 ####                                                                                           ####   
 ###################################################################################################
 ###################################################################################################
-
-# https://towardsdatascience.com/how-to-apply-a-cnn-from-pytorch-to-your-images-18515416bba1
 
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
@@ -158,7 +183,7 @@ test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False, num_wo
 print(" - The number of images in a test set is: ", len(test_loader)*BATCH_SIZE, file=OUT_FILE)
 
 print(" - The number of batches per epoch is: ", len(train_loader), file=OUT_FILE)
-classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensity-wildfire')
+classes = ('high-intensity-wildfire', 'low-intensity-wildfire', 'no-wildfires')
 
 ###################################################################################################
 ###################################################################################################
@@ -186,7 +211,7 @@ def set_model_version(input):
 model = set_model_version(MODEL_VERSION)
 
 print("\n***********************************************\n\n",
-      "CCN STRUCTURE:\n\n",  
+      "CNN BLUEPRINT:\n\n",  
       model,
       "\n\n***********************************************\n",
       file=OUT_FILE)
