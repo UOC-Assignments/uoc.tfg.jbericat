@@ -35,14 +35,14 @@ import os
 import time
 
 # This script's execution timestamp
-EXEC_TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
+TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
 
 # CNN model & Dataset versions
 MODEL_VERSION = input("Set the model version you want to train (1 = v1.0, 2 = v2.0, 3 = v3.0): ")
 DATASET_VERSION = input("Set the dataset version you want to use to train the model (4 = v4.0 / 5 = v5.0 / 6 = v6.0): ")
 
 # model storage path
-MODEL_BIN_PATH = "bin/CNN/CNN-Model-v" + str(MODEL_VERSION) + "_dataset-v" + str(DATASET_VERSION) + "_" + str(EXEC_TIMESTAMP)
+MODEL_PATH = "bin/CNN/cnn-training_" + str(TIMESTAMP)
 
 # Dataset paths - DEBUG: replace abs for rel paths?
 ROOT_DATA_DIR = 'src/CNN/data/'
@@ -50,7 +50,8 @@ TRAIN_DATA_DIR = os.path.abspath(ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/tra
 TEST_DATA_DIR = os.path.abspath(ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/test/') 
 
 # opening / creating the file where to store the results
-OUT_FILE = open(MODEL_BIN_PATH + ".info", "w")
+os.mkdir(os.path.abspath(MODEL_PATH))
+OUT_FILE = open(os.path.abspath(MODEL_PATH + "/trained-model.info"), "w")
 
 ###################################### 1.2 - DATA-BOND PARAMETERS ##################################
 
@@ -157,7 +158,7 @@ test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False, num_wo
 print(" - The number of images in a test set is: ", len(test_loader)*BATCH_SIZE, file=OUT_FILE)
 
 print(" - The number of batches per epoch is: ", len(train_loader), file=OUT_FILE)
-classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensity-wildfire ', 'no-wildfire')
+classes = ('high-intensity-wildfire', 'medium-intensity-wildfire', 'low-intensity-wildfire')
 
 ###################################################################################################
 ###################################################################################################
@@ -218,7 +219,7 @@ from torch.autograd import Variable
 
 # Function to save the model
 def saveModel():
-    torch.save(model.state_dict(), MODEL_BIN_PATH + ".pth")
+    torch.save(model.state_dict(), MODEL_PATH + "/trained-model.pth")
 
 # Function to test the model with the test dataset and print the accuracy for the test images
 def testAccuracy():
@@ -313,7 +314,7 @@ def train(num_epochs):
     plt.ylabel("running loss")
     plt.title("LOSS CURVE")
     plt.legend("LOSS CURVE")
-    plt.savefig(MODEL_BIN_PATH + '_loss-curve.png')
+    plt.savefig(MODEL_PATH + '/loss-curve.png')
     plt.show()
 
     # ...as well as the accuracy progression
@@ -322,7 +323,7 @@ def train(num_epochs):
     plt.ylabel("model accuracy")
     plt.title("MODEL ACCURACY PROGRESSION")
     plt.legend("MODEL ACCURACY PROGRESSION")
-    plt.savefig(MODEL_BIN_PATH + '_epoch-accuracies.png')
+    plt.savefig(MODEL_PATH + '/epoch-accuracies.png')
     plt.show()
 
 ###################################################################################################
@@ -342,6 +343,7 @@ def imageshow(img):
     img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.savefig(MODEL_PATH + '/labels-prediction.png')
     plt.show()
 
 # Function to test the model with a batch of images and show the labels predictions
@@ -383,18 +385,30 @@ if __name__ == "__main__":
     print('Finished Training')
 
     # Test which classes performed well
-    # DEBUG - UNCOMMENT NEXT LINE! 
+    # DEBUG - The original code does not have a testModelAccuracy() method. 
     #testModelAccuracy()
     
     # Let's load the model we just created and test the accuracy per label
     model = set_model_version(MODEL_VERSION)
-    model.load_state_dict(torch.load(MODEL_BIN_PATH + ".pth"))
+    model.load_state_dict(torch.load(MODEL_PATH + "/trained-model.pth"))
 
     # Test with batch of images
     testBatch()
+    OUT_FILE.close()
 
-    # RESULTS REPORTS
-    print("\nTrained model binary file -> " + os.path.abspath(MODEL_BIN_PATH) + ".pth\n")
-    print("Training summary file -> " + os.path.abspath(MODEL_BIN_PATH) + ".info\n")
-    print("Loss function curve -> " + os.path.abspath(MODEL_BIN_PATH) + "_loss-curve.png\n")
-    print("Epoch accuracy stats -> " + os.path.abspath(MODEL_BIN_PATH) + "_epoch-accuracy.png\n")
+    # Generating final results report tarball file
+
+    import tarfile
+    #import os.path
+    import shutil
+
+    archive = tarfile.open(MODEL_PATH+".tar.gz", "w|gz")
+    archive.add(MODEL_PATH, arcname="")
+    archive.close()
+
+    print("\nTraining results file -> " + os.path.abspath(MODEL_PATH) + ".tar.gz\n")
+    shutil.rmtree(MODEL_PATH)
+
+
+
+
