@@ -38,11 +38,13 @@ References::
     1 - https://docs.microsoft.com/en-us/windows/ai/windows-ml/tutorials/pytorch-train-model
     2 - https://www.pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/ 
     3 - https://towardsdatascience.com/how-to-apply-a-cnn-from-pytorch-to-your-images-18515416bba1
+    4 - https://discuss.pytorch.org/t/how-to-measure-time-in-pytorch/26964/2
+    5 - PLOT L
 
 TODO LIST: 
 
     - Define training+validation data split -> https://www.pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/
-    - track training time and add to report 
+        -> "Using PyTorch’s random_split function, we can easily split our data."
     - investigate why sometimes the predicted labels on the summary are way far below the best prediction accuracy. 
       Maybe the microsoft algorythm is buggy and is saving the FIRST trained model (first epoch) instead of the BEST 
       trained model (which uses to provide the worse accuracy results).
@@ -88,7 +90,7 @@ DATASET_IMG_SIZE = 229
 # stages of this project. To sum-up, we have: 
 # 
 # - Class #1: High-intensity wildfires 
-# - Class #2: Medium-intensity wildfires 
+# - Class #2: Medium-intensity wildfires -- REMOVED FROM DATASET v7.0!!!
 # - Class #3: Low-intensity wildfires
 # - Class #4: Images with no wildfires at all
 NUMBER_OF_LABELS = OUTPUT_FEATURES = 3 
@@ -100,11 +102,14 @@ IMG_CHANNELS = 1
 # model stops improving it's performance after each training iteration (plotting the 
 # loss function at the end of the training process could be useful to optimize the training 
 # time vs perfomance balance.
-EPOCHS = 5
+EPOCHS = 10
 
 # TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 40
+BATCH_SIZE = 64
+
+# Learning rate: 
+LEARNING_RATE = 0.001
 
 ####################################### 1.5 - OUTPUT TO SUMMARY FILE #################################
 
@@ -229,7 +234,7 @@ from torch.optim import Adam
  
 # Define the loss function with Classification Cross-Entropy loss and an optimizer with Adam optimizer
 loss_fn = nn.CrossEntropyLoss()
-optimizer = Adam(model.parameters(), lr=0.001, weight_decay=0.0001) # setting lr = 0.0001 DO NOT increases accuracy, and training time is more or less the same 
+optimizer = Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=0.0001) # setting lr = 0.0001 DO NOT increases accuracy, and training time is more or less the same 
 
 ###################################################################################################
 ###################################################################################################
@@ -262,6 +267,7 @@ def testAccuracy():
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             accuracy += (predicted == labels).sum().item()
+            
     
     # compute the accuracy over all test images
     accuracy = (100 * accuracy / total)
@@ -405,9 +411,24 @@ def testBatch():
 
 if __name__ == "__main__":
     
-    # Let's build our model
+    # Let's build our model while benchmarking the GPU usage stats -> https://discuss.pytorch.org/t/how-to-measure-time-in-pytorch/26964/2
+    torch.cuda.synchronize()
+
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+
+    start.record()
     train(EPOCHS)
+    end.record()
+
+    # Waits for everything to finish running
+    torch.cuda.synchronize()
+
+    # now we can calculate the training time in seconds
+    print("\n Training time: ", str(start.elapsed_time(end)/1000.0), " seconds\n", file=OUT_FILE)
+
     print('Finished Training')
+
 
     # Test which classes performed well
     # DEBUG - The original code does not have a testModelAccuracy() method. 
@@ -422,9 +443,7 @@ if __name__ == "__main__":
     OUT_FILE.close()
 
     # Generating final results report tarball file
-
     import tarfile
-    #import os.path
     import shutil
 
     archive = tarfile.open(MODEL_PATH+".tar.gz", "w|gz")
