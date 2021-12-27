@@ -68,6 +68,8 @@ TODO LIST:
 import os
 import time
 
+from torch.functional import Tensor
+
 # This script's execution timestamp
 TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
 
@@ -216,6 +218,16 @@ test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False, num_wo
 trainSteps = len(train_loader.dataset) // BATCH_SIZE
 valSteps = len(val_loader.dataset) // BATCH_SIZE
 
+# initialize a dictionary to store training history
+STATS = {
+    "train_loss": [],
+    "train_acc": [],
+    "val_loss": [],
+    "val_acc": [],
+    "test_acc": [],
+    "final_test_acc": []
+}
+
 ############################# 2.3 - OUTPUT SUMMARY DATA (cnn-training.info) #######################
 
 print(" DATASET TOTALS:\n", file=OUT_FILE)
@@ -315,15 +327,6 @@ def calculateAccuracy(data_loader):
 
 # Training function. We simply have to loop over our data iterator and feed the inputs to the network and optimize.
 def train(num_epochs):
-
-    # initialize a dictionary to store training history
-    STATS = {
-        "train_loss": [],
-        "train_acc": [],
-        "val_loss": [],
-        "val_acc": [],
-        "test_acc": []
-    }
     
     best_accuracy = 0.0
 
@@ -386,7 +389,6 @@ def train(num_epochs):
 
             # extract the loss and total correct predictions value         
             totalTrainLoss += loss.item()     
-            #trainCorrect += (outputs.argmax(1) == labels).type(torch.float).sum().item()
         
         #################### 5.2.2 - MODEL VALIDATION ####################
 
@@ -406,9 +408,6 @@ def train(num_epochs):
                 # make the predictions and calculate the validation loss
                 predictions = model(images)
                 totalValLoss += loss_fn(predictions, labels)
-
-                # calculate the number of correct predictions
-                #valCorrect += (predictions.argmax(1) == labels).type(torch.float).sum().item()
 
 	#################### 5.2.3 - TRAIN & VAL STATS ####################
     
@@ -461,7 +460,6 @@ def train(num_epochs):
         print('  - For epoch', i+1,'the TEST accuracy over the whole TEST dataset is %d %%' % (STATS["test_acc"][i]),file=OUT_FILE) 
     
     # Now we can plot the training and validation loss curve... 
-    # TODO WRAP-IT-ALL ON THE SAME PLOT (USING LEGENDS AND STUFF)
     plt.plot(STATS["train_loss"], color='red', label="train loss")
     plt.plot(STATS["val_loss"], color='blue', label="validation loss")
     plt.title("TRAINING LOSS CURVE")
@@ -495,17 +493,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tabulate import tabulate
 
-######################################## 5.1 - AUXILIAR FUNCTIONS #################################
-
-# Function to show the images
-def imageshow(img):
-    img = img / 2 + 0.5     # unnormalize
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.savefig(MODEL_PATH + '/labels-prediction.png')
-    plt.show()
-
-###################################### 5.2 - MODEL TESTING FUNCTION ###############################
+###################################### 6.1 - MODEL TESTING FUNCTION ###############################
 
 # Function to test the model with a batch of images and show the labels predictions
 def testBatch():
@@ -522,15 +510,36 @@ def testBatch():
     # Also, we only need a small sample of images for this test (24 is quite enough).       
     predictions_loader = DataLoader(test_data, batch_size=NUMBER_OF_SAMPLES, shuffle=True, num_workers=0)
 
-    # get batch of images from the test DataLoader  # DEBUG - THIS IS NOT MOVING DATA TO THE GPU MEM SPACE!
+    # Define your execution device
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(" - Model tested on", device, "device",
+          file=OUT_FILE)
+
+    # Convert model parameters and buffers to CPU or Cuda
+    model.to(device)
+
+    # get batch of images from the test DataLoader  
     images, labels = next(iter(predictions_loader)) 
+    
+    # MOVING DATA TO THE GPU MEM SPACE
+    images = Variable(images.to(device))
+    labels = Variable(labels.to(device))
 
     # show all images as one image grid
-    imageshow(torchvision.utils.make_grid(images))
+    img_grid = Tensor.cpu(torchvision.utils.make_grid(images))
+    img_grid = img_grid / 2 + 0.5     # unnormalize
+    npimg = img_grid.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.savefig(MODEL_PATH + '/labels-prediction.png')
+    plt.show()
       
     # Let's see what if the model identifies the labels of these example
     outputs = model(images)
     _, predicted = torch.max(outputs, 1)
+
+    # Showing the accuracy of the final test
+    STATS["final_test_acc"].append(calculateAccuracy(predictions_loader))
+    print(" - Final test accuracy: %d %%" % (STATS["final_test_acc"][0])  ,"\n", file=OUT_FILE)
 
     # Preparing the data to build a table 
     mydata = []
@@ -546,10 +555,6 @@ def testBatch():
     
     # print the table to info file
     print(tabulate(mydata, headers=head, tablefmt="grid"), file=OUT_FILE)
-
-    # TODO showing the accuracy of the final test
-    #final_test_accuracy = calculateAccuracy(predictions_loader)
-    #print("\nFinal test accuracy: "+final_test_accuracy)
 
 ###################################################################################################
 ###################################################################################################
