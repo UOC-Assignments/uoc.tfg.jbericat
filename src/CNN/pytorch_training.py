@@ -123,8 +123,8 @@ OUT_FILE.writelines([ "*********************************************************
                       "***                                                                          ***\n",
                       "********************************************************************************\n",
                       "***                                                                          ***\n",
-                      "***                              Model version: v" + str(MODEL_VERSION) + ".0" + 25*" " + "***\n",
-                      "***                             Dataset version: v" + str(DATASET_VERSION) + ".0" + 24*" " + "***\n"
+                      "***                             Model version: v" + str(MODEL_VERSION) + ".0" + 26*" " + "***\n",
+                      "***                            Dataset version: v" + str(DATASET_VERSION) + ".0" + 25*" " + "***\n"
                       "***                                                                          ***\n",
                       "********************************************************************************\n\n",
                       " TRAINING PARAMETERS:\n\n",
@@ -489,48 +489,25 @@ def train(num_epochs):
     
     # Now we can plot the training and validation loss curve... 
     # TODO WRAP-IT-ALL ON THE SAME PLOT (USING LEGENDS AND STUFF)
-    plt.plot(STATS["train_loss"], color='red')
-    plt.xlabel("epoch")
-    plt.ylabel("loss coeficient")
+    plt.plot(STATS["train_loss"], color='red', label="train loss")
+    plt.plot(STATS["val_loss"], color='blue', label="validation loss")
     plt.title("TRAINING LOSS CURVE")
-    plt.legend("training-loss-curve")
-    plt.savefig(MODEL_PATH + '/training-loss-curve.png')
-    plt.show()
-
-    plt.plot(STATS["val_loss"], color='red')
-    plt.xlabel("epoch number")
-    plt.ylabel("loss coeficient")
-    plt.title("VALIDATION LOSS CURVE")
-    plt.legend("validation-loss-curve")
-    plt.savefig(MODEL_PATH + '/validation-loss-curve.png')
+    plt.xlabel("Epoch number")
+    plt.ylabel("Loss coeficient")
+    plt.legend()
+    plt.savefig(MODEL_PATH + '/model-loss-curves.png')
     plt.show()
 
     # ...the training & validation accuracy progression...
-    plt.plot(STATS["train_acc"], color='blue')
-    plt.xlabel("epoch number")
-    plt.ylabel("accuracy (%)")
-    plt.title("TRAINING ACCURACY PROGRESSION")
-    plt.legend("training-accuracy")
-    plt.savefig(MODEL_PATH + '/training-accuracy.png')
+    plt.plot(STATS["train_acc"], color='red', label="training accuracy")
+    plt.plot(STATS["val_acc"], color='blue', label="validation accuracy")
+    plt.plot(STATS["test_acc"], color='purple', label="test accuracy")
+    plt.title("ACCURACY PROGRESSION")
+    plt.xlabel("Epoch number")
+    plt.ylabel("Accuracy (%)")    
+    plt.legend()
+    plt.savefig(MODEL_PATH + '/model-accuracies.png')
     plt.show()
-
-    plt.plot(STATS["val_acc"], color='blue')
-    plt.xlabel("epoch number")
-    plt.ylabel("accuracy (%)")
-    plt.title("VALIDATION ACCURACY PROGRESSION")
-    plt.legend("validation-accuracy")
-    plt.savefig(MODEL_PATH + '/validation-accuracy.png')
-    plt.show()
-
-    # ...as well as the accuracy progression on the TEST dataset for each training EPOCH
-    plt.plot(STATS["test_acc"], color='purple')
-    plt.xlabel("training epoch")
-    plt.ylabel("model accuracy")
-    plt.title("MODEL ACCURACY PROGRESSION")
-    plt.legend("model-accuracy-progession")
-    plt.savefig(MODEL_PATH + '/test-accuracy.png')
-    plt.show()
-    
 
 ###################################################################################################
 ###################################################################################################
@@ -559,15 +536,15 @@ def imageshow(img):
 # Function to test the model with a batch of images and show the labels predictions
 def testBatch():
 
-    NUMBER_OF_SAMPLES = 20
+    NUMBER_OF_SAMPLES = 24
 
-    # Create a loader for the test subset which will read the data for the final prediction test. 
+    # JBERICAT: Create a loader for the test subset which will read the data for the final prediction test. 
     # Note that now we want to shuffle images to get random samples of every class, so we set it to true. 
-    # Also, we only need a small sample of images for this test (20 is quite enough).       
+    # Also, we only need a small sample of images for this test (24 is quite enough).       
     predictions_loader = DataLoader(test_data, batch_size=NUMBER_OF_SAMPLES, shuffle=True, num_workers=0)
 
     # get batch of images from the test DataLoader  
-    images, labels = next(iter(predictions_loader)) # DEBUG -> ORIGINAL CODE: images, labels = next(iter(test_loader))
+    images, labels = next(iter(predictions_loader)) 
 
     # show all images as one image grid
     imageshow(torchvision.utils.make_grid(images))
@@ -598,15 +575,8 @@ if __name__ == "__main__":
     
     # Let's build our model while benchmarking the GPU usage stats
     train(EPOCHS)
-
-
-    print('Finished Training')
-
-
-    # Test which classes performed well
-    # DEBUG - The original code does not have a testModelAccuracy() function. 
-    #testModelAccuracy()
-    
+    print('[INFO] Finished Training')
+   
     # Let's load the model we just created and test the accuracy per label
     model = set_model_version(MODEL_VERSION)
     model.load_state_dict(torch.load(MODEL_PATH + "/trained-model.pth"))
@@ -615,7 +585,6 @@ if __name__ == "__main__":
     testBatch()
 
     # Generating final results report tarball file
-    
     import tarfile
     import shutil
 
@@ -624,7 +593,7 @@ if __name__ == "__main__":
     archive.add(MODEL_PATH, arcname="")
     archive.close()
 
-    print("\nTraining results file -> " + os.path.abspath(MODEL_PATH) + ".tar.gz\n")
+    print("\n[INFO] Training model and summary file saved at: " + os.path.abspath(MODEL_PATH) + ".tar.gz\n")
 
     # Deleting temp folder
     shutil.rmtree(MODEL_PATH)
