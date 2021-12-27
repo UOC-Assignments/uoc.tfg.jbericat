@@ -3,6 +3,10 @@ Title::
 
     pytorch_training.py 
 
+Python environment: 
+
+    Python 6.4.6 + pytorch x.y....... TODO
+
 Description::
 
     this program sets the appropiate envionment hyper-parameters and then loads the
@@ -24,8 +28,6 @@ Output::
     - Loss function plot -> loss-curve.png
     - Accuraccy progression plot -> epoch-accuracies.png
     - Label predictions image grid -> labels-prediction.png
-
-Python env: TODO Python 6.4.6 + pytorch x.y....... 
 
 Original author::
 
@@ -107,12 +109,12 @@ IMG_CHANNELS = 1
 # time vs perfomance balance.
 EPOCHS = 10
 
-# TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
+# The PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 
 # Learning rate: 
-LEARNING_RATE = 0.00001
+LEARNING_RATE = 0.0001
 
 ############################### 1.5 - OUTPUT SUMMARY DATA (cnn-training.info) #####################
 
@@ -251,7 +253,7 @@ model = set_model_version(MODEL_VERSION)
 
 # .info file output summary data 
 print("\n********************************************************************************\n\n",
-      "CNN BLUEPRINT:\n\n",  
+      "CNN BLUEPRINT:\n\n ",  
       model,
       file=OUT_FILE)
 
@@ -286,31 +288,6 @@ from torch.autograd import Variable
 def saveModel():
     torch.save(model.state_dict(), MODEL_PATH + "/trained-model.pth")
 
-'''
-# Function to test the model with the test dataset and print the accuracy for the test images
-def testAccuracy():
-    
-    # for TESTING we need to set the model in evaluation mode
-    model.eval()
-    accuracy = 0.0
-    total = 0.0
-    
-    # turn off autograd for testing evaluation
-    with torch.no_grad():
-        for images, labels in test_loader: # BUGFIX PR #126 ->  See TASK#05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
-            images, labels = images.cuda(), labels.cuda() # BUGFIX PR #126 ->  See TASK#05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
-            # run the model on the test set to predict labels
-            outputs = model(images)
-            # the label with the highest energy will be our prediction
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            accuracy += (predicted == labels).sum().item()           
-    
-    # compute the accuracy over all test images
-    accuracy = (100 * accuracy / total)
-    return(accuracy)
-'''
-
 # Function to test the model with the test dataset and print the accuracy for the test images
 def calculateAccuracy(data_loader):
     
@@ -334,12 +311,10 @@ def calculateAccuracy(data_loader):
     accuracy = (100 * accuracy / total)
     return(accuracy)
 
-
 ################################## 5.2 - MODEL TRAINING FUNCTION #############################
 
 # Training function. We simply have to loop over our data iterator and feed the inputs to the network and optimize.
 def train(num_epochs):
-
 
     # initialize a dictionary to store training history
     STATS = {
@@ -355,14 +330,14 @@ def train(num_epochs):
     # Define your execution device
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("\n********************************************************************************\n\n",
-          " MODEL TRAINING STATS:\n\n", "Model trained on", device, "device\n",
+          "MODEL TRAINING STATS:\n\n", "- Model trained on", device, "device",
           file=OUT_FILE)
 
     # Convert model parameters and buffers to CPU or Cuda
     model.to(device)
 
     # STDOUT INFO
-    print("\n[INFO] Training the model and creating the summary, hold-on tight...\n")
+    print("[INFO] Training the model and creating the summary, hold-on tight...\n")
 
     # measure how long training + validation process is going to take -> https://discuss.pytorch.org/t/how-to-measure-time-in-pytorch/26964/2
     start = torch.cuda.Event(enable_timing=True)
@@ -442,8 +417,6 @@ def train(num_epochs):
         avgValLoss = totalValLoss / valSteps
 
         # calculate the training and validation accuracy
-        #trainCorrect = trainCorrect / len(train_loader)
-        #valCorrect = valCorrect / len(val_loader)
         trainCorrect = calculateAccuracy(train_loader)
         valCorrect = calculateAccuracy(val_loader)
 
@@ -476,7 +449,7 @@ def train(num_epochs):
     torch.cuda.synchronize()
 
     # now we can calculate the training time in seconds
-    print(" Training + validation time: ", str(start.elapsed_time(end)/1000.0), " seconds\n", file=OUT_FILE)
+    print(" - Training time: ", str(start.elapsed_time(end)/1000.0), " seconds\n", file=OUT_FILE)
 
     # .info file output summary data 
     print("********************************************************************************\n\n",
@@ -485,7 +458,7 @@ def train(num_epochs):
 
     # STDOUT  
     for i in range(len(STATS["test_acc"])):
-        print(' For epoch', i+1,'the TEST accuracy over the whole TEST dataset is %d %%' % (STATS["test_acc"][i]),file=OUT_FILE) 
+        print('  - For epoch', i+1,'the TEST accuracy over the whole TEST dataset is %d %%' % (STATS["test_acc"][i]),file=OUT_FILE) 
     
     # Now we can plot the training and validation loss curve... 
     # TODO WRAP-IT-ALL ON THE SAME PLOT (USING LEGENDS AND STUFF)
@@ -520,6 +493,7 @@ def train(num_epochs):
 import torchvision
 import matplotlib.pyplot as plt
 import numpy as np
+from tabulate import tabulate
 
 ######################################## 5.1 - AUXILIAR FUNCTIONS #################################
 
@@ -536,6 +510,11 @@ def imageshow(img):
 # Function to test the model with a batch of images and show the labels predictions
 def testBatch():
 
+    # stdout
+    print("\n********************************************************************************\n\n" + 
+          " FINAL PREDICTION TEST:\n", 
+          file=OUT_FILE)
+
     NUMBER_OF_SAMPLES = 24
 
     # JBERICAT: Create a loader for the test subset which will read the data for the final prediction test. 
@@ -543,25 +522,34 @@ def testBatch():
     # Also, we only need a small sample of images for this test (24 is quite enough).       
     predictions_loader = DataLoader(test_data, batch_size=NUMBER_OF_SAMPLES, shuffle=True, num_workers=0)
 
-    # get batch of images from the test DataLoader  
+    # get batch of images from the test DataLoader  # DEBUG - THIS IS NOT MOVING DATA TO THE GPU MEM SPACE!
     images, labels = next(iter(predictions_loader)) 
 
     # show all images as one image grid
     imageshow(torchvision.utils.make_grid(images))
-   
-    # Show the real labels on the screen 
-    print('\nReal labels: ', ' '.join('%5s' % classes[labels[j]] 
-                               for j in range(NUMBER_OF_SAMPLES)),file=OUT_FILE)
-  
-    # Let's see what if the model identifies the  labels of these example
+      
+    # Let's see what if the model identifies the labels of these example
     outputs = model(images)
-    
-    # We got the probability for every 10 labels. The highest (max) probability should be correct label
     _, predicted = torch.max(outputs, 1)
+
+    # Preparing the data to build a table 
+    mydata = []
+    for j in range(NUMBER_OF_SAMPLES):
+
+        # assign data
+        real_label = str(classes[labels[j]])
+        predicted_label = classes[predicted[j]]
+        mydata.append([real_label, predicted_label])
     
-    # Let's show the predicted labels on the screen to compare with the real ones
-    print('\nPredicted: ', ' '.join('%5s' % classes[predicted[j]] 
-                              for j in range(NUMBER_OF_SAMPLES)),file=OUT_FILE)
+    # create header
+    head = ["Real Label", "Predicted Label"]
+    
+    # print the table to info file
+    print(tabulate(mydata, headers=head, tablefmt="grid"), file=OUT_FILE)
+
+    # TODO showing the accuracy of the final test
+    #final_test_accuracy = calculateAccuracy(predictions_loader)
+    #print("\nFinal test accuracy: "+final_test_accuracy)
 
 ###################################################################################################
 ###################################################################################################
