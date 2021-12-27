@@ -39,7 +39,8 @@ References::
     2 - https://www.pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/ 
     3 - https://towardsdatascience.com/how-to-apply-a-cnn-from-pytorch-to-your-images-18515416bba1
     4 - https://discuss.pytorch.org/t/how-to-measure-time-in-pytorch/26964/2
-    5 - PLOT L
+    5 - https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html  
+    6 - https://discuss.pytorch.org/t/plotting-loss-curve/42632/2
 
 TODO LIST: 
 
@@ -93,7 +94,7 @@ DATASET_IMG_SIZE = 229
 # - Class #2: Medium-intensity wildfires -- REMOVED FROM DATASET v7.0!!!
 # - Class #3: Low-intensity wildfires
 # - Class #4: Images with no wildfires at all
-NUMBER_OF_LABELS = OUTPUT_FEATURES = 3 
+NUMBER_OF_LABELS = OUTPUT_FEATURES = 3
 IMG_CHANNELS = 1
 
 ###################################### 1.4 - TRAINING PARAMETERS ####################################
@@ -102,28 +103,29 @@ IMG_CHANNELS = 1
 # model stops improving it's performance after each training iteration (plotting the 
 # loss function at the end of the training process could be useful to optimize the training 
 # time vs perfomance balance.
-EPOCHS = 10
+EPOCHS = 5
 
 # TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 
 # Learning rate: 
 LEARNING_RATE = 0.001
 
-####################################### 1.5 - OUTPUT TO SUMMARY FILE #################################
+############################### 1.5 - OUTPUT SUMMARY DATA (cnn-training.info) #####################
 
-# storing all the training environment on the results .info file's preface
+# storing all the training environment on the results .info file's summary
 OUT_FILE.writelines([ "***********************************************\n",
                       "***     PoC's CNN Model Training Summary    ***\n", 
                       "***********************************************\n", 
                       "              Model version: v" + str(MODEL_VERSION) + ".0\n",
                       "             Dataset version: v" + str(DATASET_VERSION) + ".0\n",
                       "***********************************************\n\n",
-                      " DATA PARAMETERS:\n\n",
+                      " TRAINING PARAMETERS:\n\n",
                       " - Image size = (" + str(DATASET_IMG_SIZE) + " x " + str(DATASET_IMG_SIZE) + " x " + str(IMG_CHANNELS) + ")\n",
                       " - Number of classes / labels = "  + str(NUMBER_OF_LABELS) + "\n",
                       " - Batch size = "  + str(BATCH_SIZE) + "\n\n",
+                      " - Learning rate = " + str(LEARNING_RATE) + "\n\n",
                       "***********************************************\n\n"                     
                       ])
 
@@ -135,8 +137,10 @@ OUT_FILE.writelines([ "***********************************************\n",
 ###################################################################################################
 ###################################################################################################
 
+import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+from torch.utils.data import random_split
 
 ###################################### 2.1 - DATA TRANSFORMATIONS #################################
 
@@ -145,7 +149,7 @@ transformations = transforms.Compose([
     transforms.ToTensor(),
     # Normalizing the images ___________
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-    transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL (GRAYSCALE)
+    transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL ONLY (GRAYSCALE)
     # We need square images to feed the model (the raw dataset has 640x512 size images)
     # DEBUG - UNCOMMENT NEXT LINE FOR v4 DATASET
     #transforms.RandomResizedCrop(512),
@@ -159,7 +163,7 @@ augmentations = transforms.Compose([
     # Normalizing the images ___________
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL (GRAYSCALE)
-    transforms.RandomHorizontalFlip(p=0.5), # Augmentation techique: Horizontal Mirroring
+    transforms.RandomHorizontalFlip(p=0.5), # Augmentation technique: Horizontal Mirroring
     # We need square images to feed the model (the raw dataset has 640x512 size images)
     # DEBUG - UNCOMMENT NEXT LINE FOR v4 DATASET
     #transforms.RandomResizedCrop(512),
@@ -167,17 +171,31 @@ augmentations = transforms.Compose([
     transforms.Resize(DATASET_IMG_SIZE)
 ])
 
-################################## 2.2 - LOADING TRAINING & TEST DATA #############################
+########################### 2.2 - LOADING TRAINING, VALIDATION & TEST DATA #######################
 
 # Create an instance for training. 
 train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=augmentations)
 
+# SPLITTING TRAINING & VALIDATION DATA
+# https://www.pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/
+
+# define the train and val splits
+TRAIN_SPLIT = 0.75
+VAL_SPLIT = 1 - TRAIN_SPLIT
+
+# calculate the train/validation split
+print("\n[INFO] generating the train/validation split...\n")
+numTrainSamples = int(len(train_data) * TRAIN_SPLIT)
+numValSamples = int(len(train_data) * VAL_SPLIT)
+(train_data, val_data) = random_split(train_data,
+	[numTrainSamples+1, numValSamples], # BUGFIX -> https://fixexception.com/torch/sum-of-input-lengths-does-not-equal-the-length-of-the-input-dataset/
+	generator=torch.Generator().manual_seed(42))
+
 # Create a loader for the training set which will read the data within batch size and put into memory.
 train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
-# .info file (output data)
-print(" DATASET TOTALS:\n", file=OUT_FILE)
-print(" - The number of images in a training set is: ", len(train_loader)*BATCH_SIZE, file=OUT_FILE)
+# Create a loader for the validation set
+val_loader = DataLoader(val_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
 # Create an instance for testing
 test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TEST_DATA_DIR, transform=augmentations)
@@ -185,10 +203,20 @@ test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) 
 # Create a loader for the test set which will read the data within batch size and put into memory. 
 # Note that each shuffle is set to false for the test loader.
 test_loader = DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
+
+# calculate steps per epoch for training and validation set (needed to track training + validation loss & accuracy)
+trainSteps = len(train_loader.dataset) // BATCH_SIZE
+valSteps = len(val_loader.dataset) // BATCH_SIZE
+
+############################# 2.3 - OUTPUT SUMMARY DATA (cnn-training.info) #######################
+
+print(" DATASET TOTALS:\n", file=OUT_FILE)
+print(" - The number of images in a training set is: ", len(train_loader)*BATCH_SIZE, file=OUT_FILE)
+print(" - The number of images in a validation set is: ", len(val_loader)*BATCH_SIZE, file=OUT_FILE)
 print(" - The number of images in a test set is: ", len(test_loader)*BATCH_SIZE, file=OUT_FILE)
 
 print(" - The number of batches per epoch is: ", len(train_loader), file=OUT_FILE)
-classes = ('high-intensity-wildfire', 'low-intensity-wildfire', 'no-wildfires')
+classes = ('high-intensity-wildfires', 'low-intensity-wildfires', 'no-wildfires')
 
 ###################################################################################################
 ###################################################################################################
@@ -215,6 +243,7 @@ def set_model_version(input):
 # Instantiate the selected neural network model class imported from the src/CNN/CNN_Models.py file
 model = set_model_version(MODEL_VERSION)
 
+# .info file output summary data 
 print("\n***********************************************\n\n",
       "CNN BLUEPRINT:\n\n",  
       model,
@@ -234,7 +263,7 @@ from torch.optim import Adam
  
 # Define the loss function with Classification Cross-Entropy loss and an optimizer with Adam optimizer
 loss_fn = nn.CrossEntropyLoss()
-optimizer = Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=0.0001) # setting lr = 0.0001 DO NOT increases accuracy, and training time is more or less the same 
+optimizer = Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=0.0001)  
 
 ###################################################################################################
 ###################################################################################################
@@ -244,20 +273,23 @@ optimizer = Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=0.0001) # se
 ###################################################################################################
 ###################################################################################################
 
-import torch
+################################# 5.1 - AUXILIAR FUNCTIONS & GLOBALS ##############################
+
 from torch.autograd import Variable
 
-# Function to save the model
+# Function to store the model on the local drive
 def saveModel():
     torch.save(model.state_dict(), MODEL_PATH + "/trained-model.pth")
 
 # Function to test the model with the test dataset and print the accuracy for the test images
 def testAccuracy():
     
+    # for TESTING we need to set the model in evaluation mode
     model.eval()
     accuracy = 0.0
     total = 0.0
     
+    # turn off autograd for testing evaluation
     with torch.no_grad():
         for images, labels in test_loader: # BUGFIX PR #126 ->  See TASK#05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
             images, labels = images.cuda(), labels.cuda() # BUGFIX PR #126 ->  See TASK#05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
@@ -273,29 +305,61 @@ def testAccuracy():
     accuracy = (100 * accuracy / total)
     return(accuracy)
 
+################################## 5.2 - MODEL TRAINING FUNCTION #############################
+
 # Training function. We simply have to loop over our data iterator and feed the inputs to the network and optimize.
 def train(num_epochs):
+
+
+    # initialize a dictionary to store training history
+    STATS = {
+        "train_loss": [],
+        "train_acc": [],
+        "val_loss": [],
+        "val_acc": [],
+        "test_acc": []
+    }
     
     best_accuracy = 0.0
 
-    # INFO
-    print("\nTraining the model and creating the summary, hold-on tight...\n")
-
     # Define your execution device
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(" TRAINING STATS:\n\n", 
-        "Model trained on", device, "device\n",file=OUT_FILE)
+    print(" TRAINING STATS:\n\n", "Model trained on", device, "device\n",file=OUT_FILE)
+
     # Convert model parameters and buffers to CPU or Cuda
     model.to(device)
 
-    # In order to plot the losses we need a data structure to accumulate each epoch's loss value
-    # https://discuss.pytorch.org/t/plotting-loss-curve/42632/2
-    losses = []
-    accuracies = []
-    for epoch in range(num_epochs):  # loop over the dataset multiple times
-        running_loss = 0.0
-        running_acc = 0.0
+    # STDOUT INFO
+    print("\n[INFO] Training the model and creating the summary, hold-on tight...\n")
 
+    # measure how long training + validation process is going to take -> https://discuss.pytorch.org/t/how-to-measure-time-in-pytorch/26964/2
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+
+    # Waits for everything to start running
+    torch.cuda.synchronize()
+
+    # Start recording time (miliseconds)
+    start.record()
+
+    # loop over the dataset multiple times
+    for epoch in range(num_epochs): 
+
+        #################### 5.2.1 - MODEL TRAINING ####################
+        
+        # Set the model in training mode
+        model.train()
+     
+        # initialize the total training and validation loss
+        totalTrainLoss = 0
+        totalValLoss = 0
+
+        # initialize the number of correct predictions in the training
+        # and validation step
+        trainCorrect = 0
+        valCorrect = 0
+
+        # loop over the training set
         for i, (images, labels) in enumerate(train_loader, 0):
             
             # get the inputs
@@ -313,49 +377,110 @@ def train(num_epochs):
             # adjust parameters based on the calculated gradients
             optimizer.step()
 
-            # Let's print statistics for every 1,000 images
-            running_loss += loss.item()     # extract the loss value
-            
-            if i % 1000 == 999:    
-                # print every 1000 (twice per epoch) 
-                print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 1000), file=OUT_FILE)
-                # zero the loss
-                running_loss = 0.0
+            # extract the loss and total correct predictions value         
+            totalTrainLoss += loss.item()     
+            trainCorrect += (outputs.argmax(1) == labels).type(torch.float).sum().item()
         
-        # Here we need to save this epoch's running loss, so we can plot it later
-        losses.append(running_loss / len(train_data))
+        #################### 5.2.2 - MODEL VALIDATION ####################
 
-        # Compute and print the average accuracy fo this epoch when tested over all 10000 test images
-        accuracy = testAccuracy()
-        print(' For epoch', epoch+1,'the test accuracy over the whole test set is %d %%' % (accuracy),file=OUT_FILE)
+        # switch off autograd for evaluation
+        with torch.no_grad():
+
+            # set the model in evaluation mode
+            model.eval()
+
+            # loop over the validation set
+            for i, (images, labels) in enumerate(val_loader, 0):
+
+                # get the inputs
+                images = Variable(images.to(device))
+                labels = Variable(labels.to(device))
+
+                # make the predictions and calculate the validation loss
+                predictions = model(images)
+                totalValLoss += loss_fn(predictions, labels)
+
+                # calculate the number of correct predictions
+                valCorrect += (predictions.argmax(1) == labels).type(
+                    torch.float).sum().item()
+
+	#################### 5.2.3 - TRAIN & VAL STATS ####################
+    
+        # calculate the average training and validation loss
+        avgTrainLoss = totalTrainLoss / trainSteps
+        avgValLoss = totalValLoss / valSteps
+
+        # calculate the training and validation accuracy
+        trainCorrect = trainCorrect / len(train_loader)
+        valCorrect = valCorrect / len(val_loader)
+
+        # update our training history
+        STATS["train_loss"].append(avgTrainLoss)
+        STATS["train_acc"].append(trainCorrect)
+        STATS["val_loss"].append(avgValLoss)
+        STATS["val_acc"].append(valCorrect)
+
+        # print the model training and validation information
+        print("[INFO] EPOCH: {}/{}".format(epoch + 1, EPOCHS))
+        print("Train loss: {:.6f}, Train accuracy: {:.4f}".format(avgTrainLoss, trainCorrect))
+        print("Val loss: {:.6f}, Val accuracy: {:.4f}\n".format(avgValLoss, valCorrect))
+
+        ## LEGACY CODE FROM THE MICROSOFT DOCU
+        # Compute and print the average accuracy fo this epoch when tested over all test images
+        test_accuracy = testAccuracy()
+        print(' For epoch', epoch+1,'the TEST accuracy over the whole TEST dataset is %d %%' % (test_accuracy),file=OUT_FILE)
+        # END OF LEGACY CODE
+
+        # Accumulating test accuracies to draw the plot
+        STATS["test_acc"].append(test_accuracy)
         
-        # we want to save the model if the accuracy is the best
-        if accuracy > best_accuracy:
-            saveModel()
-            best_accuracy = accuracy
+        # we want to save the model if the accuracy is the best 
+        if test_accuracy > best_accuracy:
+            saveModel() 
+            best_accuracy = test_accuracy
 
-        # accumulating accuracies to draw the plot
-        accuracies.append(accuracy)
+    # finish measuring how long training took
+    end.record()
 
-    # Now we can plot the loss curve... 
+    # Waits for everything to finish running
+    torch.cuda.synchronize()
+
+    # now we can calculate the training time in seconds
+    print("\n Training + validation time: ", str(start.elapsed_time(end)/1000.0), " seconds\n", file=OUT_FILE)
+
+    # Here we need to save this epoch's running loss, so we can plot it later
+    #losses.append(running_loss / len(train_data))
+        
+    
+    # Now we can plot the training and validation loss curve... 
     # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html 
-    plt.plot(losses, color='red')
+    plt.plot(STATS["train_loss"], color='red')
     plt.xlabel("training epoch")
-    plt.ylabel("running loss")
+    plt.ylabel("training loss")
     plt.title("LOSS CURVE")
     plt.legend("LOSS CURVE")
-    plt.savefig(MODEL_PATH + '/loss-curve.png')
+    plt.savefig(MODEL_PATH + '/training-loss-curve.png')
     plt.show()
 
-    # ...as well as the accuracy progression
-    plt.plot(accuracies, color='purple')
+
+    plt.plot(STATS["val_loss"], color='red')
+    plt.xlabel("training epoch")
+    plt.ylabel("validation loss")
+    plt.title("LOSS CURVE")
+    plt.legend("LOSS CURVE")
+    plt.savefig(MODEL_PATH + '/validation-loss-curve.png')
+    plt.show()
+   
+
+    # ...as well as the accuracy progression on the TEST dataset for each training EPOCH
+    plt.plot(STATS["test_acc"], color='purple')
     plt.xlabel("training epoch")
     plt.ylabel("model accuracy")
     plt.title("MODEL ACCURACY PROGRESSION")
     plt.legend("MODEL ACCURACY PROGRESSION")
     plt.savefig(MODEL_PATH + '/epoch-accuracies.png')
     plt.show()
+    
 
 ###################################################################################################
 ###################################################################################################
@@ -369,6 +494,8 @@ import torchvision
 import matplotlib.pyplot as plt
 import numpy as np
 
+######################################## 5.1 - AUXILIAR FUNCTIONS #################################
+
 # Function to show the images
 def imageshow(img):
     img = img / 2 + 0.5     # unnormalize
@@ -377,8 +504,9 @@ def imageshow(img):
     plt.savefig(MODEL_PATH + '/labels-prediction.png')
     plt.show()
 
-# Function to test the model with a batch of images and show the labels predictions
+###################################### 5.2 - MODEL TESTING FUNCTION ###############################
 
+# Function to test the model with a batch of images and show the labels predictions
 def testBatch():
 
     # get batch of images from the test DataLoader  
@@ -411,27 +539,15 @@ def testBatch():
 
 if __name__ == "__main__":
     
-    # Let's build our model while benchmarking the GPU usage stats -> https://discuss.pytorch.org/t/how-to-measure-time-in-pytorch/26964/2
-    torch.cuda.synchronize()
-
-    start = torch.cuda.Event(enable_timing=True)
-    end = torch.cuda.Event(enable_timing=True)
-
-    start.record()
+    # Let's build our model while benchmarking the GPU usage stats
     train(EPOCHS)
-    end.record()
 
-    # Waits for everything to finish running
-    torch.cuda.synchronize()
-
-    # now we can calculate the training time in seconds
-    print("\n Training time: ", str(start.elapsed_time(end)/1000.0), " seconds\n", file=OUT_FILE)
 
     print('Finished Training')
 
 
     # Test which classes performed well
-    # DEBUG - The original code does not have a testModelAccuracy() method. 
+    # DEBUG - The original code does not have a testModelAccuracy() function. 
     #testModelAccuracy()
     
     # Let's load the model we just created and test the accuracy per label
@@ -440,19 +556,18 @@ if __name__ == "__main__":
 
     # Test with batch of images
     testBatch()
-    OUT_FILE.close()
 
     # Generating final results report tarball file
+    
     import tarfile
     import shutil
 
+    OUT_FILE.close()
     archive = tarfile.open(MODEL_PATH+".tar.gz", "w|gz")
     archive.add(MODEL_PATH, arcname="")
     archive.close()
 
     print("\nTraining results file -> " + os.path.abspath(MODEL_PATH) + ".tar.gz\n")
+
+    # Deleting temp folder
     shutil.rmtree(MODEL_PATH)
-
-
-
-

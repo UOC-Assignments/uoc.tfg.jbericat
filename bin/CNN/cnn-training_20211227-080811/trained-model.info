@@ -5,19 +5,22 @@
              Dataset version: v7.0
 ***********************************************
 
- DATA PARAMETERS:
+ TRAINING PARAMETERS:
 
  - Image size = (229 x 229 x 1)
  - Number of classes / labels = 3
- - Batch size = 40
+ - Batch size = 32
+
+ - Learning rate = 0.001
 
 ***********************************************
 
  DATASET TOTALS:
 
- - The number of images in a training set is:  880
- - The number of images in a test set is:  360
- - The number of batches per epoch is:  22
+ - The number of images in a training set is:  672
+ - The number of images in a validation set is:  224
+ - The number of images in a test set is:  352
+ - The number of batches per epoch is:  21
 
 ***********************************************
 
@@ -37,4 +40,8 @@
 ) 
 
 ***********************************************
+
+ TRAINING STATS:
+
+ Model trained on cuda:0 device
 
