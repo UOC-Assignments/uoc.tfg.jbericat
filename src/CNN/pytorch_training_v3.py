@@ -25,6 +25,8 @@ Output::
     - Accuraccy progression plot -> epoch-accuracies.png
     - Label predictions image grid -> labels-prediction.png
 
+Python env: TODO Python 6.4.6 + pytorch x.y....... 
+
 Original author::
 
     Microsoft Docs - Windows AI - Windows Machine Learning
@@ -67,9 +69,9 @@ import time
 # This script's execution timestamp
 TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
 
-# CNN model & Dataset versions
+# CNN model & Dataset versions (we do not waste time implementing error control)
 MODEL_VERSION = input("Set the model version you want to train (1 = v1.0, 2 = v2.0, 3 = v3.0): ")
-DATASET_VERSION = input("Set the dataset version you want to use to train the model (4 = v4.0 / 5 = v5.0 / 6 = v6.0): ")
+DATASET_VERSION = input("Set the dataset version you want to use to train the model (4 = v4.0 / 5 = v5.0 / 6 = v6.0 / 7 = v7.0): ")
 
 # model storage path
 MODEL_PATH = "bin/CNN/cnn-training_" + str(TIMESTAMP)
@@ -103,30 +105,34 @@ IMG_CHANNELS = 1
 # model stops improving it's performance after each training iteration (plotting the 
 # loss function at the end of the training process could be useful to optimize the training 
 # time vs perfomance balance.
-EPOCHS = 5
+EPOCHS = 10
 
 # TFGthe PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 
 # Learning rate: 
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.00001
 
 ############################### 1.5 - OUTPUT SUMMARY DATA (cnn-training.info) #####################
 
 # storing all the training environment on the results .info file's summary
-OUT_FILE.writelines([ "***********************************************\n",
-                      "***     PoC's CNN Model Training Summary    ***\n", 
-                      "***********************************************\n", 
-                      "              Model version: v" + str(MODEL_VERSION) + ".0\n",
-                      "             Dataset version: v" + str(DATASET_VERSION) + ".0\n",
-                      "***********************************************\n\n",
+OUT_FILE.writelines([ "********************************************************************************\n",
+                      "***                                                                          ***\n",
+                      "***                      PoC's CNN Model Training Summary                    ***\n",
+                      "***                                                                          ***\n",
+                      "********************************************************************************\n",
+                      "***                                                                          ***\n",
+                      "***                              Model version: v" + str(MODEL_VERSION) + ".0" + 25*" " + "***\n",
+                      "***                             Dataset version: v" + str(DATASET_VERSION) + ".0" + 24*" " + "***\n"
+                      "***                                                                          ***\n",
+                      "********************************************************************************\n\n",
                       " TRAINING PARAMETERS:\n\n",
                       " - Image size = (" + str(DATASET_IMG_SIZE) + " x " + str(DATASET_IMG_SIZE) + " x " + str(IMG_CHANNELS) + ")\n",
                       " - Number of classes / labels = "  + str(NUMBER_OF_LABELS) + "\n",
-                      " - Batch size = "  + str(BATCH_SIZE) + "\n\n",
+                      " - Batch size = "  + str(BATCH_SIZE) + "\n",
                       " - Learning rate = " + str(LEARNING_RATE) + "\n\n",
-                      "***********************************************\n\n"                     
+                      "********************************************************************************\n\n"                     
                       ])
 
 ###################################################################################################
@@ -244,10 +250,9 @@ def set_model_version(input):
 model = set_model_version(MODEL_VERSION)
 
 # .info file output summary data 
-print("\n***********************************************\n\n",
+print("\n********************************************************************************\n\n",
       "CNN BLUEPRINT:\n\n",  
       model,
-      "\n\n***********************************************\n",
       file=OUT_FILE)
 
 ###################################################################################################
@@ -281,6 +286,7 @@ from torch.autograd import Variable
 def saveModel():
     torch.save(model.state_dict(), MODEL_PATH + "/trained-model.pth")
 
+'''
 # Function to test the model with the test dataset and print the accuracy for the test images
 def testAccuracy():
     
@@ -298,12 +304,36 @@ def testAccuracy():
             # the label with the highest energy will be our prediction
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
-            accuracy += (predicted == labels).sum().item()
-            
+            accuracy += (predicted == labels).sum().item()           
     
     # compute the accuracy over all test images
     accuracy = (100 * accuracy / total)
     return(accuracy)
+'''
+
+# Function to test the model with the test dataset and print the accuracy for the test images
+def calculateAccuracy(data_loader):
+    
+    # for TESTING we need to set the model in evaluation mode
+    model.eval()
+    accuracy = 0.0
+    total = 0.0
+    
+    # turn off autograd for testing evaluation
+    with torch.no_grad():
+        for images, labels in data_loader: # BUGFIX PR #126 ->  See TASK#05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
+            images, labels = images.cuda(), labels.cuda() # BUGFIX PR #126 ->  See TASK#05.6: https://github.com/UOC-Assignments/uoc.tfg.jbericat/issues/96
+            # run the model on the test set to predict labels
+            outputs = model(images)
+            # the label with the highest energy will be our prediction
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            accuracy += (predicted == labels).sum().item()           
+    
+    # compute the accuracy over all test images
+    accuracy = (100 * accuracy / total)
+    return(accuracy)
+
 
 ################################## 5.2 - MODEL TRAINING FUNCTION #############################
 
@@ -324,7 +354,9 @@ def train(num_epochs):
 
     # Define your execution device
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(" TRAINING STATS:\n\n", "Model trained on", device, "device\n",file=OUT_FILE)
+    print("\n********************************************************************************\n\n",
+          " MODEL TRAINING STATS:\n\n", "Model trained on", device, "device\n",
+          file=OUT_FILE)
 
     # Convert model parameters and buffers to CPU or Cuda
     model.to(device)
@@ -356,8 +388,8 @@ def train(num_epochs):
 
         # initialize the number of correct predictions in the training
         # and validation step
-        trainCorrect = 0
-        valCorrect = 0
+        #trainCorrect = 0
+        #valCorrect = 0
 
         # loop over the training set
         for i, (images, labels) in enumerate(train_loader, 0):
@@ -379,7 +411,7 @@ def train(num_epochs):
 
             # extract the loss and total correct predictions value         
             totalTrainLoss += loss.item()     
-            trainCorrect += (outputs.argmax(1) == labels).type(torch.float).sum().item()
+            #trainCorrect += (outputs.argmax(1) == labels).type(torch.float).sum().item()
         
         #################### 5.2.2 - MODEL VALIDATION ####################
 
@@ -401,8 +433,7 @@ def train(num_epochs):
                 totalValLoss += loss_fn(predictions, labels)
 
                 # calculate the number of correct predictions
-                valCorrect += (predictions.argmax(1) == labels).type(
-                    torch.float).sum().item()
+                #valCorrect += (predictions.argmax(1) == labels).type(torch.float).sum().item()
 
 	#################### 5.2.3 - TRAIN & VAL STATS ####################
     
@@ -411,8 +442,10 @@ def train(num_epochs):
         avgValLoss = totalValLoss / valSteps
 
         # calculate the training and validation accuracy
-        trainCorrect = trainCorrect / len(train_loader)
-        valCorrect = valCorrect / len(val_loader)
+        #trainCorrect = trainCorrect / len(train_loader)
+        #valCorrect = valCorrect / len(val_loader)
+        trainCorrect = calculateAccuracy(train_loader)
+        valCorrect = calculateAccuracy(val_loader)
 
         # update our training history
         STATS["train_loss"].append(avgTrainLoss)
@@ -425,11 +458,8 @@ def train(num_epochs):
         print("Train loss: {:.6f}, Train accuracy: {:.4f}".format(avgTrainLoss, trainCorrect))
         print("Val loss: {:.6f}, Val accuracy: {:.4f}\n".format(avgValLoss, valCorrect))
 
-        ## LEGACY CODE FROM THE MICROSOFT DOCU
         # Compute and print the average accuracy fo this epoch when tested over all test images
-        test_accuracy = testAccuracy()
-        print(' For epoch', epoch+1,'the TEST accuracy over the whole TEST dataset is %d %%' % (test_accuracy),file=OUT_FILE)
-        # END OF LEGACY CODE
+        test_accuracy = calculateAccuracy(test_loader)
 
         # Accumulating test accuracies to draw the plot
         STATS["test_acc"].append(test_accuracy)
@@ -446,39 +476,59 @@ def train(num_epochs):
     torch.cuda.synchronize()
 
     # now we can calculate the training time in seconds
-    print("\n Training + validation time: ", str(start.elapsed_time(end)/1000.0), " seconds\n", file=OUT_FILE)
+    print(" Training + validation time: ", str(start.elapsed_time(end)/1000.0), " seconds\n", file=OUT_FILE)
 
-    # Here we need to save this epoch's running loss, so we can plot it later
-    #losses.append(running_loss / len(train_data))
-        
+    # .info file output summary data 
+    print("********************************************************************************\n\n",
+          "MODEL TESTING STATS:\n",  
+          file=OUT_FILE)
+
+    # STDOUT  
+    for i in range(len(STATS["test_acc"])):
+        print(' For epoch', i+1,'the TEST accuracy over the whole TEST dataset is %d %%' % (STATS["test_acc"][i]),file=OUT_FILE) 
     
     # Now we can plot the training and validation loss curve... 
-    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html 
+    # TODO WRAP-IT-ALL ON THE SAME PLOT (USING LEGENDS AND STUFF)
     plt.plot(STATS["train_loss"], color='red')
-    plt.xlabel("training epoch")
-    plt.ylabel("training loss")
-    plt.title("LOSS CURVE")
-    plt.legend("LOSS CURVE")
+    plt.xlabel("epoch")
+    plt.ylabel("loss coeficient")
+    plt.title("TRAINING LOSS CURVE")
+    plt.legend("training-loss-curve")
     plt.savefig(MODEL_PATH + '/training-loss-curve.png')
     plt.show()
 
-
     plt.plot(STATS["val_loss"], color='red')
-    plt.xlabel("training epoch")
-    plt.ylabel("validation loss")
-    plt.title("LOSS CURVE")
-    plt.legend("LOSS CURVE")
+    plt.xlabel("epoch number")
+    plt.ylabel("loss coeficient")
+    plt.title("VALIDATION LOSS CURVE")
+    plt.legend("validation-loss-curve")
     plt.savefig(MODEL_PATH + '/validation-loss-curve.png')
     plt.show()
-   
+
+    # ...the training & validation accuracy progression...
+    plt.plot(STATS["train_acc"], color='blue')
+    plt.xlabel("epoch number")
+    plt.ylabel("accuracy (%)")
+    plt.title("TRAINING ACCURACY PROGRESSION")
+    plt.legend("training-accuracy")
+    plt.savefig(MODEL_PATH + '/training-accuracy.png')
+    plt.show()
+
+    plt.plot(STATS["val_acc"], color='blue')
+    plt.xlabel("epoch number")
+    plt.ylabel("accuracy (%)")
+    plt.title("VALIDATION ACCURACY PROGRESSION")
+    plt.legend("validation-accuracy")
+    plt.savefig(MODEL_PATH + '/validation-accuracy.png')
+    plt.show()
 
     # ...as well as the accuracy progression on the TEST dataset for each training EPOCH
     plt.plot(STATS["test_acc"], color='purple')
     plt.xlabel("training epoch")
     plt.ylabel("model accuracy")
     plt.title("MODEL ACCURACY PROGRESSION")
-    plt.legend("MODEL ACCURACY PROGRESSION")
-    plt.savefig(MODEL_PATH + '/epoch-accuracies.png')
+    plt.legend("model-accuracy-progession")
+    plt.savefig(MODEL_PATH + '/test-accuracy.png')
     plt.show()
     
 
@@ -509,15 +559,22 @@ def imageshow(img):
 # Function to test the model with a batch of images and show the labels predictions
 def testBatch():
 
+    NUMBER_OF_SAMPLES = 20
+
+    # Create a loader for the test subset which will read the data for the final prediction test. 
+    # Note that now we want to shuffle images to get random samples of every class, so we set it to true. 
+    # Also, we only need a small sample of images for this test (20 is quite enough).       
+    predictions_loader = DataLoader(test_data, batch_size=NUMBER_OF_SAMPLES, shuffle=True, num_workers=0)
+
     # get batch of images from the test DataLoader  
-    images, labels = next(iter(test_loader))
+    images, labels = next(iter(predictions_loader)) # DEBUG -> ORIGINAL CODE: images, labels = next(iter(test_loader))
 
     # show all images as one image grid
     imageshow(torchvision.utils.make_grid(images))
    
     # Show the real labels on the screen 
     print('\nReal labels: ', ' '.join('%5s' % classes[labels[j]] 
-                               for j in range(BATCH_SIZE)),file=OUT_FILE)
+                               for j in range(NUMBER_OF_SAMPLES)),file=OUT_FILE)
   
     # Let's see what if the model identifies the  labels of these example
     outputs = model(images)
@@ -527,7 +584,7 @@ def testBatch():
     
     # Let's show the predicted labels on the screen to compare with the real ones
     print('\nPredicted: ', ' '.join('%5s' % classes[predicted[j]] 
-                              for j in range(BATCH_SIZE)),file=OUT_FILE)
+                              for j in range(NUMBER_OF_SAMPLES)),file=OUT_FILE)
 
 ###################################################################################################
 ###################################################################################################
