@@ -60,9 +60,9 @@ class Network_v1(nn.Module):
 
 ###################################################################################################
 ###################################################################################################
-####                                                                                           ####   
+####                                                                                           ####
 ####                          2. CNN MODEL VERSION #2 (9 layers architecture)                  ####
-####                                                                                           ####   
+####                                                                                           ####
 ###################################################################################################
 ###################################################################################################
 
@@ -83,24 +83,24 @@ class Network_v2(nn.Module):
 # 2.2 - Implement the forward function:
     def forward(self, input):
    
-        output = F.relu(self.bn1(self.conv1(input)))        
-        output = self.pool1(output)   
+        output = F.relu(self.bn1(self.conv1(input)))
+        output = self.pool1(output)
         output = F.relu(self.bn2(self.conv2(output)))
-        output = self.pool2(output)                              
-        output = output.view( -1, 114*114*32) 
+        output = self.pool2(output)
+        output = output.view( -1, 114*114*32)
         output = self.fc1(output)
 
         return output
 
 ###################################################################################################
 ###################################################################################################
-####                                                                                           ####   
+####                                                                                           ####
 ####                          3. CNN MODEL VERSION #3 (14 layers architecture)                 ####
-####                                                                                           ####   
+####                                                                                           ####
 ###################################################################################################
 ###################################################################################################
 
-# See this project report's (section 5.2.3.3) for further information in regards to the calculations 
+# See this project report's (section 5.2.3.3) for further information in regards to the calculations
 # made to set the output-channel size (linear layer)
 
 # Define a convolution neural network
@@ -120,11 +120,11 @@ class Network_v3(nn.Module):
         self.fc1 = nn.Linear(32*58*58, 3)
 
     def forward(self, input):
-        output = F.relu(self.bn1(self.conv1(input)))      
-        output = F.relu(self.bn2(self.conv2(output)))     
-        output = self.pool(output)                        
-        output = F.relu(self.bn3(self.conv3(output)))     
-        output = F.relu(self.bn4(self.conv4(output)))     
+        output = F.relu(self.bn1(self.conv1(input)))
+        output = F.relu(self.bn2(self.conv2(output)))
+        output = self.pool(output)
+        output = F.relu(self.bn3(self.conv3(output)))
+        output = F.relu(self.bn4(self.conv4(output)))
         output = output.view(-1, 32*58*58)
         output = self.fc1(output)
 
