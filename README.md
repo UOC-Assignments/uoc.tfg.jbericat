@@ -53,7 +53,7 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
 ### 3.2 – Descripció de cada fita i detall de tasques relacionades
 
-    1. FITA#01 - Establir i preparar l’entorn de desenvolupament
+    1. FITA#01 – Establir i preparar l’entorn de desenvolupament
  
         1.1. Anàlisi de pre-requisits
 
@@ -81,7 +81,7 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
                 1.3.3.7. Paquet d’assets M5VFX vol.2 per al motor gràfic Unreal Engine 
 
-    2. FITA#02 - Adaptació i personalització de l’entorn de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
+    2. FITA#02 – Adaptació i personalització de l’entorn de la plataforma de simulació de vehicles autònoms AirSim de Microsoft
 
         2.1. Obtenir l’entorn Landscape Environment de Unreal Engine per a Windows i Mac i adaptar-lo per a ser utilitzat amb l’editor UE4Editor d’Ubuntu Linux.
 
@@ -97,33 +97,21 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
         3.1. Tasques de recerca i investigació
 
-            3.1.1.	Estudi de la API de AirSim per a Python
-	
-            3.1.2. 	Recerca de projectes basats en AirSim
+        3.2. Modificacions de l’entorn base de Unreal: “LandscapeMountains Environment"
 
-        3.2. preparació dels elements de l'entorn UE "LandscapeMountains Environment"
+                3.2.1. Simulació d'incendis forestals
 
-            3.2.1. Simulació d'incendis forestals
+                        3.2.1.1. Classe #1: Incendis d’alta intensitat
 
-            3.2.2. Simulació de condicions nocturnes d'iluminació 
+                        3.2.1.2. Classe #2: Incendis d’intensitat moderada
 
-        3.3. Preparació dels actors: Modes de AirSim
+                        3.2.1.3. Classe #3: Incendis de baixa intensitat
 
-            3.3.1. Mode "Computer Vision"
+                3.2.2. Simulació de condicions nocturnes d’il·luminació
 
-                3.3.1.1. Captura aleatòria d'imatges per a generar els jocs de proves
+        3.3. Wrapping-up: Generació de l’entorn final per a la realització de la PoC
 
-                3.3.1.2. Simulació de visió tèrmica nocturna tipus FLIR per a generar els training data-set
-
-            3.3.2. Mode "Multirotor"
-
-                3.3.2.1. Implementació de mode “patrulla” Individual (script "drone_patrol.py")
-
-                3.3.2.2. Implementació de mode mode “patrulla” Col·lectiu (script "swarm_patrol.py")
-
-        3.4. Wrapping-up: Generació de l'entorn final per a la realització de la PoC
-
-    4. FITA#04 - Generar el dataset d'imatges per a entrenar i testejar el model de xarxes neuronals profundes
+    4. FITA#04 – Creació del dataset d'imatges per a entrenar i testejar el model de xarxes neuronals profundes
 
         4.1. Tasques de recerca i investigació
 		
@@ -155,41 +143,35 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
         4.7. Recol·lecció i etiquetat d'imatges (execució de l’script de captura d’imatges capture_ir_segment.py)
 		
-        4.8. Empaquetament i publicació del dataset d’imatges per a la realització de la PdC
+        4.8. Wrapping-up: Empaquetament i publicació del dataset d’imatges per a la realització de la PdC
 			
-    5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes
+    5. FITA#05 – Disseny de l’arquitectura de xarxes neuronals profundes (CNN)
  
         5.1. Tasques d’investigació i recerca
 
-        5.2. Estructuració de l'algorisme de DL i configuració d'hyperparàmetres
+                5.1.1. Repàs cronològic dels models de Deep Learning més destacats i estudi comparatiu de les seves característiques
 
-            5.2.1. Identificació / definició de les mètriques de rendiment
+                        5.1.1.1. AlexNet
+        
+                        5.1.1.2. DenseNet121
+        
+                5.1.2. Recerca i selecció d’un model CNN per a la PdC
 
-            5.2.2. Establiment / disseny d'un model base (baseline model)
+        5.2. Estructuració de l'algorisme de Deep Learning
 
-                5.2.2.1. AlexNet
-				
-				5.2.2.2. DenseNet121
+                5.2.1. Preparació de les dades per a l'entrenament del model
 
-            5.2.3. Preparació de les dades per a l'entrenament del model
+                        5.2.1.1. Pre-processament de les imatges del dataset
 
-                    5.2.3.1. Pre-processament de les imatges del dataset 
-					
-					5.2.3.2. Divisió dels dataset en grups 
+                        5.2.1.2. Divisió dels dataset en grups
 
-        5.3. Avaluació del model i interpretació del seu rendiment
+                5.2.2. Definició d’un model base (baseline model)
 
-        5.4. Millores en el rendiment de la xarxa neuronal i reajustament d’hiper-paràmetres 
-		
-		    5.4.1. Dropout Regularization
-			
-        5.5. Estudi del rati d’aprenentatge i optimització dels paràmetres
-		
-        5.6. Wrapping-Up: Adaptació i implementació de les arquitectures DCNN escollides 
+        5.3. Wrapping-Up: implementació d’una arquitectura CNN amb PyTorch
+
+    6. FITA#06 – Entrenament i testeig de la CNN
 
 --------------------------------------------------------------
-
-6.	FITA#06 - Entrenar la DCNN mitjançant el training data-set apropiadament normalitzat
 
 7.	FITA#07 - Testeig de la DCNN (Joc de proves #1):
 

@@ -183,13 +183,14 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
 
     # Convert RGB image to grayscale -> https://stackoverflow.com/questions/48190894/how-to-convert-rgb-images-dataset-to-single-channel-grayscale
      
-    grayscale_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY)
+    # When using opencv, we load images into the BGR color space. Therefore, we convert BGR -> GRAY instead of RGB -> GRAY
+    grayscale_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY) 
     
     # Extracting the width and height 
     # of the image (both images are equal in size): --> https://appdividend.com/2020/09/09/python-cv2-image-size-how-to-get-image-size-in-python/
     height, width = grayscale_image.shape
 
-    # We should set a filter to discard the images that did not show any of the virtual 
+    # We must set a filter to discard the images that did not show any of the virtual 
     # wildfire features captured by the built-in AirSim infrared camera simulator -that is, 
     # images that do not include ANY white pixels. For this purpose, we'll be using the 
     # "fire_img" bool variable set as False by default, and then we'll set it to true if 
@@ -287,6 +288,7 @@ def main(client,
         # ladder, since there is no buit-in switch construct in Python 
         # -> https://pythongeeks.org/switch-in-python/
 
+        # TODO - This implementation is wrong! the if condition must evaluate the local var "input" instead of the global "ue4zone"
         def set_class_folder(input):
             if (ue4_zone == UE4_ZONE_0):
                 selection = 'test/high-intensity-wildfires/'
@@ -475,4 +477,4 @@ if __name__ == '__main__':
          camera,
          height,
          pitch, 
-         datasetFolder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/datasets/buffer/') 
+         datasetFolder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/raw_datasets/buffer/') 
