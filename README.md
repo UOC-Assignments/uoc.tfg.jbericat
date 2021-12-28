@@ -154,8 +154,6 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
                         5.1.1.1. AlexNet
         
                         5.1.1.2. DenseNet121
-        
-                5.1.2. Recerca i selecció d’un model CNN per a la PdC
 
         5.2. Estructuració de l'algorisme de Deep Learning
 
@@ -166,8 +164,32 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
                         5.2.1.2. Divisió dels dataset en grups
 
                 5.2.2. Definició d’un model base (baseline model)
+                        
+                        5.2.2.1. Versió 1.0
 
-        5.3. Wrapping-Up: implementació d’una arquitectura CNN amb PyTorch
+                        5.2.2.2. Versió 2.0
+
+                        5.2.2.3. Versió 3.0
+
+                5.2.3. Càlcul d'hiper-paràmetres
+                        
+                        5.2.3.1. Versió 1.0
+
+                        5.2.3.2. Versió 2.0
+
+                        5.2.3.3. Versió 3.0
+
+                5.2.4 – Implementació de l’estructura del model CNN amb el framework pyTorch
+                        
+                        5.2.4.1. Versió 1.0
+
+                        5.2.4.2. Versió 2.0
+
+                        5.2.4.3. Versió 3.0
+
+                5.2.5 – Definició de la funció de pèrdua (loss function)
+
+        5.3. Wrapping-Up: Implementació d'un algorisme d'entrenament i generació de gràfiques i estadístiques
 
     6. FITA#06 – Entrenament i testeig de la CNN
 
