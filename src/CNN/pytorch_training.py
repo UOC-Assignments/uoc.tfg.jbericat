@@ -113,10 +113,10 @@ EPOCHS = 10
 
 # The PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 16
+BATCH_SIZE = 2
 
 # Learning rate: 
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.0001
 
 ############################### 1.5 - OUTPUT SUMMARY DATA (cnn-training.info) #####################
 
