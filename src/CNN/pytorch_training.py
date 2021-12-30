@@ -46,13 +46,9 @@ References::
     5 - https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html  
     6 - https://discuss.pytorch.org/t/plotting-loss-curve/42632/2
 
-TODO LIST: 
+TODO LIST: All set.
 
-    - Define training+validation data split -> https://www.pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/
-        -> "Using PyTorch’s random_split function, we can easily split our data."
-    - investigate why sometimes the predicted labels on the summary are way far below the best prediction accuracy. 
-      Maybe the microsoft algorythm is buggy and is saving the FIRST trained model (first epoch) instead of the BEST 
-      trained model (which uses to provide the worse accuracy results).
+
 """
 
 ###################################################################################################
@@ -74,8 +70,18 @@ from torch.functional import Tensor
 TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
 
 # CNN model & Dataset versions (we do not waste time implementing error control)
-MODEL_VERSION = input("Set the model version you want to train (1 = v1.0, 2 = v2.0, 3 = v3.0): ")
-DATASET_VERSION = input("Set the dataset version you want to use to train the model (4 = v4.0 / 5 = v5.0 / 6 = v6.0 / 7 = v7.0): ")
+MODEL_VERSION = input("Set the model version you want to train:" + "\n\n" + 
+                        " 1 = v1.0 -> 3 layers CNN (simplified LeNet)"+ "\n" +
+                        " 2 = v2.0 -> 5 layers CNN (LeNet)" + "\n" +
+                        " 3 = v3.0 -> 14 layers CNN (custom)"+ "\n\n")
+
+DATASET_VERSION = input("Set the dataset version you want to use to train the model:"+"\n\n"+ 
+                            " 4 = v4.0 -> EXPERIMENTAL"+"\n" + 
+                            " 5 = v5.0 -> EXPERIMENTAL"+"\n"+
+                            " 6 = v6.0 -> EXPERIMENTAL"+"\n"+
+                            " 7 = v7.0 -> 3 classes, close distance images (SMALL DATASET, appropiate for adjusting parameters)"+"\n"+
+                            " 8 = v8.0 -> 4 classes, close and long distance images (NEEDS CODE ADAPTATION)"+"\n"+
+                            " 9 = v9.0 -> 3 classes, close and long distance images"+"\n\n")
 
 # model storage path
 MODEL_PATH = "bin/CNN/cnn-training_" + str(TIMESTAMP)
@@ -109,14 +115,14 @@ IMG_CHANNELS = 1
 # model stops improving it's performance after each training iteration (plotting the 
 # loss function at the end of the training process could be useful to optimize the training 
 # time vs perfomance balance.
-EPOCHS = 10
+EPOCHS = 40
 
 # The PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 16
+BATCH_SIZE = 256
 
 # Learning rate: 
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.0001
 
 ############################### 1.5 - OUTPUT SUMMARY DATA (cnn-training.info) #####################
 
@@ -161,22 +167,35 @@ transformations = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL ONLY (GRAYSCALE)
     # We need square images to feed the model (the raw dataset has 640x512 size images)
-    # DEBUG - UNCOMMENT NEXT LINE FOR v4 DATASET
-    #transforms.RandomResizedCrop(512),
+    # DEBUG - UNCOMMENT NEXT LINE FOR v4 and v9 DATASETS
+    transforms.RandomResizedCrop(512),
     # Now we just resize into any of the common input layer sizes (32×32, 64×64, 96×96, 224×224, 227×227, and 229×229)
     transforms.Resize(DATASET_IMG_SIZE)
     ])
 
 # Define augmentation techniques (mirroring) to increase the number of samples / images on the training and test subsets
-augmentations = transforms.Compose([
+mirroring_augmentations = transforms.Compose([
     transforms.ToTensor(),
     # Normalizing the images ___________
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
     transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL (GRAYSCALE)
     transforms.RandomHorizontalFlip(p=0.5), # Augmentation technique: Horizontal Mirroring
     # We need square images to feed the model (the raw dataset has 640x512 size images)
-    # DEBUG - UNCOMMENT NEXT LINE FOR v4 DATASET
-    #transforms.RandomResizedCrop(512),
+    # DEBUG - UNCOMMENT NEXT LINE FOR v4 and v9 DATASETS
+    transforms.RandomResizedCrop(512),
+    # Now we just resize into any of the common input layer sizes (32×32, 64×64, 96×96, 224×224, 227×227, and 229×229)
+    transforms.Resize(DATASET_IMG_SIZE)
+])
+
+rotation_augmentations = transforms.Compose([
+    transforms.ToTensor(),
+    # Normalizing the images ___________
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+    transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL (GRAYSCALE)
+    transforms.RandomRotation(45), # Augmentation technique: Image rotation
+    # We need square images to feed the model (the raw dataset has 640x512 size images)
+    # DEBUG - UNCOMMENT NEXT LINE FOR v4 and v9 DATASETS
+    transforms.RandomResizedCrop(512),
     # Now we just resize into any of the common input layer sizes (32×32, 64×64, 96×96, 224×224, 227×227, and 229×229)
     transforms.Resize(DATASET_IMG_SIZE)
 ])
@@ -184,7 +203,9 @@ augmentations = transforms.Compose([
 ########################### 2.2 - LOADING TRAINING, VALIDATION & TEST DATA #######################
 
 # Create an instance for training. 
-train_data = datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=augmentations)
+train_data = (datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=transformations) + 
+             datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=mirroring_augmentations) + 
+             datasets.ImageFolder(root=TRAIN_DATA_DIR, transform=rotation_augmentations))
 
 # SPLITTING TRAINING & VALIDATION DATA
 # https://www.pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/
@@ -208,7 +229,9 @@ train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True, num_w
 val_loader = DataLoader(val_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
 # Create an instance for testing
-test_data = datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) + datasets.ImageFolder(root=TEST_DATA_DIR, transform=augmentations)
+test_data = (datasets.ImageFolder(root=TEST_DATA_DIR, transform=transformations) + 
+            datasets.ImageFolder(root=TEST_DATA_DIR, transform=mirroring_augmentations) +
+            datasets.ImageFolder(root=TEST_DATA_DIR, transform=rotation_augmentations))
 
 # Create a loader for the test set which will read the data within batch size and put into memory. 
 # Note that each shuffle is set to false for the test loader.
@@ -340,7 +363,7 @@ def train(num_epochs):
     model.to(device)
 
     # STDOUT INFO
-    print("[INFO] Training the model and creating the summary, hold-on tight...\n")
+    print("[INFO] Training the convolution neural network model, hold-on tight...\n")
 
     # measure how long training + validation process is going to take -> https://discuss.pytorch.org/t/how-to-measure-time-in-pytorch/26964/2
     start = torch.cuda.Event(enable_timing=True)
@@ -568,7 +591,7 @@ if __name__ == "__main__":
     
     # Let's build our model while benchmarking the GPU usage stats
     train(EPOCHS)
-    print('[INFO] Finished Training')
+    print('[INFO] Finished Training. Generating summary tarball...')
    
     # Let's load the model we just created and test the accuracy per label
     model = set_model_version(MODEL_VERSION)

@@ -49,22 +49,20 @@ client.moveToZAsync(z, 1).join()
 ##DEBUG
 ##
 print("flying on path...")
-result = client.moveOnPathAsync([airsim.Vector3r(50,0,0),
-                                airsim.Vector3r(0,-500,0),
-                                airsim.Vector3r(-50,0,0),
-                                airsim.Vector3r(0,500,0)],
+result = client.moveOnPathAsync([airsim.Vector3r(-200,200,75)],
                         5, 200,
                         airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
-"""
-print("flying on path...")
-result = client.moveOnPathAsync([airsim.Vector3r(10,0,0),
-                                airsim.Vector3r(0,-10,0),
-                                airsim.Vector3r(-10,0,0),
-                                airsim.Vector3r(0,10,0)],
-                        5, 200,
-                        airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
-*/
-"""
+'''
+while (0):                        
+    print("flying on circles forever...")
+    result = client.moveOnPathAsync([airsim.Vector3r(10,0,0),
+                                    airsim.Vector3r(0,-10,0),
+                                    airsim.Vector3r(-10,0,0),
+                                    airsim.Vector3r(0,10,0)],
+                            5, 200,
+                            airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
+'''
+
 ### TFG - Procedim a realitzar captures d'imatges cada 5 segons i utilitzant totes les càmeres que ja 
 ### proporciona el multirotor (buit-in):
 #while result == False:
