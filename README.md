@@ -195,9 +195,27 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
         6.1. Tasques d’investigació i recerca
 
-                6.1.1. Repàs cronològic dels models de Deep Learning més destacats i estudi comparatiu de les seves característiques
+                6.1.1. Definició de les mètriques de rendiment
 
-        6.2. Selecció del Dataset final que s'utilitzarà per a la PdC
+        6.2. Selecció del model i del dataset finals que s'utilitzaran per a la PdC
+		
+                6.2.1. Selecció del model
+
+                6.2.2. Selecció del dataset
+				
+                        6.2.2.1. Dataset v4.0
+						
+                        6.2.2.2. Dataset v5.0
+						
+                        6.2.2.3. Dataset v6.0
+						
+                        6.2.2.4. Dataset v7.0-beta
+						
+                        6.2.2.5. Dataset v7.0
+						
+                        6.2.2.6. Dataset v8.0
+
+                        6.2.2.6. Dataset v9.0
 
         6.3. Entrenament del model amb el dataset seleccionat
 
@@ -207,7 +225,7 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
 --------------------------------------------------------------
 
-7.	FITA#07 - Testeig de la DCNN (Joc de proves #1):
+7.	FITA#07 - Testeig de la DCNN (Joc de proves #1)
 
 7.1. Definir un joc de proves reduït per a testar el correcte funcionament de la DCNN amb un sol dron
 
