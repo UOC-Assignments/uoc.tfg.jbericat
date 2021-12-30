@@ -207,7 +207,7 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
 
             # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the #FFFFFF=255 
             # value on the RGB image (scene) HOWEVER, if we're going to take images WITHOUT 
-            # wildfires (UE_ZONE == 7), then we don't set it up
+            # wildfires (UE_ZONE == 7), then we don't set the filter up
             if (p==255) and ue4_zone != UE4_ZONE_6 and ue4_zone != UE4_ZONE_7:
                 grayscale_image[i, j] = p           
                 fire_img = True
