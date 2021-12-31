@@ -1,12 +1,27 @@
-#import numpy
+"""
+title::
+    real_time_cv.py
+
+description::
+
+
+inputs::
+
+
+output::
+
+author::
+    Jordi Bericat Ruz - Universitat Oberta de Catalunya
+
+references::
+
+"""
+
 import cv2
 import os
+import time
 import glob
-import operator
-#import time
-#from PIL import Image
-#from airsim import *
-
+import shutil
 
 # CONSTANTS AND LITERALS
 
@@ -20,8 +35,7 @@ UE4_ZONE_6 = 6
 UE4_ZONE_7 = 7
 UE4_ZONE_8 = 8
 
-
-
+TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
 
 def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone):
     """
@@ -51,7 +65,6 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
     # Import an image from directory:
     thermal_image = cv2.imread(thermal_img_path, cv2.IMREAD_GRAYSCALE)
     rgb_image = cv2.imread(rgb_img_path, cv2.IMREAD_COLOR)
-    #rgb_image = Image.open(rgb_img_path)
 
     # Convert RGB image to grayscale -> https://stackoverflow.com/questions/48190894/how-to-convert-rgb-images-dataset-to-single-channel-grayscale
      
@@ -85,56 +98,67 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
                 fire_img = True
 
     # Saving the final output -- DEBUG -> pending to set a relative path 
-    # We discard images with no white pixels, except in the case we are taking no-wildfire images (zone 7)
+    # We discard images with no white pixels, except in the case we are 
+    # taking no-wildfire images (zone 7)
     if fire_img or ue4_zone == UE4_ZONE_6 or ue4_zone == UE4_ZONE_7:
-        cv2.imwrite(composite_img_path,grayscale_image)
+        cv2.imwrite(composite_img_path+"/FLIR_"+ TIMESTAMP +".png",grayscale_image)
 
-def getNewestSubdir(path):
-    dirs = []
-    for d in os.listdir(path):
-        if os.path.isdir(d):
-            dirs.append(d)
-    print(dirs)
-    #return dirs[0]
+# Functions that return the newest and oldest created item in a base path
+# Sources -> https://stackoverflow.com/questions/39327032/how-to-get-the-latest-file-in-a-folder 
+def getNewestItem(path):
+    list_of_files = glob.glob(path+"*") 
+    latest_file = max(list_of_files, key=os.path.getctime)
+    return latest_file
+
+def getOldestItem(path):
+    list_of_files = glob.glob(path+"*") 
+    latest_file = min(list_of_files, key=os.path.getctime)
+    return latest_file
 
 if __name__ == "__main__":
 
-    droneCapturesFolder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/'
-    #datasetFolder = '.'
-    current_images_subfolder = getNewestSubdir(droneCapturesFolder)
-    #print(current_images_subfolder)
+    # TODO WHILE THERE ARE FILES ON THE current_drones_captures folder..... DO:
 
-    '''
-    thermal_img_path = (datasetFolder + 
-                        current_images_subfolder +
+    # First we need to know the folder name where the images are being recorded 
+    # (which is the latest created directory by AirSim on the "drone_captures_folder" 
+    # when the image recording starts)
+    PoC_folder = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/"
+    drone_captures_folder = PoC_folder+"drone-realtime-captures/"
+    current_drones_captures = getNewestItem(drone_captures_folder)
 
-                        '.png')
+    # Creating the buffer folder
+    if os.path.isdir(current_drones_captures+'/buffer/') == False:
+        os.mkdir(current_drones_captures+'/buffer/')
 
-    rgb_img_path = (datasetFolder + 
-                            class_folder + 
-                            sceneFolder + 
-                            'RGB_' +
-                            str(i).zfill(5) + '_' +
-                            str('%.5f'%(pose.position.x_val)) + '_' +
-                            str('%.5f'%(pose.position.y_val)) + '_' +
-                            str(height) + '_' +
-                            str(pitch) + '_' +
-                            str(roll) + '_' +
-                            str(yaw) +
-                            '.png')
+    # Now we need to pair-up the RGB & Segmented IR images taken by the drone. We'll be 
+    # using the file creation / modification timestamp to retrieve their filename 
+    # (I couldn't figure-out a better way to do so) 
+    for i in range(2):
+        myItem = getOldestItem(current_drones_captures+"/images/")
+        
+        if ( int(str(myItem).find("img_Drone1_0_7")) != -1 ):
+            # 
+            current_SEGMENT_image = getOldestItem(current_drones_captures+"/images/")
+            print("latest_IR_image = " + current_SEGMENT_image) # DEBUG
 
-    composite_img_path = (datasetFolder + 
-                            class_folder + 
-                            compositeFolder +
-                            'FLIR_' +
-                            str(i).zfill(5) + '_' +
-                            str('%.5f'%(pose.position.x_val)) + '_' +
-                            str('%.5f'%(pose.position.y_val)) + '_' +
-                            str(height) + '_' +
-                            str(pitch) + '_' +
-                            str(roll) + '_' +
-                            str(yaw) +
-                            '.png')
+            # moving the oldest SEGMENT image to the processing buffer folder (so, next time we 
+            # scan the images folder we won't be retrieving the very same pair of images)
+            shutil.move(current_SEGMENT_image, current_drones_captures+'/buffer/tmp_SEGMENT.png')
+            segment_img_path = current_drones_captures+'/buffer/tmp_SEGMENT.png'
+        
+        if ( int(str(myItem).find("img_Drone1_0_0")) != -1 ):
 
-    create_flir_img()
-    '''
+            # if the oldest image file on the current_drones_captures folder is
+            # the RGB version of the same image (AirSim type 0), then we retrieve it the same way we did before
+            current_RGB_image = getOldestItem(current_drones_captures+"/images/")
+            print("latest_RGB_image = " + current_RGB_image) # DEBUG
+
+            # moving the oldest SEGMENT image to the processing buffer folder (so, next time we 
+            # scan the images folder we won't be retrieving the very same pair of images)
+            shutil.move(current_RGB_image, current_drones_captures+'/buffer/tmp_RGB.png')
+            rgb_img_path = current_drones_captures+'/buffer/tmp_RGB.png' 
+
+    # Now is time to create the FLIR simulated image from the ones we send to the buffer folder
+    flir_img_path = PoC_folder + "cv-realtime-buffer/"
+    create_flir_img(segment_img_path, rgb_img_path, flir_img_path, UE4_ZONE_6)
+

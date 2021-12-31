@@ -47,11 +47,12 @@ client.moveToZAsync(z, 1).join()
 # this method is async and we are not waiting for the result since we are passing timeout_sec=0.
 
 ##DEBUG
-##
+## Moving the drone1 unit from the base to the core of the wildfire and back
 print("flying on path...")
-result = client.moveOnPathAsync([airsim.Vector3r(-200,200,75)],
+result = client.moveOnPathAsync([airsim.Vector3r(-200,200,75),airsim.Vector3r(0,0,-100)],
                         5, 200,
                         airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
+
 '''
 while (0):                        
     print("flying on circles forever...")
