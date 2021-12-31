@@ -1,4 +1,6 @@
+# https://stackoverflow.com/questions/50909569/unable-to-import-cv2-module-python-3-6
 import cv2
+
 import os
 import time
 import glob
@@ -42,7 +44,7 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
         https://www.geeksforgeeks.org/how-to-manipulate-the-pixel-values-of-an-image-using-python/
 
     TODO::
-        - CUDA paralelization of the "image fusion" (this function is slowing down the realtime thing). For instance, we could use 512 GPU cores to process all the matrix's rows at once
+        - CUDA paralelization of the "image fusion" (this function is slowing down the realtime thing). For instance, we could use 512 GPU cores to process all the grayscale_image matrix rows at once
         - Create a class definition and then import this export (implemented as a method) both to "create_ir_segmentation.py" and this file itself.
     '''
     # Import an image from directory:
