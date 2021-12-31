@@ -49,7 +49,7 @@ client.moveToZAsync(z, 1).join()
 ##DEBUG
 ## Moving the drone1 unit from the base to the core of the wildfire and back
 print("flying on path...")
-result = client.moveOnPathAsync([airsim.Vector3r(-200,200,75),airsim.Vector3r(0,0,-100)],
+result = client.moveOnPathAsync([airsim.Vector3r(-200,200,75)],
                         5, 200,
                         airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
 
@@ -75,7 +75,7 @@ print('Retrieved images:', len(responses))
 '''
 
 # drone will over-shoot so we bring it back to the start point before landing.
-client.moveToPositionAsync(0,0,z,1).join()
+# client.moveToPositionAsync(0,0,z,1).join()
 print("landing...")
 client.landAsync().join()
 print("disarming...")

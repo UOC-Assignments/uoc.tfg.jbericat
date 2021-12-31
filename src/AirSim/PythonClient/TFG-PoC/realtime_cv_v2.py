@@ -40,6 +40,10 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
 
     references::
         https://www.geeksforgeeks.org/how-to-manipulate-the-pixel-values-of-an-image-using-python/
+
+    TODO::
+        - CUDA paralelization of the "image fusion" (this function is slowing down the realtime thing). For instance, we could use 512 GPU cores to process all the matrix's rows at once
+        - Create a class definition and then import this export (implemented as a method) both to "create_ir_segmentation.py" and this file itself.
     '''
     # Import an image from directory:
     thermal_image = cv2.imread(thermal_img_path, cv2.IMREAD_GRAYSCALE)
@@ -95,7 +99,11 @@ if __name__ == '__main__':
     ###########################################################################
     ###############################      PART I      ##########################
     ###########################################################################
-
+    ##
+    ##      Simulating FLIR camera video capture (0.5 FPS) in real-time  
+    ##
+    ###########################################################################
+    
     ########################################################################### 
     # STEP 1: Setting path variables
     ###########################################################################
@@ -142,7 +150,7 @@ if __name__ == '__main__':
             fout.writelines(data[1:])
 
         #######################################################################
-        # STEP 3: Generating the FLIR image on real
+        # STEP 3: Generating the FLIR image on "almost real-time"
         #######################################################################
 
         # TODO -> WORK IN PROGRESS...
@@ -155,6 +163,14 @@ if __name__ == '__main__':
         os.remove(segment_img_path)
         os.remove(rgb_img_path)
 
+    #Deleting samples folder
+    shutil.rmtree(sample_folder) 
+
     ############################################################################
     ###############################      PART II     ###########################
     ############################################################################
+    ##
+    ##  Adding bounding boxes to the FLIR images
+    ##
+    ###########################################################################
+
