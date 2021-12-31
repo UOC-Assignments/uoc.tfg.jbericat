@@ -91,7 +91,8 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
             # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the #FFFFFF=255 
             # value on the RGB image (scene) HOWEVER, if we're going to take images WITHOUT 
             # wildfires (UE_ZONE == 7), then we don't set the filter up
-            if (p==255) and ue4_zone != UE4_ZONE_6 and ue4_zone != UE4_ZONE_7:
+            # DEBUG: IN THIS IMPLEMENTATION...
+            if (p==255) and ue4_zone != UE4_ZONE_7:
                 grayscale_image[i, j] = p           
                 fire_img = True
 
@@ -127,11 +128,11 @@ if __name__ == "__main__":
     PoC_folder = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/"
     drone_captures_folder = PoC_folder+"drone-realtime-captures/"
     current_drones_captures = getNewestItem(drone_captures_folder)
-
+    images_folder = current_drones_captures+"/images/"
     # WHILE THERE ARE FILES ON THE current_drones_captures folder..... DO CONVERT TO FLIR:
     while ( len(os.listdir(current_drones_captures)) != 0 ):
 
-        print( "We still have to process %d images\n\n" + len(os.listdir(current_drones_captures)) )
+        print( "\nWe still have to process " + str(len(os.listdir(images_folder))) + " raw images\n" )
         # Creating the buffer folder
         if os.path.isdir(current_drones_captures+'/buffer/') == False:
             os.mkdir(current_drones_captures+'/buffer/')
@@ -140,12 +141,14 @@ if __name__ == "__main__":
         # using the file creation / modification timestamp to retrieve their filename 
         # (I couldn't figure-out a better way to do so) 
         for i in range(2):
+
+            # Retrieving the oldest file on the folder (as in a FIFO queue)
             myItem = getOldestItem(current_drones_captures+"/images/")
-            
+            a=0 #DEBUG
             if ( int(str(myItem).find("img_Drone1_0_7")) != -1 ):
                 # 
-                current_SEGMENT_image = getOldestItem(current_drones_captures+"/images/")
-                print("latest_IR_image = " + current_SEGMENT_image) # DEBUG
+                current_SEGMENT_image = myItem
+                print("latest_SEGMENT_image = " + current_SEGMENT_image) # DEBUG
 
                 # moving the oldest SEGMENT image to the processing buffer folder (so, next time we 
                 # scan the images folder we won't be retrieving the very same pair of images)
@@ -156,7 +159,7 @@ if __name__ == "__main__":
 
                 # if the oldest image file on the current_drones_captures folder is
                 # the RGB version of the same image (AirSim type 0), then we retrieve it the same way we did before
-                current_RGB_image = getOldestItem(current_drones_captures+"/images/")
+                current_RGB_image = myItem
                 print("latest_RGB_image = " + current_RGB_image) # DEBUG
 
                 # moving the oldest SEGMENT image to the processing buffer folder (so, next time we 
