@@ -61,7 +61,7 @@ while (0):
                                     airsim.Vector3r(0,10,0)],
                             5, 200,
                             airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
-'''
+
 
 ### TFG - Procedim a realitzar captures d'imatges cada 5 segons i utilitzant totes les càmeres que ja 
 ### proporciona el multirotor (buit-in):
@@ -71,6 +71,7 @@ airsim.ImageRequest(0, airsim.ImageType.DepthVis),
 airsim.ImageRequest(1, airsim.ImageType.Infrared),
 airsim.ImageRequest(2, airsim.ImageType.DepthPlanar, True)])
 print('Retrieved images:', len(responses))
+'''
 
 # drone will over-shoot so we bring it back to the start point before landing.
 client.moveToPositionAsync(0,0,z,1).join()
