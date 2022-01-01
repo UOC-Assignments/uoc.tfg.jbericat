@@ -1,3 +1,45 @@
+"""
+Title::
+
+    pytorch_deployment_PoC#1.py 
+
+Python environment: 
+
+    TODO Python 3.6.4 + pytorch + CUDA, etc....
+
+Description::
+
+    Deploying the classification algorithm (model cnn-training_v3.pth) without localization boxes (just image classification)
+
+Inputs::
+
+    TODO
+
+Output::
+
+    TODO
+
+
+Original author::
+
+    Chris Lovett - https://github.com/lovettchris
+
+Modified / adapted by:   
+
+    Jordi Bericat Ruz - Universitat Oberta de Catalunya
+
+References::
+
+    1 - https://microsoft.github.io/AirSim/api_docs/html/_modules/airsim/client.html#MultirotorClient.moveOnPathAsync 
+    2 - https://github.com/Microsoft/AirSim/wiki/moveOnPath-demo 
+
+
+TODO list: 
+
+"""
+
+
+
 # IMPORTS
 
 ## PART I 

@@ -5,7 +5,7 @@ Title::
 
 Python environment: 
 
-    Python 6.4.6 + pytorch x.y....... TODO
+    TODO Python 3.4.6 + pytorch x.y....... 
 
 Description::
 
