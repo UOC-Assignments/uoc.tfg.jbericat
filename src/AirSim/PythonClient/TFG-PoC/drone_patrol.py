@@ -47,37 +47,27 @@ import time
 '''This script HAS BEEN ADAPTED FROM path.py
 '''
 
-ZONE6A_NE_X = 34616.03125
+# TODO - Get pos from "Z6A_NE" Actors (and etc.) using the UE4 or AirSim API
+
+'''ZONE6A_NE_X = 34616.03125
 ZONE6A_NE_Y = -47017.53125
 ZONE6A_NE_Z = 19651.738281
 
-ZONE6A_NW_X = -44855.246094
-ZONE6A_NW_Y = -83644.671875
-ZONE6A_NW_Z = 1948.820312
+ZONE6A_NW_X = 5444.754883
+ZONE6A_NW_Y = -45424.675781
+ZONE6A_NW_Z = 18868.820312
 
-ZONE6A_SE_X = -16046.804688
-ZONE6A_SE_Y = -56172.183594
-ZONE6A_SE_Z = -5232.59668
+ZONE6A_SE_X = 34253.195312
+ZONE6A_SE_Y = -17952.183594
+ZONE6A_SE_Z = 11687.40332
 
-ZONE6A_SW_X = -55523.9375
-ZONE6A_SW_Y = -59685.925781
-ZONE6A_SW_Z = -2311.015625
+ZONE6A_SW_X = -5223.938477
+ZONE6A_SW_Y = -21465.925781
+ZONE6A_SW_Z = 14608.984375'''
 
-'''ZONE6B_NE_X = 
-ZONE6B_NE_Y = 
-ZONE6B_NE_Z = 
 
-ZONE6B_NW_X = 
-ZONE6B_NW_Y = 
-ZONE6B_NW_Z = 
 
-ZONE6B_SE_X = 
-ZONE6B_SE_Y = 
-ZONE6B_SE_Z = 
 
-ZONE6B_SW_X = 
-ZONE6B_SW_Y = 
-ZONE6B_SW_Z = '''
 
 client = airsim.MultirotorClient()
 client.confirmConnection()
@@ -101,6 +91,37 @@ if state.landed_state == airsim.LandedState.Landed:
     print("take off failed...")
     sys.exit(1)
 
+ZONE_6A_NE_X = client.simGetObjectPose("ZONE_6A_NE").position.x_val;
+ZONE_6A_NE_Y = client.simGetObjectPose("ZONE_6A_NE").position.y_val;
+ZONE_6A_NE_Z = client.simGetObjectPose("ZONE_6A_NE").position.z_val;
+
+ZONE_6A_NW_X = client.simGetObjectPose("ZONE_6A_NW").position.x_val;
+ZONE_6A_NW_Y = client.simGetObjectPose("ZONE_6A_NW").position.y_val;
+ZONE_6A_NW_Z = client.simGetObjectPose("ZONE_6A_NW").position.z_val;
+
+ZONE_6A_SE_X = client.simGetObjectPose("ZONE_6A_SE").position.x_val;
+ZONE_6A_SE_Y = client.simGetObjectPose("ZONE_6A_SE").position.y_val;
+ZONE_6A_SE_Z = client.simGetObjectPose("ZONE_6A_SE").position.z_val;
+
+ZONE_6A_SW_X = client.simGetObjectPose("ZONE_6A_SW").position.x_val;
+ZONE_6A_SW_Y = client.simGetObjectPose("ZONE_6A_SW").position.y_val;
+ZONE_6A_SW_Z = client.simGetObjectPose("ZONE_6A_SW").position.z_val;
+
+ZONE_6B_NE_X = client.simGetObjectPose("ZONE_6B_NE").position.x_val;
+ZONE_6B_NE_Y = client.simGetObjectPose("ZONE_6B_NE").position.y_val;
+ZONE_6B_NE_Z = client.simGetObjectPose("ZONE_6B_NE").position.z_val;
+
+ZONE_6B_NW_X = client.simGetObjectPose("ZONE_6B_NW").position.x_val;
+ZONE_6B_NW_Y = client.simGetObjectPose("ZONE_6B_NW").position.y_val;
+ZONE_6B_NW_Z = client.simGetObjectPose("ZONE_6B_NW").position.z_val;
+
+ZONE_6B_SE_X = client.simGetObjectPose("ZONE_6B_SE").position.x_val;
+ZONE_6B_SE_Y = client.simGetObjectPose("ZONE_6B_SE").position.y_val;
+ZONE_6B_SE_Z = client.simGetObjectPose("ZONE_6B_SE").position.z_val;
+
+ZONE_6B_SW_X = client.simGetObjectPose("ZONE_6B_SW").position.x_val;
+ZONE_6B_SW_Y = client.simGetObjectPose("ZONE_6B_SW").position.y_val;
+ZONE_6B_SW_Z = client.simGetObjectPose("ZONE_6B_SW").position.z_val;
 
 ### TFG - Suposem (millor dit, imaginem de cara a la PoC) que l'edge-device incorporat al dron 
 ### diposa d'una cartografia digitalitzada del terreny, de dades sobre l'alçada màxima dels 
@@ -115,45 +136,45 @@ print("make sure we are hovering at {} meters...".format(-z))
 response = client.moveToZAsync(z, 1).join()
 print(response)
 
+# Starting with the ZONE-6A (High-Intensity Wildfires) at the North-East (NE) corner
+# TODO - Those results are intended to be cached by a try-catch clause...
+print("flying-through to the ZONE-6A SW corner...")
+result = client.moveToPositionAsync(x=ZONE_6A_SW_X, y=ZONE_6A_SW_Y, z=ZONE_6A_SW_Z-10, velocity=10).join()
+print("moveToPositionAsync result: " + str(result))
 
-# Starting with ZONE SIX (Low-Intensity Wildfires):
-#client.moveToPositionAsync(x=ZONE6_SE_X, y=ZONE6_SE_Y, z=ZONE6_SE_Z, velocity=40)
-#client.moveToPositionAsync(x=ZONE6A_NW_X, y=ZONE6A_NW_Y, z=ZONE6A_NW_Z, velocity=60) 
-#client.moveToPositionAsync(x=ZONE6A_SW_X, y=ZONE6A_SW_Y, z=ZONE6A_SW_Z, velocity=5)
-#client.moveToPositionAsync(x=ZONE6A_NE_X, y=ZONE6A_NE_Y, z=ZONE6A_NE_Z, velocity=5) # this is the PLAYER_START position
+print("flying the perimeter to the ZONE-6A NW corner...")
+result = client.moveToPositionAsync(x=ZONE_6A_NW_X, y=ZONE_6A_NW_Y, z=ZONE_6A_NW_Z-20, velocity=10).join()
+print("moveToPositionAsync result: " + str(result))
 
-print("flying on path...")
+print("flying-through again to the ZONE-6A SE corner...")
+result = client.moveToPositionAsync(x=ZONE_6A_SE_X, y=ZONE_6A_SE_Y, z=ZONE_6A_SE_Z-20, velocity=10).join()
 
+# Gaining some height...
+client.moveToZAsync(-5, 4).join()
 
-result = client.moveToPositionAsync(x=ZONE6A_SW_X, y=ZONE6A_SW_Y, z=ZONE6A_SW_Z, velocity=40).join()
-print(result)
+# Jumping to ZONE-6B Now...
 
-'''result = client.moveOnPathAsync([airsim.Vector3r(-200,200,75)],
-                        10, 200,
-                        airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
-'''
+print("flying-through to the ZONE-6B SW corner...")
+result = client.moveToPositionAsync(x=ZONE_6B_SW_X, y=ZONE_6B_SW_Y, z=ZONE_6B_SW_Z-10, velocity=30).join()
+print("moveToPositionAsync result: " + str(result))
 
+print("flying-through to the ZONE-6B NE corner...")
+result = client.moveToPositionAsync(x=ZONE_6B_NE_X, y=ZONE_6B_NE_Y, z=ZONE_6B_NE_Z-10, velocity=10).join()
+print("moveToPositionAsync result: " + str(result))
 
-'''
-##DEBUG
+print("flying-through to the ZONE-6B SE corner...")
+result = client.moveToPositionAsync(x=ZONE_6B_SE_X, y=ZONE_6B_SE_Y, z=ZONE_6B_SE_Z-10, velocity=10).join()
+print("moveToPositionAsync result: " + str(result))
 
+# Gaining some height again...
+client.moveToZAsync(-5, 4).join()
 
-            
-print("flying on circles forever...")
-result = client.moveOnPathAsync([airsim.Vector3r(400,0,0),
-                                airsim.Vector3r(0,-400,0),
-                                airsim.Vector3r(-400,0,0),
-                                airsim.Vector3r(0,400,0)],
-                        5, 5,
-                        airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
-print(result)
+print("flying-through to the ZONE-6B NW corner...")
+result = client.moveToPositionAsync(x=ZONE_6B_NW_X, y=ZONE_6B_NW_Y, z=ZONE_6B_NW_Z-20, velocity=10).join()
+print("moveToPositionAsync result: " + str(result))
 
-'''
+# We won't bring back the drone, so the survey just ends here.
 
-# drone will over-shoot so we bring it back to the start point before landing.
-# client.moveToPositionAsync(0,0,z,1).join()
-
-# TODO Here we need to implement a sync mechanism....
 print("landing...")
 client.landAsync().join()
 print("disarming...")
