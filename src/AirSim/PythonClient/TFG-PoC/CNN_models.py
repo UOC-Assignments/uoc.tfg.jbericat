@@ -177,7 +177,7 @@ def set_model_version(input):
     elif (input == '2'):
         selection = Network_v2()
 
-    elif (input == '3'): 
+    else: #DEFAULT 
         selection = Network_v3()
 
     return selection
