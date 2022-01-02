@@ -1,7 +1,7 @@
 """
 Title::
 
-    pytorch_deployment_PoC#1.py 
+    pytorch_deployment_PoC#1_v1.0-.py 
 
 Python environment: 
 
@@ -12,7 +12,7 @@ Description::
     Deploying the classification algorithm (model cnn-training_v3.pth) WITHOUT
     localization boxes (just image classification).
     
-    IMPORTANT NOTICE: NO REAL-TIME PROCESSING ON THIS VERSION. 
+    IMPORTANT NOTICE: NO REAL-TIME PROCESSING ON THIS PoC VERSION (PoC#1_v1.0). 
     
     Image analysis is done OFFLINE once the image collection by the drone's is
     finished. This is a WORK-IN-PROGRESS. The goal is to process images on 
@@ -51,16 +51,19 @@ References::
 
 
 TODO list: 
+    1 - Paralelize create_flir_img()
+    2 - "Realtimize" the whole process: It would require the implementation of
+        syncronization mechanisms (e.g. a queue to retrieve the data from "airsim_rec.txt")
 
 """
-
-
 
 # IMPORTS
 
 ## PART I 
 
 
+from genericpath import isfile
+from posixpath import join
 import cv2 # https://stackoverflow.com/questions/50909569/unable-to-import-cv2-module-python-3-6
 import os
 import time
@@ -94,22 +97,28 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from PIL import Image
 
-# CONSTANTS AND LITERALS
+# CONSTANTS AND LITERALS - TODO - ALL THIS STUFF SHOULD BE ON A .H KINDOFF FILE OR WHATEVER BETTER STRUCTURED THAN THIS... (MODULES, PACKAGES, ETC)
 
 # Base folders
-poc_folder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/' 
-flir_buffer = poc_folder + 'flir_buffer/'
+POC_FOLDER = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/' 
+FLIR_BUFFER = POC_FOLDER + 'flir_buffer/'
+PREDICTIONS_OUT_FILE = open(os.path.abspath(POC_FOLDER + 'out/frame-predictions.log'), "w")   
+
 
 # PART I
 
 UE4_ZONE_6 = 6
 UE4_ZONE_7 = 7
 
+GREEN_COLOR = [0,255,0]
+YELLOW_COLOR = [0,255,255]
+RED_COLOR = [0,0,255]
+
 # PART II
 
 #data-bond constants
 DEPLOY_DATA_DIR = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer"
-DEPLOY_IMG_SIZE = 229
+CNN_IMG_SIZE = 229
 
 # Setting a reasonable BATCH SIZE is requirede considering that:
 #  
@@ -136,7 +145,7 @@ MODEL_PATH = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/CNN/"
 
 # PART I DEFINITIONS
 
-def getNewestItem(path):
+def get_newest_item(path):
     '''
     Function that return the newest item in a base path
     Sources -> https://stackoverflow.com/questions/39327032/how-to-get-the-latest-file-in-a-folder 
@@ -145,7 +154,9 @@ def getNewestItem(path):
     latest_file = max(list_of_files, key=os.path.getctime)
     return latest_file
 
-def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone):
+framecount = 0
+
+def create_flir_img_v2(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone):
     '''
     title::
         create_flir_img
@@ -162,7 +173,7 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
 
     output::
         flir
-            Thermal+RGB composite image (file)
+            Thermal+RGB composite image (file) sequentially labeled by frame number
 
     author::
         Jordi Bericat Ruz - Universitat Oberta de Catalunya
@@ -213,8 +224,14 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
     # Saving the final output -- DEBUG -> pending to set a relative path 
     # We discard images with no white pixels, except in the case we are 
     # taking no-wildfire images (zone 7)
+
+    # We have to explicitly tell that we want to use the global namespace to 
+    # keep track of frame number we want to append to the out file
+    global framecount
+
     if fire_img or ue4_zone == UE4_ZONE_6 or ue4_zone == UE4_ZONE_7:
-        cv2.imwrite(composite_img_path+'/FLIR_'+ time.strftime('%Y%m%d-%H%M%S') +'.png',grayscale_image)
+        cv2.imwrite(composite_img_path+'/FLIR_frame-' + str(framecount) + '.png', grayscale_image)
+        framecount += 1 # NO CONCURRENCY = NO NEED TO MUTEX OR LOCKS, BUT THAT COULD CHANGE IN FUTURE VERSIONS
 
 def thermal_vision_simulation():
     
@@ -224,13 +241,11 @@ def thermal_vision_simulation():
     # STEP 1: Setting path variables
     ###########################################################################
    
-
-
     # OUTPUT to FLIR conversion buffer
-    output = poc_folder + flir_buffer + 'unknown-class/'
+    output = FLIR_BUFFER + 'unknown-class/'
 
     # INPUT sample folder
-    sample_folder = getNewestItem(poc_folder + 'in/') + '/'
+    sample_folder = get_newest_item(POC_FOLDER + 'in/') + '/'
 
     ###########################################################################
     # STEP 2: Extract SEGMENT & RGB Filenames from the airsim_rec.txt log
@@ -263,7 +278,7 @@ def thermal_vision_simulation():
             fout.writelines(data[1:])
 
         #######################################################################
-        # STEP 3: Generating the FLIR image on "almost real-time"
+        # STEP 3: Generating the FLIR image 
         #######################################################################
 
         ### TODO -> DOCUMENTATION
@@ -271,7 +286,7 @@ def thermal_vision_simulation():
         rgb_img_path = sample_folder + 'images/' + myRGB_file
 
         ### TODO -> DOCUMENTATION
-        create_flir_img(segment_img_path, rgb_img_path, output, UE4_ZONE_6)
+        create_flir_img_v2(segment_img_path, rgb_img_path, output, UE4_ZONE_6)
         
         #Deleting input files
         os.remove(segment_img_path)
@@ -280,10 +295,53 @@ def thermal_vision_simulation():
     #Deleting samples folder
     shutil.rmtree(sample_folder) 
 
+def add_bounding_box(prediction):
+    #TODO DOC - https://docs.opencv.org/3.4/dc/da3/tutorial_copyMakeBorder.html
+
+    borderType = cv2.BORDER_CONSTANT
+
+    # Loads an image
+    # TODO - Path structure is a bit of a mess...
+    frame_path = FLIR_BUFFER + 'unknown-class/FLIR_frame-' + str(prediction[0]) + '.png'
+    src = cv2.imread(cv2.samples.findFile(frame_path), cv2.IMREAD_COLOR)
+
+    # Check if the image was correctly loaded 
+    if src is None:
+        print ('Error opening image!')
+        print ('Usage: copy_make_border.py [image_name -- default lena.jpg] \n')
+        return -1
+
+    
+    #TODO DOC
+    top = int(0.05 * src.shape[0])  # shape[0] = rows
+    bottom = top
+    left = int(0.05 * src.shape[1])  # shape[1] = cols
+    right = left
+
+    if prediction[1] == 'no-wildfires':
+        #add_green_boundingbox
+        color = GREEN_COLOR
+
+    elif prediction[1] == 'low-intensity-wildfires':
+        #add_yellow_boundingbox
+        color = YELLOW_COLOR
+
+    elif prediction[1] == 'high-intensity-wildfires':
+        #add_green_boundingbox
+        color = RED_COLOR
+
+    #TODO DOC
+    dst = cv2.copyMakeBorder(src, top, bottom, left, right, borderType, None, color)
+   
+    # SAVE TO FILE (OVERWRITING THE BUFFER IS OK)
+    cv2.imwrite(frame_path, dst)
+
+
 # PART II DEFINITIONS
 
-# Function to test the model with a batch of images and show the labels predictions
 def poc_one_deploy():
+
+    '''TODO DOCU - Function to test the model with a batch of images and show the labels predictions'''
 
     # stdout
     print("\n***************************************************************************************************************************\n" + 
@@ -302,15 +360,14 @@ def poc_one_deploy():
         transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL ONLY (GRAYSCALE)
         # We need square images to feed the model (the raw dataset has 640x512 size images)
         # DEBUG - UNCOMMENT NEXT LINE FOR v4 and v9 DATASETS
-        transforms.RandomResizedCrop(512),
+        #transforms.RandomResizedCrop(512),
         # Now we just resize into any of the common input layer sizes (32×32, 64×64, 96×96, 224×224, 227×227, and 229×229)
-        transforms.Resize(DEPLOY_IMG_SIZE)
+        transforms.Resize(CNN_IMG_SIZE)
     ])
 
     # Create an instance for deployment
     deploy_data = (datasets.ImageFolder(root=DEPLOY_DATA_DIR, transform=transformations))
     
-
     # Create a loader for the test set which will read the data within batch size and put into memory. 
     # Note that each shuffle is set to false, since we will be creating a frame-by-frame animation 
     deploy_loader = DataLoader(deploy_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=0) # DEBUG - batch_size=len(deploy_data)
@@ -345,7 +402,7 @@ def poc_one_deploy():
     # DEBUG - THE LOOP STARTS HERE
     # for j in range(len(deploy_data)):
     mydata = []
-    k = 0
+    k = 0 #COUNTER
     for i, (images, labels) in enumerate(deploy_loader, 0):
     
     # get batch of images from the test DataLoader  
@@ -360,7 +417,7 @@ def poc_one_deploy():
         img_grid = img_grid / 2 + 0.5  # unnormalize
         npimg = img_grid.numpy()
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        plt.savefig(poc_folder+'out/labels-prediction.png')
+        plt.savefig(POC_FOLDER+'out/labels-prediction.png')
         plt.show()
 
         #######################################################################
@@ -403,9 +460,41 @@ def poc_one_deploy():
     head = ["Frame ID", "Classification Result"]
     
     # print the table to info file
-    print(tabulate(mydata, headers=head, tablefmt="grid"))  
+    print(tabulate(mydata, headers=head, tablefmt="grid"), file=PREDICTIONS_OUT_FILE)
 
-if __name__ == '__main__':
+    count = 0
+    for i in mydata:
+
+        # TODO - DOC
+        add_bounding_box(i)
+
+
+# TODO - WORK IN PROGRESS
+def convert_frames_to_video(pathIn,pathOut,fps):
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(pathOut, fourcc, fps, (512,512))
+
+    # TODO DEBUG - this needs to be an iterator of the elements on the folder, 
+    # ordered by frame number (which needs to be implemented on the create_flir_img() function)
+    for i in range(): 
+        ret, frame = get_next_frame
+        if not ret:
+            print("Can't receive frame (stream end?). Exiting ...")
+            break
+        # write the frame
+        out.write(frame)
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(1) == ord('q'):
+            break
+    # Release everything if job is finished
+    cap.release()
+    out.release()
+    cv2.destroyAllWindows()
+
+
+def main():
+
+    '''TODO DOCU - Just a plain-good'ol main function'''
 
     ###########################################################################
     ###############################      PART I      ##########################
@@ -416,7 +505,7 @@ if __name__ == '__main__':
     ###########################################################################
 
     # Let's run the night/thermal-vision simulation on the images taken by the drone on it's LATEST flight
-    #thermal_vision_simulation()
+    thermal_vision_simulation()
 
     ############################################################################
     ###############################      PART II     ###########################
@@ -431,3 +520,16 @@ if __name__ == '__main__':
     ###########################################################################
 
     poc_one_deploy()
+
+
+    # TODO - CREATING FINAL VIDEO
+    '''
+    pathIn= FLIR_BUFFER + 'unknown-class/'
+    pathOut = POC_FOLDER + 'out/video.avi'
+    fps = 20.0
+    convert_frames_to_video(pathIn, pathOut, fps)
+    '''
+
+# CALLING MAIN.
+if __name__ == '__main__':
+    main()
