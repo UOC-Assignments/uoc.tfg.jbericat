@@ -54,13 +54,13 @@ TODO list:
     1 - Paralelize create_flir_img()
     2 - "Realtimize" the whole process: It would require the implementation of
         syncronization mechanisms (e.g. a queue to retrieve the data from "airsim_rec.txt")
+    3 - Try catch clause for when the IN data folder is empty
 
 """
 
 # IMPORTS
 
 ## PART I 
-
 
 from genericpath import isfile
 from posixpath import join
@@ -69,15 +69,16 @@ import os
 import time
 import glob
 import shutil
+from numpy.core.fromnumeric import take
 
 from tabulate import tabulate
-from torch.functional import Tensor
+from torch.functional import Tensor, meshgrid
 from torch.utils.data.sampler import BatchSampler
 import torchvision
 
 ## PART II 
 
-# DEBUG: We copied the file into this project folder in a rush. Create a shared lib in /usr/lib by instance....
+# DEBUG: We copied some code (defs) into this project folder in a rush. Create a shared lib in /usr/lib by instance....
 
 from CNN_models import *
 
@@ -154,6 +155,7 @@ def get_newest_item(path):
     latest_file = max(list_of_files, key=os.path.getctime)
     return latest_file
 
+# TODO DOC 
 framecount = 0
 
 def create_flir_img_v2(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone):
@@ -194,44 +196,22 @@ def create_flir_img_v2(thermal_img_path, rgb_img_path, composite_img_path, ue4_z
     # When using opencv, we load images into the BGR color space. Therefore, we convert BGR -> GRAY instead of RGB -> GRAY
     grayscale_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2GRAY) 
     
-    # Extracting the width and height 
-    # of the image (both images are equal in size): --> https://appdividend.com/2020/09/09/python-cv2-image-size-how-to-get-image-size-in-python/
-    height, width = grayscale_image.shape
+    # On this version we're going to try a more efficient approach using the numpy framework for python:
+    # https://www.geeksforgeeks.org/searching-in-a-numpy-array/ 
 
-    # We must set a filter to discard the images that did not show any of the virtual 
-    # wildfire features captured by the built-in AirSim infrared camera simulator -that is, 
-    # images that do not include ANY white pixels. For this purpose, we'll be using the 
-    # 'fire_img' bool variable set as False by default, and then we'll set it to true if 
-    # there are pixels with their RGB value as 255, which simulate the fire detected by the 
-    # FLIR camera simulator 
-
-    fire_img = False
-  
-    for i in range(height):
-        for j in range(width):
-
-            # getting the THERMAL pixel value.
-            p = thermal_image[i,j]
-
-            # If the pixel is WHITE (#FFFFFF) then it's hot! -> Therefore we set the #FFFFFF=255 
-            # value on the RGB image (scene) HOWEVER, if we're going to take images WITHOUT 
-            # wildfires (UE_ZONE == 7), then we don't set the filter up
-            # DEBUG: IN THIS IMPLEMENTATION...
-            if (p==255) and ue4_zone != UE4_ZONE_7:
-                grayscale_image[i, j] = p           
-                fire_img = True
-
-    # Saving the final output -- DEBUG -> pending to set a relative path 
-    # We discard images with no white pixels, except in the case we are 
-    # taking no-wildfire images (zone 7)
+    #  looking for value 255 in arr and storing its index in i
+    myTuple = np.where(thermal_image == 255)
+    if ( len(myTuple[0]) ): 
+        for index in range(len(myTuple[0])):
+            x = myTuple[0][index]
+            y = myTuple[1][index]
+            grayscale_image[x, y] = 255
 
     # We have to explicitly tell that we want to use the global namespace to 
     # keep track of frame number we want to append to the out file
     global framecount
-
-    if fire_img or ue4_zone == UE4_ZONE_6 or ue4_zone == UE4_ZONE_7:
-        cv2.imwrite(composite_img_path+'/FLIR_frame-' + str(framecount) + '.png', grayscale_image)
-        framecount += 1 # NO CONCURRENCY = NO NEED TO MUTEX OR LOCKS, BUT THAT COULD CHANGE IN FUTURE VERSIONS
+    cv2.imwrite(composite_img_path+'/FLIR_frame-' + str(framecount) + '.png', grayscale_image)
+    framecount += 1 # NO CONCURRENCY = NO NEED TO MUTEX OR LOCKS, BUT THAT COULD CHANGE IN FUTURE VERSIONS
 
 def thermal_vision_simulation():
     
@@ -300,7 +280,7 @@ def add_bounding_box(prediction):
 
     borderType = cv2.BORDER_CONSTANT
 
-    # Loads an image
+    # Load an image
     # TODO - Path structure is a bit of a mess...
     frame_path = FLIR_BUFFER + 'unknown-class/FLIR_frame-' + str(prediction[0]) + '.png'
     src = cv2.imread(cv2.samples.findFile(frame_path), cv2.IMREAD_COLOR)
@@ -308,7 +288,6 @@ def add_bounding_box(prediction):
     # Check if the image was correctly loaded 
     if src is None:
         print ('Error opening image!')
-        print ('Usage: copy_make_border.py [image_name -- default lena.jpg] \n')
         return -1
 
     
@@ -462,34 +441,10 @@ def poc_one_deploy():
     # print the table to info file
     print(tabulate(mydata, headers=head, tablefmt="grid"), file=PREDICTIONS_OUT_FILE)
 
-    count = 0
-    for i in mydata:
-
+    for i in range(len(deploy_data)): # TODO DEBUG - THIS IS A PATCH! We're creating a myData list of size multiple of the batch-size, instead of the deploy data size
         # TODO - DOC
-        add_bounding_box(i)
+        add_bounding_box(mydata[i])
 
-
-# TODO - WORK IN PROGRESS
-def convert_frames_to_video(pathIn,pathOut,fps):
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter(pathOut, fourcc, fps, (512,512))
-
-    # TODO DEBUG - this needs to be an iterator of the elements on the folder, 
-    # ordered by frame number (which needs to be implemented on the create_flir_img() function)
-    for i in range(): 
-        ret, frame = get_next_frame
-        if not ret:
-            print("Can't receive frame (stream end?). Exiting ...")
-            break
-        # write the frame
-        out.write(frame)
-        cv2.imshow('frame', frame)
-        if cv2.waitKey(1) == ord('q'):
-            break
-    # Release everything if job is finished
-    cap.release()
-    out.release()
-    cv2.destroyAllWindows()
 
 
 def main():
