@@ -180,6 +180,8 @@ def create_flir_img(thermal_img_path, rgb_img_path, composite_img_path, ue4_zone
         cv2.imwrite(composite_img_path+'/FLIR_'+ time.strftime('%Y%m%d-%H%M%S') +'.png',grayscale_image)
 
 def thermal_vision_simulation():
+    
+    ### TODO -> DOCUMENTATION
 
     ########################################################################### 
     # STEP 1: Setting path variables
@@ -188,14 +190,12 @@ def thermal_vision_simulation():
     # Base folder
     poc_folder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/' 
 
-    # Input sample folder
+    # INPUT sample folder
     sample_folder = getNewestItem(poc_folder + 'in/') + '/'
 
-    # FLIR conversion buffer
-    flir_buffer = poc_folder + 'flir_buffer/'
+    # OUTPUT to FLIR conversion buffer
+    flir_buffer = poc_folder + 'flir_buffer/unknown-class/'
 
-    # out_folder 
-    # TODO
 
     ###########################################################################
     # STEP 2: Extract SEGMENT & RGB Filenames from the airsim_rec.txt log
@@ -207,7 +207,8 @@ def thermal_vision_simulation():
     with open(sample_folder + 'airsim_rec.txt', 'w') as fout:
         fout.writelines(data[1:])
 
-    ### TODO THE LOOP STARTS HERE!
+    ### TODO -> DOCUMENTATION
+
     while ( os.stat(sample_folder + 'airsim_rec.txt').st_size != 0 ):
 
         # Retrieving oldest entry on the log
@@ -230,10 +231,11 @@ def thermal_vision_simulation():
         # STEP 3: Generating the FLIR image on "almost real-time"
         #######################################################################
 
-        # TODO -> WORK IN PROGRESS...
+        ### TODO -> DOCUMENTATION
         segment_img_path = sample_folder + 'images/' + mySegment_file
         rgb_img_path = sample_folder + 'images/' + myRGB_file
 
+        ### TODO -> DOCUMENTATION
         create_flir_img(segment_img_path, rgb_img_path, flir_buffer, UE4_ZONE_6)
         
         #Deleting input files

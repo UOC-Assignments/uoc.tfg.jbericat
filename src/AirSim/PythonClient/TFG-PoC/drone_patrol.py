@@ -39,35 +39,10 @@ TODO list:
 """
 
 
-#import setup_path
+import setup_path
 import airsim
 import sys
 import time
-
-'''This script HAS BEEN ADAPTED FROM path.py
-'''
-
-# TODO - Get pos from "Z6A_NE" Actors (and etc.) using the UE4 or AirSim API
-
-'''ZONE6A_NE_X = 34616.03125
-ZONE6A_NE_Y = -47017.53125
-ZONE6A_NE_Z = 19651.738281
-
-ZONE6A_NW_X = 5444.754883
-ZONE6A_NW_Y = -45424.675781
-ZONE6A_NW_Z = 18868.820312
-
-ZONE6A_SE_X = 34253.195312
-ZONE6A_SE_Y = -17952.183594
-ZONE6A_SE_Z = 11687.40332
-
-ZONE6A_SW_X = -5223.938477
-ZONE6A_SW_Y = -21465.925781
-ZONE6A_SW_Z = 14608.984375'''
-
-
-
-
 
 client = airsim.MultirotorClient()
 client.confirmConnection()
