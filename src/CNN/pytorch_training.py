@@ -419,6 +419,10 @@ def train(num_epochs):
         
         #################### 5.2.2 - MODEL VALIDATION ####################
 
+        # DEBUG_  validation might better be done after EACH ITERATION over the training set OF THE SAME EPOCH, 
+        #         but we're doing it after the ALL THE ITEARATIONS over the training set OF THE SAME EPOCH. 
+        #         documentation must ve reviewed...
+
         # switch off autograd for evaluation
         with torch.no_grad():
 
