@@ -9,8 +9,8 @@ bin/*
 !bin/CNN/
 src/*
 !src/poc/
-
-# Ignore IDE specific files
+ 
+# Ignore IDE specific file
 .idea/
 .vscode/
 .vscode/*
