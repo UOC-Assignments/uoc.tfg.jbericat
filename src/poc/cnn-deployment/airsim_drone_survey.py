@@ -42,7 +42,7 @@ TODO list:
 
 # Importing functions from the PoC Library folder /src/poc/lib
 import sys 
-sys.path.insert(0, 'src/') # This one is the git src folder 
+sys.path.insert(0, '/home/jbericat/Workspaces/uoc.tfg.jbericat/src/') # This one is the git src folder 
 
 from poc.lib.setup_path import *
 from poc.lib.airsim_set_environment import *
