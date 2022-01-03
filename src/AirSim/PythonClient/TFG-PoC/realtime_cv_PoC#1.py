@@ -372,20 +372,23 @@ def poc_one_deploy():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(" - Model deployed on", device, "device")
 
-    # Setting evalatuion mode, since we don't want to retrain the model
-    model.eval()
-
     # Convert model parameters and buffers to CPU or Cuda
     model.to(device)
+
+    # Setting evalatuion mode, since we don't want to retrain the model
+    model.eval()
 
     # DEBUG - THE LOOP STARTS HERE
     # for j in range(len(deploy_data)):
     mydata = []
-    k = 0 #COUNTER
+    frame_id = 0 #COUNTER
+
     for i, (images, labels) in enumerate(deploy_loader, 0):
     
-    # get batch of images from the test DataLoader  
-        images, labels = next(iter(deploy_loader)) 
+        # get batch of images from the test DataLoader  
+        #images, labels = next(iter(deploy_loader)) 
+
+        print("BATCH NUMBER",i)
         
         # MOVING DATA TO THE GPU MEM SPACE
         images = Variable(images.to(device))
@@ -416,8 +419,7 @@ def poc_one_deploy():
 
         # Preparing the data to build a table 
 
-        for j in range(len(predicted)):
-
+        for j in range(len(outputs)):
             # On this implementation (REAL CASE SIMULATION) we actually don't know what
             # the object classification is, so it must be visually checked afterwards. 
             # However, we can be sure that the accuracy of the prediction will be of the 86% 
@@ -430,10 +432,10 @@ def poc_one_deploy():
             # could verify the validity of a small sample, but big enough to be of significance.
 
             # assign data
-            frame_id = k # DEBUG: It would be nice to add some formatting (zeroes padding at left, etc)
             predicted_label = classes[predicted[j]]
+            print("(frame_id,i,j,prediction)",frame_id,i,j,predicted_label)
             mydata.append([frame_id, predicted_label])
-            k += 1
+            frame_id += 1
     
     # create header
     head = ["Frame ID", "Classification Result"]
@@ -444,7 +446,6 @@ def poc_one_deploy():
     for i in range(len(deploy_data)): # TODO DEBUG - THIS IS A PATCH! We're creating a myData list of size multiple of the batch-size, instead of the deploy data size
         # TODO - DOC
         add_bounding_box(mydata[i])
-
 
 
 def main():
