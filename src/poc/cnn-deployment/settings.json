@@ -21,10 +21,7 @@
     ]
   },
   "Vehicles": {
-      "Drone1": { "VehicleType": "SimpleFlight", "X": 4, "Y": 0, "Z": -2, "Yaw": -180 },
-      "Drone2": { "VehicleType": "SimpleFlight", "X": 8, "Y": 0, "Z": -2 },
-      "Drone3": { "VehicleType": "SimpleFlight", "X": 8, "Y": 4, "Z": -2 },
-      "Drone4": { "VehicleType": "SimpleFlight", "X":4, "Y": 4, "Z": -2 }
+      "Drone1": { "VehicleType": "SimpleFlight", "X": 4, "Y": 0, "Z": -2 } 
   },
   "Recording": {
     "RecordOnMove": true,

@@ -35,7 +35,7 @@ TODO list:
 
 # Importing functions from the PoC Library folder /src/poc/lib
 import sys 
-sys.path.insert(0, 'src/') # This one is the git src folder 
+sys.path.insert(0, '/home/jbericat/Workspaces/uoc.tfg.jbericat/src/') # This one is the git src folder 
 
 from poc.lib.create_flir_image import *
 from poc.lib.airsim_set_environment import *
@@ -400,7 +400,7 @@ def main(client,
         # with the "create_flir_img" method we combine both the RGB and SEGMENT 
         # images, obtaining the simulated FLIR thermal vision images as a result. 
 
-        create_flir_img_v2(thermal_img_path,rgb_img_path,composite_img_path,ue4_zone)
+        create_flir_img_v2(thermal_img_path,rgb_img_path,composite_img_path,False)
 
         i += 1
         pose = client.simGetObjectPose(o);
