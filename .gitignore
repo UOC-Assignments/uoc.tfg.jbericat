@@ -9,11 +9,6 @@ bin/*
 !bin/CNN/
 src/*
 !src/poc/
-!src/AirSim/
-src/AirSim/*
-!src/AirSim/PythonClient/
-src/AirSim/PythonClient/*
-!src/AirSim/PythonClient/TFG-PoC/
 
 # Ignore IDE specific files
 .idea/
