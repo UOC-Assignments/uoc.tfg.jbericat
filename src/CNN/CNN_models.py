@@ -66,7 +66,7 @@ class Network_v1(nn.Module):
 ###################################################################################################
 ###################################################################################################
 
-
+# Next we build a pretty common CNN arch: The 5 layers LeNet Model
 class Network_v2(nn.Module):
      
     def __init__(self):
@@ -100,10 +100,10 @@ class Network_v2(nn.Module):
 ###################################################################################################
 ###################################################################################################
 
+# Define a convolution neural network for training and testing ( input channel = 229x229x1 ):
+#
 # See this project report's (section 5.2.3.3) for further information in regards to the calculations
 # made to set the output-channel size (linear layer)
-
-# Define a convolution neural network
 class Network_v3(nn.Module):
     def __init__(self):
         super(Network_v3, self).__init__()
@@ -129,3 +129,55 @@ class Network_v3(nn.Module):
         output = self.fc1(output)
 
         return output
+
+'''
+# Define a convolution neural network for deployment ( input channel = 512x512x1 ): DEBUG: First we are going to try with images of the same size as the used during training (I don't think that it matters though) 
+#
+# See this project report's (section 7.x.x.x) for further information in regards to the calculations
+# made to set the output-channel size (linear layer)
+class Network_v4(nn.Module):
+    def __init__(self):
+        super(Network_v4, self).__init__()
+        
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=9, stride=2, padding=2)
+        self.bn1 = nn.BatchNorm2d(16)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=16, kernel_size=5, stride=2, padding=2)
+        self.bn2 = nn.BatchNorm2d(16)
+        self.pool = nn.MaxPool2d(2,1)
+        self.conv3 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=2)
+        self.bn3 = nn.BatchNorm2d(32)
+        self.conv4 = nn.Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=1, padding=2)
+        self.bn4 = nn.BatchNorm2d(32)
+        self.fc1 = nn.Linear(32*58*58, 3)
+
+    def forward(self, input):
+        output = F.relu(self.bn1(self.conv1(input)))
+        output = F.relu(self.bn2(self.conv2(output)))
+        output = self.pool(output)
+        output = F.relu(self.bn3(self.conv3(output)))
+        output = F.relu(self.bn4(self.conv4(output)))
+        output = output.view(-1, 32*58*58)
+        output = self.fc1(output)
+
+        return output
+'''
+
+###################################################################################################
+###################################################################################################
+####                                                                                           ####
+####                                          4. Aux Methods                                   ####
+####                                                                                           ####
+###################################################################################################
+################################################################################################### 
+
+def set_model_version(input):
+    if (input == '1'):
+        selection = Network_v1()
+        
+    elif (input == '2'):
+        selection = Network_v2()
+
+    elif (input == '3'): 
+        selection = Network_v3()
+
+    return selection

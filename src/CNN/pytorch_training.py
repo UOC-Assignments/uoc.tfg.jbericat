@@ -5,7 +5,7 @@ Title::
 
 Python environment: 
 
-    Python 6.4.6 + pytorch x.y....... TODO
+    TODO Python 3.4.6 + pytorch x.y....... 
 
 Description::
 
@@ -46,7 +46,10 @@ References::
     5 - https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html  
     6 - https://discuss.pytorch.org/t/plotting-loss-curve/42632/2
 
-TODO LIST: All set.
+TODO list: 
+
+    1 - Extract function to definitions file, so they can be shared (CNN_models.py). 
+    2 - Separate definitions from implementations. No time though....
 
 
 """
@@ -271,6 +274,8 @@ classes = ('high-intensity-wildfires', 'low-intensity-wildfires', 'no-wildfires'
 
 from CNN_models import *
 
+# DEBUG: The next function has been added to the CNN_models library, it might be removed from here safely....
+
 def set_model_version(input):
     if (input == '1'):
         selection = Network_v1()
@@ -283,8 +288,12 @@ def set_model_version(input):
 
     return selection
 
+# END OF DEBUG
+
 # Instantiate the selected neural network model class imported from the src/CNN/CNN_Models.py file
+# DEBUG: This line is already on the main function, IDK what's doing here....
 model = set_model_version(MODEL_VERSION)
+# END OF DEBUG
 
 # .info file output summary data 
 print("\n********************************************************************************\n\n",
@@ -387,11 +396,6 @@ def train(num_epochs):
         totalTrainLoss = 0
         totalValLoss = 0
 
-        # initialize the number of correct predictions in the training
-        # and validation step
-        #trainCorrect = 0
-        #valCorrect = 0
-
         # loop over the training set
         for i, (images, labels) in enumerate(train_loader, 0):
             
@@ -414,6 +418,10 @@ def train(num_epochs):
             totalTrainLoss += loss.item()     
         
         #################### 5.2.2 - MODEL VALIDATION ####################
+
+        # DEBUG_  validation might better be done after EACH ITERATION over the training set OF THE SAME EPOCH, 
+        #         but we're doing it after the ALL THE ITEARATIONS over the training set OF THE SAME EPOCH. 
+        #         documentation must ve reviewed...
 
         # switch off autograd for evaluation
         with torch.no_grad():
@@ -528,7 +536,7 @@ def testBatch():
 
     NUMBER_OF_SAMPLES = 24
 
-    # JBERICAT: Create a loader for the test subset which will read the data for the final prediction test. 
+    # Create a loader for the test subset which will read the data for the final prediction test. 
     # Note that now we want to shuffle images to get random samples of every class, so we set it to true. 
     # Also, we only need a small sample of images for this test (24 is quite enough).       
     predictions_loader = DataLoader(test_data, batch_size=NUMBER_OF_SAMPLES, shuffle=True, num_workers=0)

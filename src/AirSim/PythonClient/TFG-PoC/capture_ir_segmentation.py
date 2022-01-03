@@ -314,10 +314,6 @@ def main(client,
             elif (ue4_zone == UE4_ZONE_7):
                 selection = 'training+validation/no-wildfires/'
 
-            '''            
-            elif (ue4_zone == UE4_ZONE_8):
-            selection = ''
-            '''
 
             return selection
 
