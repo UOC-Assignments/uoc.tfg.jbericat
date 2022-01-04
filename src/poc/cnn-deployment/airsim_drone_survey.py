@@ -46,6 +46,7 @@ sys.path.insert(0, '/home/jbericat/Workspaces/uoc.tfg.jbericat/src/') # This one
 
 from poc.lib.setup_path import *
 from poc.lib.airsim_set_environment import *
+import poc.lib.flir_simulator as flir
 
 import airsim
 import sys
@@ -59,6 +60,7 @@ client.enableApiControl(True)
 
 # SET custom StaticMeshObjects thermal emitters
 set_environment(client)
+#time.sleep(5)
 
 print("arming the drone...")
 client.armDisarm(True)
@@ -141,23 +143,20 @@ client.moveToZAsync(-5, 4).join()
 # Jumping to ZONE-6B Now...
 
 print("flying-through to the ZONE-6B SW corner...")
-result = client.moveToPositionAsync(x=ZONE_6B_SW_X, y=ZONE_6B_SW_Y, z=ZONE_6B_SW_Z-10, velocity=30).join()
-print("moveToPositionAsync result: " + str(result))
+client.moveToPositionAsync(x=ZONE_6B_SW_X, y=ZONE_6B_SW_Y, z=ZONE_6B_SW_Z-10, velocity=30).join()
 
 print("flying-through to the ZONE-6B NE corner...")
-result = client.moveToPositionAsync(x=ZONE_6B_NE_X, y=ZONE_6B_NE_Y, z=ZONE_6B_NE_Z-10, velocity=10).join()
-print("moveToPositionAsync result: " + str(result))
+client.moveToPositionAsync(x=ZONE_6B_NE_X, y=ZONE_6B_NE_Y, z=ZONE_6B_NE_Z-10, velocity=10).join()
 
 print("flying-through to the ZONE-6B SE corner...")
-result = client.moveToPositionAsync(x=ZONE_6B_SE_X, y=ZONE_6B_SE_Y, z=ZONE_6B_SE_Z-10, velocity=10).join()
-print("moveToPositionAsync result: " + str(result))
+client.moveToPositionAsync(x=ZONE_6B_SE_X, y=ZONE_6B_SE_Y, z=ZONE_6B_SE_Z-10, velocity=10).join()
 
 # Gaining some height again...
 client.moveToZAsync(-5, 4).join()
 
 print("flying-through to the ZONE-6B NW corner...")
-result = client.moveToPositionAsync(x=ZONE_6B_NW_X, y=ZONE_6B_NW_Y, z=ZONE_6B_NW_Z-20, velocity=10).join()
-print("moveToPositionAsync result: " + str(result))
+client.moveToPositionAsync(x=ZONE_6B_NW_X, y=ZONE_6B_NW_Y, z=ZONE_6B_NW_Z-20, velocity=10).join()
+
 
 # We won't bring back the drone, so the survey just ends here.
 
@@ -166,4 +165,7 @@ client.landAsync().join()
 print("disarming...")
 client.armDisarm(False)
 client.enableApiControl(False)
-print("done.")
+print("Drone survey is done. Creating FLIR images now...")
+# Let's run the night/thermal-vision simulation on the images taken by the drone on it's LATEST flight
+flir.offline_batch_coverter()
+print("All images for deplyment are on -> /home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer/")

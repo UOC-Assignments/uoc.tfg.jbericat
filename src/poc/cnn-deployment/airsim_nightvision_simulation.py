@@ -31,10 +31,6 @@ TODO list:
 
 ## PART I 
 
-from genericpath import isfile
-from posixpath import join
-
-from numpy.core.fromnumeric import take
 
 # Importing functions from the PoC Library folder /src/poc/lib
 import sys 

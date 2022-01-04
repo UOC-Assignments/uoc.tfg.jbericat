@@ -29,8 +29,8 @@
     "Folder": "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/in/",
     "Enabled": true,
     "Cameras": [
-        { "CameraName": "3", "ImageType": 0, "PixelsAsFloat": false,  "VehicleName": "Drone1", "Compress": true },
-        { "CameraName": "3", "ImageType": 7, "PixelsAsFloat": false,  "VehicleName": "Drone1", "Compress": true }
+        { "CameraName": "3", "ImageType": 7, "PixelsAsFloat": false,  "VehicleName": "Drone1", "Compress": true },
+        { "CameraName": "3", "ImageType": 0, "PixelsAsFloat": false,  "VehicleName": "Drone1", "Compress": true }
     ]
   },
   "SubWindows": [

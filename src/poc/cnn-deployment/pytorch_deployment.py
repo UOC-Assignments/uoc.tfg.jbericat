@@ -47,7 +47,7 @@ References::
 
     1 - https://microsoft.github.io/AirSim/api_docs/html/_modules/airsim/client.html#MultirotorClient.moveOnPathAsync 
     2 - https://github.com/Microsoft/AirSim/wiki/moveOnPath-demo 
-    3 - TODO
+    3 - https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
 
 
 TODO list: 
@@ -61,14 +61,10 @@ TODO list:
 
 ## PART I 
 
-
-
 import cv2 as cv # https://stackoverflow.com/questions/50909569/unable-to-import-cv2-module-python-3-6
 import os
 
 from tabulate import tabulate
-
-
 
 ## PART II 
 
@@ -122,7 +118,7 @@ def add_bounding_box(prediction):
 
     # Load an image
     # TODO - Path structure is a bit of a mess...
-    frame_path = FLIR_BUFFER + 'unknown-class/FLIR_frame-' + str(prediction[0]) + '.png'
+    frame_path = FLIR_BUFFER + 'unknown-class/frame-' + str(prediction[0]) + '.png'
     src = cv.imread(cv.samples.findFile(frame_path), cv.IMREAD_COLOR)
 
     # Check if the image was correctly loaded 
@@ -158,7 +154,7 @@ def add_bounding_box(prediction):
 
 # PART II DEFINITIONS
 
-def poc_one_deploy():
+def poc_one_deploy_BAK():
 
     '''TODO DOCU - Function to test the model with a batch of images and show the labels predictions'''
 
@@ -213,11 +209,13 @@ def poc_one_deploy():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(" - Model deployed on", device, "device")
 
+ 
+    # Convert model parameters and buffers to CPU or Cuda
+    model.to(device)
+
     # Setting evalatuion mode, since we don't want to retrain the model
     model.eval()
 
-    # Convert model parameters and buffers to CPU or Cuda
-    model.to(device)
 
     # DEBUG - THE LOOP STARTS HERE
     # for j in range(len(deploy_data)):
@@ -287,7 +285,66 @@ def poc_one_deploy():
         # TODO - DOC
         add_bounding_box(mydata[i])
 
-def main():
+import torch.onnx 
+import torch
+from torchvision import transforms
+from PIL import Image
+
+#Function to Convert to ONNX 
+def Convert_ONNX(): 
+
+    # Define your execution device
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(" - ONNX Coversion performed on", device, "device")
+ 
+    # Convert model parameters and buffers to CPU or Cuda
+    model.to(device)
+
+    # Setting evalatuion mode, since we don't want to retrain the model
+    model.eval()
+
+    # Let's load an image and convert it to tensor datatype  
+    #img = Image.open("/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer/unknown-class/frame-89.png")
+    #convert_tensor = transforms.ToTensor()
+    dummy_input = torch.randn(BATCH_SIZE, 1, 229, 229, device="cuda") # TODO DEBUG - WHAT's WITH THE FIRST ARGUMENT?
+
+    #We also compute torch_out, the output after of the model, which we will use to verify that the model we exported computes the same values when run in ONNX Runtime.
+    torch_out = model(dummy_input)
+
+    # Export the model   
+    torch.onnx.export(model,         # model being run 
+         dummy_input,       # model input (or a tuple for multiple inputs) 
+         "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/CNN/ImageClassifier.onnx",       # where to save the model  
+         verbose=True,
+         export_params=True,  # store the trained parameter weights inside the model file 
+         opset_version=10,    # the ONNX version to export the model to 
+         do_constant_folding=True,  # whether to execute constant folding for optimization 
+         input_names = ['modelInput'],   # the model's input names 
+         output_names = ['modelOutput'], # the model's output names 
+         dynamic_axes={'modelInput' : {0 : 'batch_size'},    # variable length axes 
+                                'modelOutput' : {0 : 'batch_size'}}) 
+    print(" ") 
+    print('Model has been converted to ONNX')
+
+
+    ######
+
+    import onnxruntime as rt
+
+    ort_session = rt.InferenceSession("super_resolution.onnx")
+
+    def to_numpy(tensor):
+        return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
+
+    # compute ONNX Runtime output prediction
+    ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(x)}
+    ort_outs = ort_session.run(None, ort_inputs)
+
+    # compare ONNX Runtime and PyTorch results
+    np.testing.assert_allclose(to_numpy(torch_out), ort_outs[0], rtol=1e-03, atol=1e-05)
+
+    print("Exported model has been tested with ONNXRuntime, and the result looks good!")
+
 
     ############################################################################
     ###############################      PART II     ###########################
@@ -301,8 +358,15 @@ def main():
     ##
     ###########################################################################
 
-    poc_one_deploy()
 
 # CALLING MAIN.
 if __name__ == '__main__':
-    main()
+    model = set_model_version(MODEL_VERSION)
+    model.load_state_dict(torch.load(MODEL_PATH + "trained-model.pth"))
+    
+    Convert_ONNX() 
+
+
+
+'''
+'''
