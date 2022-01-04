@@ -1,4 +1,4 @@
-import onnxruntime as rt
+import onnxruntime 
 
 def main():
     a=0

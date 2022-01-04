@@ -58,12 +58,13 @@ client.reset()
 client.enableApiControl(True)
 
 
-# SET custom StaticMeshObjects thermal emitters
-set_environment(client)
-#time.sleep(5)
+
 
 print("arming the drone...")
 client.armDisarm(True)
+
+
+
 
 state = client.getMultirotorState()
 if state.landed_state == airsim.LandedState.Landed:
@@ -72,12 +73,13 @@ if state.landed_state == airsim.LandedState.Landed:
 else:
     client.hoverAsync().join()
 
-time.sleep(1)
-
 state = client.getMultirotorState()
 if state.landed_state == airsim.LandedState.Landed:
     print("take off failed...")
     sys.exit(1)
+
+# Setting custom StaticMeshObjects thermal emitters (the ones that are detected by the FLIR simulated camera)
+set_environment(client)
 
 ZONE_6A_NE_X = client.simGetObjectPose("ZONE_6A_NE").position.x_val;
 ZONE_6A_NE_Y = client.simGetObjectPose("ZONE_6A_NE").position.y_val;
@@ -169,3 +171,5 @@ print("Drone survey is done. Creating FLIR images now...")
 # Let's run the night/thermal-vision simulation on the images taken by the drone on it's LATEST flight
 flir.offline_batch_coverter()
 print("All images for deplyment are on -> /home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer/")
+
+
