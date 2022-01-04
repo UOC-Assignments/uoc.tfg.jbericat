@@ -64,7 +64,7 @@ from tabulate import tabulate
 import sys 
 sys.path.insert(0, '/home/jbericat/Workspaces/uoc.tfg.jbericat/src/') # This one is the git src folder 
 
-from poc.lib.CNN_models import *
+from poc.lib.pytorch import *
 
 import numpy as np
 import sys

@@ -1,2 +1,7 @@
-#/bin/bash!
+#!/bin/bash
+
+# https://stackoverflow.com/questions/60303997/activating-conda-environment-from-bash-script
+
+source ~/anaconda3/etc/profile.d/conda.sh
 conda activate condapy373
+python 3 pytorch_deployment.py

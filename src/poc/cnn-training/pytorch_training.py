@@ -80,23 +80,27 @@ MODEL_VERSION = input("Set the model version you want to train:" + "\n\n" +
 
 DATASET_VERSION = input("Set the dataset version you want to use to train the model:"+"\n\n"+ 
                             " 4 = v4.0 -> EXPERIMENTAL"+"\n" + 
-                            " 5 = v5.0 -> EXPERIMENTAL"+"\n"+
-                            " 6 = v6.0 -> EXPERIMENTAL"+"\n"+
+                            " 5 = v5.0 -> EXPERIMENTAL"+"\n" +
+                            " 6 = v6.0 -> EXPERIMENTAL"+"\n" +
                             " 7 = v7.0 -> 3 classes, close distance images (SMALL DATASET, appropiate for adjusting parameters)"+"\n"+
                             " 8 = v8.0 -> 4 classes, close and long distance images (NEEDS CODE ADAPTATION)"+"\n"+
                             " 9 = v9.0 -> 3 classes, close and long distance images"+"\n\n")
+
+
+BASE_DIR = '/home/jbericat/Workspaces/uoc.tfg.jbericat/'
 
 # model storage path
 MODEL_PATH = "bin/CNN/cnn-training_" + str(TIMESTAMP)
 
 # Dataset paths - DEBUG: replace abs for rel paths?
+
 ROOT_DATA_DIR = 'src/poc/cnn-training/data/'
-TRAIN_DATA_DIR = os.path.abspath(ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/training+validation/')  
-TEST_DATA_DIR = os.path.abspath(ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/test/') 
+TRAIN_DATA_DIR = BASE_DIR + ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/training+validation/'
+TEST_DATA_DIR = BASE_DIR + ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/test/'
 
 # opening / creating the file where to store the results
-os.mkdir(os.path.abspath(MODEL_PATH))
-OUT_FILE = open(os.path.abspath(MODEL_PATH + "/trained-model.info"), "w")
+os.mkdir(BASE_DIR + MODEL_PATH)
+OUT_FILE = open(BASE_DIR + MODEL_PATH + "/trained-model.info", "w")
 
 ###################################### 1.2 - DATA-BOND PARAMETERS ##################################
 
@@ -118,14 +122,14 @@ IMG_CHANNELS = 1
 # model stops improving it's performance after each training iteration (plotting the 
 # loss function at the end of the training process could be useful to optimize the training 
 # time vs perfomance balance.
-EPOCHS = 5
+EPOCHS = 2
 
 # The PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 32
+BATCH_SIZE = 4
 
 # Learning rate: 
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.001
 
 ############################### 1.5 - OUTPUT SUMMARY DATA (cnn-training.info) #####################
 
@@ -275,8 +279,8 @@ classes = ('high-intensity-wildfires', 'low-intensity-wildfires', 'no-wildfires'
 
 # Importing functions from the PoC Library folder /src/poc/lib
 import sys 
-sys.path.insert(0, 'src/') # This one is the git src folder 
-from poc.lib.CNN_models import *
+sys.path.insert(0, '/home/jbericat/Workspaces/uoc.tfg.jbericat/src/') # This one is the git src folder 
+from poc.lib.pytorch import *
 
 # DEBUG: The next function has been added to the CNN_models library, it might be removed from here safely....
 
@@ -334,7 +338,7 @@ from torch.autograd import Variable
 
 # Function to store the model on the local drive
 def saveModel():
-    torch.save(model.state_dict(), MODEL_PATH + "/trained-model.pth")
+    torch.save(model.state_dict(), BASE_DIR + MODEL_PATH + "/trained-model.pth")
 
 # Function to test the model with the test dataset and print the accuracy for the test images
 def calculateAccuracy(data_loader):
@@ -495,16 +499,18 @@ def train(num_epochs):
         print('  - For epoch', i+1,'the TEST accuracy over the whole TEST dataset is %d %%' % (STATS["test_acc"][i]),file=OUT_FILE) 
     
     # Now we can plot the training and validation loss curve... 
+    fig=plt.figure()
     plt.plot(STATS["train_loss"], color='red', label="train loss")
     plt.plot(STATS["val_loss"], color='blue', label="validation loss")
     plt.title("TRAINING LOSS CURVE")
     plt.xlabel("Epoch number")
     plt.ylabel("Loss coeficient")
     plt.legend()
-    plt.savefig(MODEL_PATH + '/model-loss-curves.png')
-    plt.show()
+    plt.savefig(BASE_DIR + MODEL_PATH + '/model-loss-curves.png')
+    plt.close(fig)
 
     # ...the training & validation accuracy progression...
+    fig=plt.figure()
     plt.plot(STATS["train_acc"], color='red', label="training accuracy")
     plt.plot(STATS["val_acc"], color='blue', label="validation accuracy")
     plt.plot(STATS["test_acc"], color='purple', label="test accuracy")
@@ -512,8 +518,8 @@ def train(num_epochs):
     plt.xlabel("Epoch number")
     plt.ylabel("Accuracy (%)")    
     plt.legend()
-    plt.savefig(MODEL_PATH + '/model-accuracies.png')
-    plt.show()
+    plt.savefig(BASE_DIR + MODEL_PATH + '/model-accuracies.png')
+    plt.close(fig)
 
 ###################################################################################################
 ###################################################################################################
@@ -564,10 +570,11 @@ def testBatch():
     img_grid = Tensor.cpu(torchvision.utils.make_grid(images))
     img_grid = img_grid / 2 + 0.5     # unnormalize
     npimg = img_grid.numpy()
+    fig=plt.figure()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.savefig(MODEL_PATH + '/labels-prediction.png')
-    plt.show()
-      
+    plt.savefig(BASE_DIR + MODEL_PATH + '/labels-prediction.png')
+    plt.close(fig)
+    
     # Let's see what if the model identifies the labels of these example
     outputs = model(images)
     _, predicted = torch.max(outputs, 1)
@@ -607,7 +614,7 @@ if __name__ == "__main__":
    
     # Let's load the model we just created and test the accuracy per label
     model = set_model_version(MODEL_VERSION)
-    model.load_state_dict(torch.load(MODEL_PATH + "/trained-model.pth"))
+    model.load_state_dict(torch.load(BASE_DIR + MODEL_PATH + "/trained-model.pth"))
 
     # Test with batch of images
     testBatch()
@@ -617,11 +624,11 @@ if __name__ == "__main__":
     import shutil
 
     OUT_FILE.close()
-    archive = tarfile.open(MODEL_PATH+".tar.gz", "w|gz")
-    archive.add(MODEL_PATH, arcname="")
+    archive = tarfile.open(BASE_DIR + MODEL_PATH+".tar.gz", "w|gz")
+    archive.add(BASE_DIR + MODEL_PATH, arcname="")
     archive.close()
 
-    print("\n[INFO] Training model and summary file saved at: " + os.path.abspath(MODEL_PATH) + ".tar.gz\n")
+    print("\n[INFO] Training model and summary file saved at: " + BASE_DIR + MODEL_PATH + ".tar.gz\n")
 
     # Deleting temp folder
-    shutil.rmtree(MODEL_PATH)
+    shutil.rmtree(BASE_DIR + MODEL_PATH)
