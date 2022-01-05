@@ -9,6 +9,7 @@ bin/*
 !bin/CNN/
 src/*
 !src/poc/
+!src/test-code/
  
 # Ignore IDE specific file
 .idea/

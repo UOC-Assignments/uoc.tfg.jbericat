@@ -85,8 +85,8 @@ TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
 # Base folders
 POC_FOLDER = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/' 
 FLIR_BUFFER = POC_FOLDER + 'flir_buffer/unknown-class/'
-CLASSIFICATION_DIR = POC_FOLDER + 'out/classification-results/'
-PREDICTIONS_SUMMARY_DIR = POC_FOLDER + 'out/classification-results/' + TIMESTAMP +  '/'
+CLASSIFICATION_DIR = POC_FOLDER + 'out/'
+PREDICTIONS_SUMMARY_DIR = POC_FOLDER + 'out/' + TIMESTAMP +  '/'
 
 
 
