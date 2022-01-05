@@ -221,54 +221,47 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 
         6.4. Avaluació del model i interpretació del seu rendiment (estudi del rati d’aprenentatge)
 
-        6.5 - Millores en el rendiment (optimització de paràmetres)
+        6.5. Millores en el rendiment (optimització de paràmetres)
+		
+	7. FITA#07 – Execució de la PdC: Explotació del model CNN
+
+		7.1. Tasques de recerca i investigació
+				
+		7.2. Preparacions finals per a la execució de la PdC
+		
+				7.2.1. Adaptació de l'entorn UE4 "LME" per a la execució de la PdC
+
+				7.2.2. Ajustos del fitxer de configuració d’AirSim
+				
+                7.2.3. Re-estructuració dels arxius font del repositori del projecte
+
+		7.3. Implementacions necessàries per a la execució de la PdC
+		
+				7.3.1. Optimització de la funció create_flir_img() per a la simulació d'imatges FLIR
+				
+				        7.3.1.1. Versió 1: Algorisme sense optimitzar
+						
+                        7.3.1.2. Versió 2: Algorisme optimitzat
+
+				7.3.2. Implementació de la funció de simulació d'imatges FLIR "flir_offline_batch_converter.py"
+				
+                7.3.3. Implementació de l’algorisme d'inferència del model CNN: "cnn_deployment.py
+						
+				7.3.4. Implementació de la identificació de les classes detectades pel model mitjançant bounding boxes: funció “add_bounding_boxes()
+				
+                7.3.5. Creació d'scripts bash per a l'execució de codi Python
+
+		7.4. Execució de la PdC
+		
+		7.5. ANNEX: Control dels canvis efectuats als fitxers de codi font durant la darrera etapa del projecte
 
 --------------------------------------------------------------
 
-7.	FITA#07 - Testeig de la DCNN (Joc de proves #1)
+08.	FITA#08 - Elaboració de conclusions i compilació de les memòries parcials del projecte
 
-7.1. Definir un joc de proves reduït per a testar el correcte funcionament de la DCNN amb un sol dron
+09.	FITA#09 - Creació d'una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
 
-7.2. Entrenar i fer el deployment d’un sol dron sobre el joc de proves #1
-
-7.3. Avaluar el comportament de la DCNN: En cas de fallada repassar el punt 4, o bé repetir el punt 5 amb un training data-set amb un conjunt d’imatges més gran. En cas d’èxit seguir amb el punt 7)
-
-8.	FITA#08 - Entrenar la resta de drons de l’eixam (4 unitats de drons o octocòpters)
-
-9.	FITA#09 - Disseny + implementació dels mecanismes de comunicació entre els drons de l’eixam:
-
-9.1. Definir els mecanismes de comunicació que utilitzaran els drons tant pel que fa la rebuda de comandes de control com pel que respecta al pas de missatges a la resta de l’eixam 
-
-9.2. Descriure amb més detall les PoC que prendrem com a referència per a implementar la comunicació: quines ordres es comuniquen, quines dades s’envien (e.g. coordenades GPS) i quines accions s’efectuen
-
-9.3. Definir un sistema de decisió de prioritat dels missatges inter-dron, així com establir com es gestiona el cas en què dos o més missatges amb la mateixa prioritat arribin “a l’hora”. A tall d’exemple; si dos drons envien un mateix missatge a l’hora es determina quin és el de més prioritat i s’actua en conseqüència, però si tenen la mateixa prioritat, aleshores per a determinar quina ordre s’accepta o es descarta s’haurà d’utilitzar un mecanisme de decisió distribuït; o bé un de senzill basat en timestamps en cas que els drons (nodes) de l’eixam estiguin perfectament sincronitzats, o bé, en cas de que no ho estiguin, utilitzar altres mecanismes més complexos com per exemple Lamport timestamp o bé Vector Clocks. 
-
-9.4. Definir quin mecanisme (distribuït) s’utilitza per a propagar missatges per tot l’eixam. p.e. Gossip Protocol, Time-Stamped Anti-Entropy Protocol (TSAE), etc.
-
-9.5. Implementar els mecanismes de comunicació distribuïda que s’hagi decidit utilitzar
-
-10.	FITA#10 - Testeig de les comunicacions (joc de proves #2): 
-
-10.1. Definir un joc de proves per tal de comprovar que la comunicació inter-dron s’efectua de manera correcta
-
-10.2. Executar el joc de proves sobre tot l’eixam
-
-10.3. Avaluar els resultats del testeig. Si falla tornar al punt 8, si no, passar al punt 10.
-
-11.	FITA#11 - Testeig de tot el sistema (joc de proves #3):
-
-11.1. Unir i estendre els jocs de proves #1 i #2 per a poder provar els casos d’ús (PoC) 
-definits  a l’abstract del projecte.  
-
-11.2. Fer el Deployment de tot l’eixam sobre el joc de proves nº 3
-
-11.3. Avaluar resultats i procedir en conseqüència
-
-12.	FITA#12 - Obtenir conclusions i redactar la memòria del projecte
-
-13.	FITA#13 - Crear una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
-
-14.	FITA#14 - Preparar la defensa del projecte
+10.	FITA#10 - Preparar la defensa del projecte
 
 
 ## 4 - Bibliografia
