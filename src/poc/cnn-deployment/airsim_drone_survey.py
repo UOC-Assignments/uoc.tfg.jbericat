@@ -44,13 +44,11 @@ TODO list:
 import sys 
 sys.path.insert(0, '/home/jbericat/Workspaces/uoc.tfg.jbericat/src/') # This one is the git src folder 
 
-from poc.lib.setup_path import *
-from poc.lib.airsim_set_environment import *
-import poc.lib.flir_simulator as flir
+#from poc.lib.setup_path import *
+from poc.lib.airsim import *
 
 import airsim
 import sys
-import time
 
 client = airsim.MultirotorClient()
 client.confirmConnection()
@@ -169,7 +167,7 @@ client.armDisarm(False)
 client.enableApiControl(False)
 print("Drone survey is done. Creating FLIR images now...")
 # Let's run the night/thermal-vision simulation on the images taken by the drone on it's LATEST flight
-flir.offline_batch_coverter()
+flir_offline_batch_coverter()
 print("All images for deplyment are on -> /home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer/")
 
 
