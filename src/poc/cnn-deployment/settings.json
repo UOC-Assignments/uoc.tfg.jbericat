@@ -1,0 +1,41 @@
+{
+  "SettingsVersion": 1.2,
+  "CameraDefaults": {
+      "CaptureSettings": [
+        {
+          "ImageType": 0,
+          "Width": 512,
+          "Height": 512,
+          "FOV_Degrees": 90,
+          "AutoExposureSpeed": 100,
+          "MotionBlurAmount": 0
+        },
+        {
+          "ImageType": 7,
+          "Width": 512,
+          "Height": 512,
+          "FOV_Degrees": 90,
+          "AutoExposureSpeed": 100,
+          "MotionBlurAmount": 0
+        }
+    ]
+  },
+  "Vehicles": {
+      "Drone1": { "VehicleType": "SimpleFlight", "X": 4, "Y": 0, "Z": -2 } 
+  },
+  "Recording": {
+    "RecordOnMove": true,
+    "RecordInterval": 0.5,
+    "Folder": "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/in/",
+    "Enabled": true,
+    "Cameras": [
+        { "CameraName": "3", "ImageType": 7, "PixelsAsFloat": false,  "VehicleName": "Drone1", "Compress": true },
+        { "CameraName": "3", "ImageType": 0, "PixelsAsFloat": false,  "VehicleName": "Drone1", "Compress": true }
+    ]
+  },
+  "SubWindows": [
+    {"WindowID": 0, "CameraName": "3", "ImageType": 7, "VehicleName": "Drone1", "Visible": false, "External": false},
+    {"WindowID": 2, "CameraName": "3", "ImageType": 0, "VehicleName": "Drone1", "Visible": false, "External": false}
+  ],
+  "SimMode": "Multirotor"
+}

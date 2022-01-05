@@ -1,0 +1,49 @@
+********************************************************************************
+***                                                                          ***
+***                      PoC's CNN Model Training Summary                    ***
+***                                                                          ***
+********************************************************************************
+***                                                                          ***
+***                             Model version: v3.0                          ***
+***                            Dataset version: v9.0                         ***
+***                                                                          ***
+********************************************************************************
+
+ TRAINING PARAMETERS:
+
+ - Image size = (229 x 229 x 1)
+ - Number of classes / labels = 3
+ - Batch size = 4
+ - Learning rate = 0.001
+
+********************************************************************************
+
+ DATASET TOTALS:
+
+ - The number of images in a training set is:  2572
+ - The number of images in a validation set is:  860
+ - The number of images in a test set is:  1248
+ - The number of batches per epoch is:  643
+
+********************************************************************************
+
+ CNN BLUEPRINT:
+
+  Network_v3(
+  (conv1): Conv2d(1, 16, kernel_size=(9, 9), stride=(2, 2), padding=(2, 2))
+  (bn1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (conv2): Conv2d(16, 16, kernel_size=(5, 5), stride=(2, 2), padding=(2, 2))
+  (bn2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (pool): MaxPool2d(kernel_size=2, stride=1, padding=0, dilation=1, ceil_mode=False)
+  (conv3): Conv2d(16, 32, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2))
+  (bn3): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (conv4): Conv2d(32, 32, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
+  (bn4): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (fc1): Linear(in_features=107648, out_features=3, bias=True)
+)
+
+********************************************************************************
+
+ MODEL TRAINING STATS:
+
+ - Model trained on cuda:0 device

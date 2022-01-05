@@ -8,14 +8,10 @@ bin/*
 !bin/GIT-README.md
 !bin/CNN/
 src/*
-!src/CNN/
-!src/AirSim/
-src/AirSim/*
-!src/AirSim/PythonClient/
-src/AirSim/PythonClient/*
-!src/AirSim/PythonClient/TFG-PoC/
-
-# Ignore IDE specific files
+!src/poc/
+!src/test-code/
+ 
+# Ignore IDE specific file
 .idea/
 .vscode/
 .vscode/*
