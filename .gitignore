@@ -16,6 +16,7 @@ src/*
 .vscode/
 .vscode/*
 *.sw*
+*.code-workspace*
 
 ### Python extensions
 
@@ -35,7 +36,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
