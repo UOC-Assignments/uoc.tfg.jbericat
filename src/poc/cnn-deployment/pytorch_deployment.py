@@ -69,6 +69,8 @@ from poc.lib.pytorch import *
 import numpy as np
 import sys
 import torch
+import time
+import shutil
 
 from torch.utils.data import DataLoader
 import torchvision
@@ -77,13 +79,16 @@ from torch.autograd import Variable
 from torch.functional import Tensor
 import matplotlib.pyplot as plt
 
+
+TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
+
 # Base folders
 POC_FOLDER = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/' 
-FLIR_BUFFER = POC_FOLDER + 'flir_buffer/'
-PREDICTIONS_SUMMARY = open(os.path.abspath(POC_FOLDER + 'out/frame-predictions.log'), "w")   
+FLIR_BUFFER = POC_FOLDER + 'flir_buffer/unknown-class/'
+CLASSIFICATION_DIR = POC_FOLDER + 'out/classification-results/'
+PREDICTIONS_SUMMARY_DIR = POC_FOLDER + 'out/classification-results/' + TIMESTAMP +  '/'
 
-#UE4_ZONE_6 = 6
-#UE4_ZONE_7 = 7
+
 
 GREEN_COLOR = [0,255,0]
 YELLOW_COLOR = [0,255,255]
@@ -107,8 +112,8 @@ def add_bounding_box(prediction):
     borderType = cv.BORDER_CONSTANT
 
     # Load an image
-    # TODO - Path structure is a bit of a mess...
-    frame_path = FLIR_BUFFER + 'unknown-class/frame-' + str(prediction[0]) + '.png'
+    # TODO - Path structures are a bit of a mess... no time to fix it though.
+    frame_path = FLIR_BUFFER + 'frame-' + str(prediction[0]) + '.png'
     src = cv.imread(cv.samples.findFile(frame_path), cv.IMREAD_COLOR)
 
     # Check if the image was correctly loaded 
@@ -254,8 +259,11 @@ def model_inference():
     # create header
     head = ["Frame ID", "Classification Result"]
     
-    # print the table to info file
-    print(tabulate(mydata, headers=head, tablefmt="grid"), file=PREDICTIONS_SUMMARY)
+    # print the table to info file 
+    flir_out = str(CLASSIFICATION_DIR) + str(TIMESTAMP)
+    os.mkdir(flir_out)
+    PREDICTIONS_SUMMARY_FILE = open( PREDICTIONS_SUMMARY_DIR + 'frame_predictions.log', "w")   
+    print(tabulate(mydata, headers=head, tablefmt="grid"), file=PREDICTIONS_SUMMARY_FILE)
 
     # At last, we can add colored boundinb boxes to each image (neither with 
     # localization nor with object detection, just plain classification)
@@ -263,14 +271,23 @@ def model_inference():
     # - Green = no-wildfires class
     # - Yellow = low-intensity-wildfires class
     # - Red = high-intensity-wildfires class
-
     for i in range(len(deploy_data)): # TODO DEBUG - THIS IS A PATCH! We're creating a myData list of size multiple of the batch-size, instead of the deploy data size
         # TODO - DOC
         add_bounding_box(mydata[i])
+
+    # Moving the flir_buffer's dir content to the output dir
+
+    source = FLIR_BUFFER
+    dest1 = flir_out
+    files = os.listdir(source)
+    for f in files:
+        shutil.move(source+f, dest1)
+
+    # Printing the inference summary
     print('[INFO] - The CNN model deployment has finished successfully. See the output .png files to visually check how accurate the predictions were.' + '\n')
     print('[INFO] - OUTPUT FILES: ' + '\n\n' + 
           '               - Inference summary: ' + str(POC_FOLDER + 'out/inference-predictions.log') + '\n\n' +
-          '               - Classification results: ' + str(FLIR_BUFFER) + '\n\n')
+          '               - Classification results: ' + str(flir_out) + '\n\n')
 
 import torch.onnx 
 import torch
