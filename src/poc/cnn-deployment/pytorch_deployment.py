@@ -65,29 +65,24 @@ TODO list:
 """
 # Importing functions from the PoC Library folder /src/poc/lib
 import sys
-from turtle import color 
 sys.path.insert(0, '/home/jbericat/Workspaces/uoc.tfg.jbericat/src/') # This one is the git src folder 
 from poc.lib.pytorch import *
 
 import os
-import shutil
 import time
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-import cv2 as cv 
-
 import torch
 from torch.utils.data import DataLoader
-from torch.functional import Tensor
 import torchvision
 from torchvision import datasets, transforms
 
 # Path constants
 POC_FOLDER = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/' 
 FLIR_BUFFER = POC_FOLDER + 'flir_buffer/unknown-class/'
-CLASSIFICATION_DIR = POC_FOLDER + 'out/'
+OUT_DIR = POC_FOLDER + 'out/'
 
 # Data-bond constants
 DEPLOY_DATA_DIR = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer"
@@ -140,8 +135,9 @@ def model_inference():
     deploy_loader = DataLoader(deploy_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=0) # DEBUG - batch_size=len(deploy_data)
 
     # Define the class labels
-    classes = ('high-intensity-wildfires', 'low-intensity-wildfires', 'no-wildfires')
+    classes = ('high-intensity-wildfire', 'low-intensity-wildfire', 'no-wildfire')
 
+    # STDOUT Info
     print( "[INFO] - The number of images in a deploy set is: " + str(len(deploy_data)) + "\n" )
     print( "[INFO] - The batch-size is: " + str(BATCH_SIZE) + '\n')
     
@@ -155,22 +151,21 @@ def model_inference():
     model = set_model_version(MODEL_VERSION)
     model.load_state_dict(torch.load(MODEL_PATH + "trained-model.pth"))
 
-    # Define your execution device
-    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    # print("[INFO] - Model deployed on", device, "device"+'\n')
-
     # Setting evalatuion mode, since we don't want to retrain the model
     model.eval()
 
-    # Convert model parameters and buffers to CPU or Cuda
-    # model.to(device)
-
-    # Preparing the data to build a table 
-    print('[INFO] - Using the model to make inferences over the bulk data. This might take a minute or two...'+'\n')
+    # STDOUT Info
+    print('[INFO] - Using the model to make inferences over the serialized data. This might take a minute or two...'+'\n')
  
     #######################################################################
     #         STEP 3: Peforming predictions over the imported data  
     #######################################################################
+
+    # Archive predictions on the out dir
+    flir_out = str(OUT_DIR) + str(TIMESTAMP) + '/'
+    os.mkdir(flir_out)
+
+    frame_id = 0
 
     for images,labels in deploy_loader:
     
@@ -182,11 +177,12 @@ def model_inference():
         low_wildfire_score = scores[1]
         no_wildfire_score = scores[2]
 
+        # plot text formatting
         score_info = ('No-wildfire score: ' + str(no_wildfire_score) + '\n'
         + 'Low intensity wildfire score:' + str(low_wildfire_score) + '\n'
         + 'High intensity wildfire score:' + str(high_wildfire_score) + '\n')
 
-        # set "human-readable" prediction 
+        # showing prediction in a more "human-readable" way
         _, predicted = torch.max(outputs, 1)
         predicted_label = classes[predicted]
 
@@ -195,33 +191,35 @@ def model_inference():
         img_grid = img_grid / 2 + 0.5     # unnormalize
         npimg = img_grid.numpy()
 
-        fig = plt.figure(figsize=(5,5), facecolor="red")
-
-        #plt.subplot(211)
+        # PNG summary to OUT DIR
+        if predicted_label == "no-wildfire":
+            fig = plt.figure(figsize=(5,5), facecolor="green")
+        if predicted_label == "low-intensity-wildfire":
+            fig = plt.figure(figsize=(5,5), facecolor="yellow")
+        if predicted_label == "high-intensity-wildfire":
+            fig = plt.figure(figsize=(5,5), facecolor="red")
         plt.xticks([])
         plt.yticks([])
         plt.title("Prediction: " + predicted_label)
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        #plt.subplots(num=None, figsize=(16, 12), dpi=80, facecolor='w', edgecolor='k')
-        ## I changed the fig size to something obviously big to make sure it work
-        #plt.tight_layout()
-        #plt.subplot(212)
         plt.text(114,252, score_info, ha="center", va="center", fontsize=12, bbox={"facecolor":"white", "alpha":1})
+        plt.savefig(flir_out + 'frame-' + str(frame_id) + '.png')
+        #plt.show()
+        plt.close(fig)
 
-        plt.show()
- 
-    # Archive predictions on the out dir
-    flir_out = str(CLASSIFICATION_DIR) + str(TIMESTAMP)
-    os.mkdir(flir_out)
+        # Frame counter
+        frame_id += 1
 
     # Moving the flir_buffer's dir content to the output dir
+    ''' 
     source = FLIR_BUFFER
     dest1 = flir_out
     files = os.listdir(source)
     for f in files:
         shutil.move(source+f, dest1)
+        '''
 
-    # Printing the summary
+    # STDOUT Info
     print('[INFO] - The CNN model deployment has finished successfully. See the output .png files to visually check how accurate the predictions were.' + '\n')
     print('[INFO] - OUTPUT FILES: ' + '\n\n' + 
           '               - Classification results: ' + str(flir_out) + '\n\n')
