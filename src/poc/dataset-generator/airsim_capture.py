@@ -42,144 +42,12 @@ from poc.lib.airsim import *
 import numpy
 import cv2
 import time
-from PIL import Image
+
 from airsim import *
 
 # METHODS
 
-def rotation_matrix_from_angles(pry):
-    pitch = pry[0]
-    roll = pry[1]
-    yaw = pry[2]
-    sy = numpy.sin(yaw)
-    cy = numpy.cos(yaw)
-    sp = numpy.sin(pitch)
-    cp = numpy.cos(pitch)
-    sr = numpy.sin(roll)
-    cr = numpy.cos(roll)
-    
-    Rx = numpy.array([
-        [1, 0, 0],
-        [0, cr, -sr],
-        [0, sr, cr]
-    ])
-    
-    Ry = numpy.array([
-        [cp, 0, sp],
-        [0, 1, 0],
-        [-sp, 0, cp]
-    ])
-    
-    Rz = numpy.array([
-        [cy, -sy, 0],
-        [sy, cy, 0],
-        [0, 0, 1]
-    ])
-    
-    #Roll is applied first, then pitch, then yaw.
-    RyRx = numpy.matmul(Ry, Rx)
-    return numpy.matmul(Rz, RyRx)
-
-def project_3d_point_to_screen(subjectXYZ, camXYZ, camQuaternion, camProjMatrix4x4, imageWidthHeight):
-    #Turn the camera position into a column vector.
-    camPosition = numpy.transpose([camXYZ])
-
-    #Convert the camera's quaternion rotation to yaw, pitch, roll angles.
-    pitchRollYaw = utils.to_eularian_angles(camQuaternion)
-    
-    #Create a rotation matrix from camera pitch, roll, and yaw angles.
-    camRotation = rotation_matrix_from_angles(pitchRollYaw)
-    
-    #Change coordinates to get subjectXYZ in the camera's local coordinate system.
-    XYZW = numpy.transpose([subjectXYZ])
-    XYZW = numpy.add(XYZW, -camPosition)
-    print("XYZW: " + str(XYZW))
-    XYZW = numpy.matmul(numpy.transpose(camRotation), XYZW)
-    print("XYZW derot: " + str(XYZW))
-    
-    #Recreate the perspective projection of the camera.
-    XYZW = numpy.concatenate([XYZW, [[1]]])    
-    XYZW = numpy.matmul(camProjMatrix4x4, XYZW)
-    XYZW = XYZW / XYZW[3]
-    
-    #Move origin to the upper-left corner of the screen and multiply by size to get pixel values. Note that screen is in y,-z plane.
-    normX = (1 - XYZW[0]) / 2
-    normY = (1 + XYZW[1]) / 2
-    
-    return numpy.array([
-        imageWidthHeight[0] * normX,
-        imageWidthHeight[1] * normY
-    ]).reshape(2,)
-   
-def get_image(camera, x, y, z, pitch, roll, yaw, client):
-    """
-    title::
-        get_image
-
-    description::
-        Capture images (as numpy arrays) from a certain position.
-
-    inputs::
-        x
-            x position in meters
-        y
-            y position in meters
-        z
-            altitude in meters; remember NED, so should be negative to be 
-            above ground
-        pitch
-            angle (in radians); in computer vision mode, this is camera angle
-        roll
-            angle (in radians)
-        yaw
-            angle (in radians)
-        client
-            connection to AirSim (e.g., client = MultirotorClient() for UAV)
-
-    returns::
-        position
-            AirSim position vector (access values with x_val, y_val, z_val)
-        angle
-            AirSim quaternion ("angles")
-        im
-            segmentation or IR image, depending upon palette in use (3 bands)
-        imScene
-            scene image (3 bands)
-
-    author::
-        Elizabeth Bondi
-        Shital Shah
-    """
-
-    # Set pose and sleep after to ensure the pose sticks before capturing 
-    # image AND to wait for the fire VFX objects to start rendering.
-    client.simSetVehiclePose(Pose(Vector3r(x, y, z), \
-                      to_quaternion(pitch, roll, yaw)), True)
-    time.sleep(0.1)
-
-    # Capture segmentation (IR) and scene images.
-    responses = \
-        client.simGetImages([ImageRequest(camera, ImageType.Infrared,
-                                          False, False),
-                            ImageRequest(camera, ImageType.Scene, \
-                                          False, False),
-                            ImageRequest(camera, ImageType.Segmentation, \
-                                          False, False)])
-
-    #Change images into numpy arrays.
-
-   ## S'HA HAGUT DE MODIFICAR EL CODI PER A QUE COMPILI!! (el darrer paràmetre 
-   # de .reshape ha de ser 3 i no 4, es podria fer un pull request al repo de AirSim) 
-    img1d = numpy.fromstring(responses[0].image_data_uint8, dtype=numpy.uint8)
-    im = img1d.reshape(responses[0].height, responses[0].width, 3) 
-
-    img1dscene = numpy.fromstring(responses[1].image_data_uint8, dtype=numpy.uint8)
-    imScene = img1dscene.reshape(responses[1].height, responses[1].width, 3)
-
-    return Vector3r(x, y, z), to_quaternion(pitch, roll, yaw),\
-           im[:,:,:3], imScene[:,:,:3] #get rid of alpha channel
-
-def main(client,
+def batch_capture(client,
         objectList,
         ue4_zone,
         camera,
@@ -235,6 +103,8 @@ def main(client,
         #Capture image - pose.position x_val access may change w/ AirSim
         #version (pose.position.x_val new, pose.position[b'x_val'] old)
 
+        #TODO - If we're taking no-wildfires images, we should randomly shift-off the camera's x,y & z pos in order to obtain the "richest" sample collection possible
+
         vector, angle, ir, scene = get_image(camera,
                                 pose.position.x_val, 
                                 pose.position.y_val, 
@@ -244,46 +114,10 @@ def main(client,
                                 yaw, 
                                 client)
 
-        # Image class labeling - We use the dataset's directory tree structure to set 
-        # the image class labeling depending on the UE4 environment zone we're 
-        # taking the pictures of. We can implement this using an elif 
-        # ladder, since there is no buit-in switch construct in Python 
-        # -> https://pythongeeks.org/switch-in-python/
-
-        # TODO - This implementation is wrong! the if condition must evaluate the local var "input" instead of the global "ue4zone"
-        def set_class_folder(input):
-            if (ue4_zone == UE4_ZONE_0):
-                selection = 'test/high-intensity-wildfires/'
-                
-            elif (ue4_zone == UE4_ZONE_1):
-                selection = 'training+validation/high-intensity-wildfires/'
-
-            elif (ue4_zone == UE4_ZONE_2): 
-                selection = 'test/medium-intensity-wildfires/'
-
-            elif (ue4_zone == UE4_ZONE_3):
-                selection = 'training+validation/medium-intensity-wildfires/'
-
-            elif (ue4_zone == UE4_ZONE_4): 
-                selection = 'test/low-intensity-wildfires/'
-
-            elif (ue4_zone == UE4_ZONE_5):
-                selection = 'training+validation/low-intensity-wildfires/'
-
-            elif (ue4_zone == UE4_ZONE_6):
-                selection = 'test/no-wildfires/'
-
-            elif (ue4_zone == UE4_ZONE_7):
-                selection = 'training+validation/no-wildfires/'
-
-
-            return selection
-
-
-        class_folder = set_class_folder(ue4_zone)
-
+        # Setting the class label (structured in a folder tree)
+        class_folder, no_wildfires = set_class_folder(ue4_zone)
+        
         # Adding positional metadata into the images filename and saving into the class folder
-
         thermal_img_path = (datasetFolder + 
                                 class_folder + 
                                 irFolder +                                                
@@ -291,10 +125,9 @@ def main(client,
                                 str(i).zfill(5) + '_' +
                                 str('%.5f'%(pose.position.x_val)) + '_' +
                                 str('%.5f'%(pose.position.y_val)) + '_' +
+                                str(camera) + '_' +
                                 str(height) + '_' +
-                                str(pitch) + '_' +
-                                str(roll) + '_' +
-                                str(yaw) +
+                                str(pitch) +
                                 '.png')
         
         rgb_img_path = (datasetFolder + 
@@ -304,10 +137,9 @@ def main(client,
                                 str(i).zfill(5) + '_' +
                                 str('%.5f'%(pose.position.x_val)) + '_' +
                                 str('%.5f'%(pose.position.y_val)) + '_' +
+                                str(camera) + '_' +
                                 str(height) + '_' +
-                                str(pitch) + '_' +
-                                str(roll) + '_' +
-                                str(yaw) +
+                                str(pitch) +
                                 '.png')
 
         composite_img_path = (datasetFolder + 
@@ -317,21 +149,27 @@ def main(client,
                                 str(i).zfill(5) + '_' +
                                 str('%.5f'%(pose.position.x_val)) + '_' +
                                 str('%.5f'%(pose.position.y_val)) + '_' +
+                                str(camera) + '_' +
                                 str(height) + '_' +
-                                str(pitch) + '_' +
-                                str(roll) + '_' +
-                                str(yaw) +
+                                str(pitch) +
                                 '.png')
         
         if writeIR:
             cv2.imwrite(thermal_img_path, ir)
         if writeScene:
             cv2.imwrite(rgb_img_path, scene)
-        
-        # with the "create_flir_img" method we combine both the RGB and SEGMENT 
-        # images, obtaining the simulated FLIR thermal vision images as a result. 
 
-        create_flir_img_v2(thermal_img_path,rgb_img_path,composite_img_path,False)
+        if no_wildfires == True:
+            # If we're taking no-wildfire images, there is no need to run the 
+            # create_flir_img function. Instead, we just have to convert the RGB image
+            # to grayscale, which is cheaper
+            grayscale = cv2.cvtColor(scene, cv2.COLOR_BGR2GRAY)  
+            cv2.imwrite(composite_img_path, grayscale)
+
+        else:
+            # with the "create_flir_img" method we combine both the RGB and SEGMENT 
+            # images, obtaining the simulated FLIR thermal vision images as a result.
+            create_flir_img_v2(thermal_img_path,rgb_img_path,composite_img_path,False)
 
         i += 1
         pose = client.simGetObjectPose(o);
@@ -372,8 +210,8 @@ if __name__ == '__main__':
         # We control data input correctness and stuff...
 
         if ue4_zone==UE4_ZONE_6 or ue4_zone==UE4_ZONE_7:
-            print("\nIMPORTANT NOTICE: To retrieve no-wildfire images you MUST load the ***LandscapeEnvironment_v31b*** UE4 file.\n")
-            time.sleep(4)
+            print("\nIMPORTANT NOTICE: To retrieve no-wildfire images you MUST load the ***UE-no-wildfires-map_dataset-generator*** UE4 file.\n")
+            #time.sleep(4)
         
         if ue4_zone==UE4_ZONE_8:
             print("\nERROR: Zone reserved to perfom the PoC experiments (so we avoid overfitting the model by memorizing features).\n")
@@ -384,25 +222,28 @@ if __name__ == '__main__':
         else:
             wrong_option=False;
 
-    wrong_option=True;
-    while (wrong_option):
-        print("\n\nChoose the multicopter's camera you want to use to retrieve the images:\n\n", 
-                "front_center=0\n",
-                "front_right=1\n",
-                "front_left=2\n",
-                "fpv=3\n",
-                "back_center=4\n")
-        camera = int(input("Please choose an option (0-4 - Default = 0): ") or '0')
-        if camera<0 or camera>4:
-            print('\nERROR: Wrong option, try again.')
-            time.sleep(2)
-        else:
-            wrong_option=False;
+        '''
+        wrong_option=True;
+        while (wrong_option):
+            print("\n\nChoose the multicopter's camera you want to use to retrieve the images:\n\n", 
+                    "front_center=0\n",
+                    "front_right=1\n",
+                    "front_left=2\n",
+                    "fpv=3\n",
+                    "back_center=4\n")
+            camera = int(input("Please choose an option (0-4 - Default = 0): ") or '0')
+            if camera<0 or camera>4:
+                print('\nERROR: Wrong option, try again.')
+                time.sleep(2)
+            else:
+                wrong_option=False;
+        '''
 
+    #pitch = int(input("\n\nSet the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270): ") or '270')
 
-    height = int(input("\n\nSet the multicopter's height (negative integer value - Default = -20 -> lowest hight): ") or '-20')
+    #height = int(input("\n\nSet the multicopter's height (negative integer value - Default = 200 -> lowest height): ") or '-100')
 
-    pitch = int(input("\n\nSet the camera's pitch angle (Integer degrees 180 > angle > 360 - Default = 270): ") or '270')
+    print("[INFO - ]using the height, camera and pitch lists to get all the images as a batch\n")
 
     # Look for objects with names that match a regular expression. 
     # On the case of this PoC, we're looking for objects that include 
@@ -418,24 +259,41 @@ if __name__ == '__main__':
     # environment, we'll have to use other zones to take class #4 images. 
 
     if ue4_zone == UE4_ZONE_6:
-        my_regex1 = r".*?mesh_firewood_4.*?"
-        my_regex2 = r".*?grass_mesh_4.*?"
+        my_regex1 = r".*?Rock.*?"
+        my_regex2 = r".*?Ice.*?"
 
     elif ue4_zone == UE4_ZONE_7:
-        my_regex1 = r".*?mesh_firewood_5.*?"
-        my_regex2 = r".*?grass_mesh_5.*?"
+        my_regex1 = r".*?Tree.*?"
+        my_regex2 = r".*?Cliffs.*?"
     else:
         my_regex1 = r".*?mesh_firewood_" + str(ue4_zone) + r".*?"
         my_regex2 = r".*?grass_mesh_" + str(ue4_zone) + r".*?"
     
     objectList = client.simListSceneObjects(my_regex1)
     objectList += client.simListSceneObjects(my_regex2)
-    
+
+# CALL TO MAIN
+
+if __name__ == "__main__":
+
     #Call to main
-    main(client, 
-         objectList,
-         ue4_zone, 
-         camera,
-         height,
-         pitch, 
-         datasetFolder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/raw_datasets/buffer/') 
+    heights_list=[-100,-75,-50,-25,0,25,50,75,100]
+    cameras_list=[4]
+    pitch_list=[255]
+    
+    for height in heights_list:
+        print("************* height", height)
+        time.sleep(1)
+        
+        for camera in cameras_list:
+            print("************* camera", camera)
+
+            for pitch in pitch_list:
+                time.sleep(1)
+                batch_capture(client, 
+                    objectList,
+                    ue4_zone, 
+                    camera,
+                    height,
+                    pitch, 
+                    datasetFolder = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/raw_datasets/buffer/')

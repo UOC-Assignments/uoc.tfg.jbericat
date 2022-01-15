@@ -18,6 +18,24 @@ Description::
     finished. This is a WORK-IN-PROGRESS. The goal is to process images on 
     realtime. 
 
+    ############################################################################
+    ##
+    ##  PoC: Image classification WITHOUT adding bounding boxes to the FLIR images, 
+    ##          which contain wilfire instances from one class only
+    ##
+    ###########################################################################
+
+    # On this implementation (REAL CASE SIMULATION) we actually don't know what
+    # the object classification is, so it must be visually checked afterwards. 
+    # However, we can be sure that the accuracy of the prediction will be of the 92% 
+    # with a small variation index (the model accuracy is pretty stable, 
+    # as seen in the training stats on the section 6.x.x.x). THEREFORE, 
+    # we don't add class labels to the images extracted from the deployment
+    # dataset (labeled as unkown-class on the deployment dataset). Instead, 
+    # we'll be labeling it with the frame/image sequential id (adding the filename 
+    # would be ideal but there is no more time for fancy stuff). This way, an operator 
+    # could verify the validity of a small sample, but big enough to be of significance.
+
 Inputs::
 
     1. Images taken during the drones fly-by over the PoC area, which are already converted to FLIR
@@ -25,9 +43,8 @@ Inputs::
     2. Trained CNN Model .pth file -> /usr/PoC/CNN/trained-model.pth
 
 Output::
-    1. Inference summary: /home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/out/inference-predictions.log
 
-    2. Classification results: /home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer/
+    1. Classification results: /home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/out/
 
 
 Original author::
@@ -46,109 +63,54 @@ TODO list:
     2 - Try catch clause for when the IN data folder is empty
 
 """
-
-# IMPORTS
-
-## PART I 
-
-import cv2 as cv # https://stackoverflow.com/questions/50909569/unable-to-import-cv2-module-python-3-6
-import os
-
-from tabulate import tabulate
-
-## PART II 
-
-# DEBUG: We copied some code (defs) into this project folder in a rush. Create a shared lib in /usr/lib by instance....
-
 # Importing functions from the PoC Library folder /src/poc/lib
-import sys 
+import sys
+from turtle import color 
 sys.path.insert(0, '/home/jbericat/Workspaces/uoc.tfg.jbericat/src/') # This one is the git src folder 
-
 from poc.lib.pytorch import *
 
-import numpy as np
-import sys
-import torch
-import time
+import os
 import shutil
+import time
 
-from torch.utils.data import DataLoader
-import torchvision
-from torchvision import datasets, transforms
-from torch.autograd import Variable
-from torch.functional import Tensor
+import numpy as np
 import matplotlib.pyplot as plt
 
+import cv2 as cv 
 
-TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
+import torch
+from torch.utils.data import DataLoader
+from torch.functional import Tensor
+import torchvision
+from torchvision import datasets, transforms
 
-# Base folders
+# Path constants
 POC_FOLDER = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/' 
 FLIR_BUFFER = POC_FOLDER + 'flir_buffer/unknown-class/'
 CLASSIFICATION_DIR = POC_FOLDER + 'out/'
-PREDICTIONS_SUMMARY_DIR = POC_FOLDER + 'out/' + TIMESTAMP +  '/'
 
+# Data-bond constants
+DEPLOY_DATA_DIR = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer"
+CNN_IMG_SIZE = 229
 
+'''
+We're going to process the images one by one to simulate the inference process made 
+by a GPU device embeded into the drone's companion computer (e.g. NVIDIA Jetson Nano).
+Hence, batch-sizes need to be of one
+'''
+BATCH_SIZE = 1
 
+# Model-bond constants
+MODEL_VERSION = 3
+MODEL_PATH = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/CNN/"
+
+# Misc. constants
+TIMESTAMP = time.strftime("%Y%m%d-%H%M%S")
 GREEN_COLOR = [0,255,0]
 YELLOW_COLOR = [0,255,255]
 RED_COLOR = [0,0,255]
 
-#data-bond constants
-DEPLOY_DATA_DIR = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer"
-CNN_IMG_SIZE = 229
-
-#model-bond constants
-MODEL_VERSION = 3
-MODEL_PATH = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/CNN/"
-
-# To simulate a GPU device embeded into the drone's companion computer (e.g. NVIDIA Jetson Nano)
-# now we're going to process the images one by one. So we won't be using batch sizes
-BATCH_SIZE = 128
-
-def add_bounding_box(prediction):
-    #TODO DOC - https://docs.opencv.org/3.4/dc/da3/tutorial_copyMakeBorder.html
-
-    borderType = cv.BORDER_CONSTANT
-
-    # Load an image
-    # TODO - Path structures are a bit of a mess... no time to fix it though.
-    frame_path = FLIR_BUFFER + 'frame-' + str(prediction[0]) + '.png'
-    src = cv.imread(cv.samples.findFile(frame_path), cv.IMREAD_COLOR)
-
-    # Check if the image was correctly loaded 
-    if src is None:
-        print ('Error opening image!')
-        return -1
-
-    
-    #TODO DOC
-    top = int(0.05 * src.shape[0])  # shape[0] = rows
-    bottom = top
-    left = int(0.05 * src.shape[1])  # shape[1] = cols
-    right = left
-
-    if prediction[1] == 'no-wildfires':
-        #add_green_boundingbox
-        color = GREEN_COLOR
-
-    elif prediction[1] == 'low-intensity-wildfires':
-        #add_yellow_boundingbox
-        color = YELLOW_COLOR
-
-    elif prediction[1] == 'high-intensity-wildfires':
-        #add_green_boundingbox
-        color = RED_COLOR
-
-    #TODO DOC
-    dst = cv.copyMakeBorder(src, top, bottom, left, right, borderType, None, color)
-   
-    # SAVE TO FILE (OVERWRITING THE BUFFER IS OK)
-    cv.imwrite(frame_path, dst)
-
-
-# PART II DEFINITIONS
-
+# Function definitions
 def model_inference():
 
     '''TODO DOCU - Function to test the model with a batch of images and show the labels predictions'''
@@ -160,35 +122,31 @@ def model_inference():
           "\n****************************************************************************************\n")
 
     #######################################################################
-    # STEP 1: Loading the deployment data 
+    #               STEP 1: Preparing the deployment data 
     #######################################################################
 
     # Define transformations for the training and test subsets
     transformations = transforms.Compose([
         transforms.ToTensor(),
-        # Normalizing the images ___________
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-        transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL ONLY (GRAYSCALE)
-        # We need square images to feed the model (the raw dataset has 640x512 size images)
-        # DEBUG - UNCOMMENT NEXT LINE FOR v4 and v9 DATASETS
-        #transforms.RandomResizedCrop(512),
-        # Now we just resize into any of the common input layer sizes (32×32, 64×64, 96×96, 224×224, 227×227, and 229×229)
+        transforms.Grayscale(1), # DEBUG -> THIS IS A WORKAROUND; IMAGES ARE EXPECTED TO BE OF ONE CHANNEL ONLY (GRAYSCALE))
         transforms.Resize(CNN_IMG_SIZE)
     ])
 
     # Create an instance for deployment
     deploy_data = (datasets.ImageFolder(root=DEPLOY_DATA_DIR, transform=transformations))
     
-    # Create a loader for the test set which will read the data within batch size and put into memory. 
-    # Note that each shuffle is set to false, since we will be creating a frame-by-frame animation 
+    # Create a loader for the deploy set which will read the data within batch size and put into memory. 
     deploy_loader = DataLoader(deploy_data, batch_size=BATCH_SIZE, shuffle=False, num_workers=0) # DEBUG - batch_size=len(deploy_data)
 
+    # Define the class labels
+    classes = ('high-intensity-wildfires', 'low-intensity-wildfires', 'no-wildfires')
 
     print( "[INFO] - The number of images in a deploy set is: " + str(len(deploy_data)) + "\n" )
     print( "[INFO] - The batch-size is: " + str(BATCH_SIZE) + '\n')
     
     #######################################################################
-    # STEP 2: Loading the CNN model and importing the data  
+    #                STEP 2: Loading the CNN model and data  
     #######################################################################
 
     # Let's load the model that got best accuracy during training (86%) for 
@@ -198,111 +156,77 @@ def model_inference():
     model.load_state_dict(torch.load(MODEL_PATH + "trained-model.pth"))
 
     # Define your execution device
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("[INFO] - Model deployed on", device, "device"+'\n')
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # print("[INFO] - Model deployed on", device, "device"+'\n')
 
-     # Setting evalatuion mode, since we don't want to retrain the model
+    # Setting evalatuion mode, since we don't want to retrain the model
     model.eval()
 
     # Convert model parameters and buffers to CPU or Cuda
-    model.to(device)
-    
-    # DEBUG - THE LOOP STARTS HERE
-    # for j in range(len(deploy_data)):
-    mydata = []
-    frame_id = 0 #COUNTER
-
+    # model.to(device)
 
     # Preparing the data to build a table 
     print('[INFO] - Using the model to make inferences over the bulk data. This might take a minute or two...'+'\n')
+ 
+    #######################################################################
+    #         STEP 3: Peforming predictions over the imported data  
+    #######################################################################
 
-    for i, (images, labels) in enumerate(deploy_loader, 0):
+    for images,labels in deploy_loader:
     
-        # get batch of images from the test DataLoader  
-        #images, labels = next(iter(deploy_loader)) 
-
-        # MOVING DATA TO THE GPU MEM SPACE
-        images = Variable(images.to(device))
-        labels = Variable(labels.to(device))
-
-        #######################################################################
-        # STEP 3: Peforming predictions over the imported data  
-        #######################################################################
-        
-        # Let's see what if the model identifies the labels of these example
         outputs = model(images)
+
+        # obtain data from tensor (energy scores)
+        scores = outputs.detach().numpy()[0]
+        high_wildfire_score = scores[0]
+        low_wildfire_score = scores[1]
+        no_wildfire_score = scores[2]
+
+        score_info = ('No-wildfire score: ' + str(no_wildfire_score) + '\n'
+        + 'Low intensity wildfire score:' + str(low_wildfire_score) + '\n'
+        + 'High intensity wildfire score:' + str(high_wildfire_score) + '\n')
+
+        # set "human-readable" prediction 
         _, predicted = torch.max(outputs, 1)
+        predicted_label = classes[predicted]
 
-        #######################################################################
-        # STEP 4: Showing results  
-        #######################################################################
+        # Show / save prediction image - TODO - def function + NO GRID!
+        img_grid = torchvision.utils.make_grid(images)
+        img_grid = img_grid / 2 + 0.5     # unnormalize
+        npimg = img_grid.numpy()
 
-        classes = ('high-intensity-wildfires', 'low-intensity-wildfires', 'no-wildfires')
+        fig = plt.figure(figsize=(5,5), facecolor="red")
 
-        for j in range(len(outputs)):
-            # On this implementation (REAL CASE SIMULATION) we actually don't know what
-            # the object classification is, so it must be visually checked afterwards. 
-            # However, we can be sure that the accuracy of the prediction will be of the 86% 
-            # with a small variation index (the model accuracy is pretty stable, 
-            # as seen in the training stats on the section 6.x.x.x). THEREFORE, 
-            # we don't add class labels to the images extracted from the deployment
-            # dataset (labeled as unkown-class on the deployment dataset). Instead, 
-            # we'll be labeling it with the frame/image sequential id (adding the filename 
-            # would be ideal but there is no more time for fancy stuff). This way, an operator 
-            # could verify the validity of a small sample, but big enough to be of significance.
+        #plt.subplot(211)
+        plt.xticks([])
+        plt.yticks([])
+        plt.title("Prediction: " + predicted_label)
+        plt.imshow(np.transpose(npimg, (1, 2, 0)))
+        #plt.subplots(num=None, figsize=(16, 12), dpi=80, facecolor='w', edgecolor='k')
+        ## I changed the fig size to something obviously big to make sure it work
+        #plt.tight_layout()
+        #plt.subplot(212)
+        plt.text(114,252, score_info, ha="center", va="center", fontsize=12, bbox={"facecolor":"white", "alpha":1})
 
-            # assign data
-            predicted_label = classes[predicted[j]]
-            mydata.append([frame_id, predicted_label])
-            frame_id += 1
-    
-    # create header
-    head = ["Frame ID", "Classification Result"]
-    
-    # print the table to info file 
+        plt.show()
+ 
+    # Archive predictions on the out dir
     flir_out = str(CLASSIFICATION_DIR) + str(TIMESTAMP)
     os.mkdir(flir_out)
-    PREDICTIONS_SUMMARY_FILE = open( PREDICTIONS_SUMMARY_DIR + 'frame_predictions.log', "w")   
-    print(tabulate(mydata, headers=head, tablefmt="grid"), file=PREDICTIONS_SUMMARY_FILE)
-
-    # At last, we can add colored boundinb boxes to each image (neither with 
-    # localization nor with object detection, just plain classification)
-    # Bounding colors:
-    # - Green = no-wildfires class
-    # - Yellow = low-intensity-wildfires class
-    # - Red = high-intensity-wildfires class
-    for i in range(len(deploy_data)): # TODO DEBUG - THIS IS A PATCH! We're creating a myData list of size multiple of the batch-size, instead of the deploy data size
-        # TODO - DOC
-        add_bounding_box(mydata[i])
 
     # Moving the flir_buffer's dir content to the output dir
-
     source = FLIR_BUFFER
     dest1 = flir_out
     files = os.listdir(source)
     for f in files:
         shutil.move(source+f, dest1)
 
-    # Printing the inference summary
+    # Printing the summary
     print('[INFO] - The CNN model deployment has finished successfully. See the output .png files to visually check how accurate the predictions were.' + '\n')
     print('[INFO] - OUTPUT FILES: ' + '\n\n' + 
-          '               - Inference summary: ' + str(POC_FOLDER + 'out/inference-predictions.log') + '\n\n' +
           '               - Classification results: ' + str(flir_out) + '\n\n')
 
-import torch.onnx 
-import torch
-from torchvision import transforms
- 
-# CALLING MAIN.
+# Main code
 if __name__ == '__main__':
 
-
-    ############################################################################
-    ##
-    ##  PoC: Image classification WITHOUT adding bounding boxes to the FLIR images, 
-    ##          which contain wilfire instances from one class only
-    ##
-    ###########################################################################
-
     model_inference()
-
