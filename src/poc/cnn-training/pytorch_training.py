@@ -66,7 +66,6 @@ TODO list:
 
 import os
 import time
-from turtle import shearfactor
 
 from torch.functional import Tensor
 
@@ -88,20 +87,20 @@ DATASET_VERSION = input("Set the dataset version you want to use to train the mo
                             " 9 = v9.0 -> 3 classes, close and long distance images"+"\n\n")
 
 
-BASE_DIR = '/home/jbericat/Workspaces/uoc.tfg.jbericat/'
+GIT_DIR = '/home/jbericat/Workspaces/uoc.tfg.jbericat'
 
 # model storage path
-MODEL_PATH = "bin/CNN/cnn-training_" + str(TIMESTAMP)
+OUT_DIR = GIT_DIR + "/usr/poc/CNN/cnn-training_" + str(TIMESTAMP)
 
 # Dataset paths - DEBUG: replace abs for rel paths?
 
-ROOT_DATA_DIR = 'src/poc/cnn-training/data/'
-TRAIN_DATA_DIR = BASE_DIR + ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/training+validation/'
-TEST_DATA_DIR = BASE_DIR + ROOT_DATA_DIR + 'v' + DATASET_VERSION + '.0/test/'
+ROOT_DATA_DIR = '/src/poc/cnn-training/data'
+TRAIN_DATA_DIR = GIT_DIR + ROOT_DATA_DIR + '/v' + DATASET_VERSION + '.0/training+validation'
+TEST_DATA_DIR = GIT_DIR + ROOT_DATA_DIR + '/v' + DATASET_VERSION + '.0/test'
 
 # opening / creating the file where to store the results
-os.mkdir(BASE_DIR + MODEL_PATH)
-OUT_FILE = open(BASE_DIR + MODEL_PATH + "/trained-model.info", "w")
+os.mkdir(OUT_DIR)
+OUT_FILE = open(OUT_DIR + "/trained-model.info", "w")
 
 ###################################### 1.2 - DATA-BOND PARAMETERS ##################################
 
@@ -123,11 +122,11 @@ IMG_CHANNELS = 1
 # model stops improving it's performance after each training iteration (plotting the 
 # loss function at the end of the training process could be useful to optimize the training 
 # time vs perfomance balance.
-EPOCHS = 20
+EPOCHS = 1
 
 # The PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
-BATCH_SIZE = 128
+BATCH_SIZE = 4
 
 # Learning rate: 
 LEARNING_RATE = 0.0001
@@ -351,7 +350,7 @@ from torch.autograd import Variable
 
 # Function to store the model on the local drive
 def saveModel():
-    torch.save(model.state_dict(), BASE_DIR + MODEL_PATH + "/trained-model.pth")
+    torch.save(model.state_dict(), OUT_DIR + "/trained-model.pth")
 
 # Function to test the model with the test dataset and print the accuracy for the test images
 def calculateAccuracy(data_loader):
@@ -519,7 +518,7 @@ def train(num_epochs):
     plt.xlabel("Epoch number")
     plt.ylabel("Loss coeficient")
     plt.legend()
-    plt.savefig(BASE_DIR + MODEL_PATH + '/model-loss-curves.png')
+    plt.savefig(OUT_DIR + '/model-loss-curves.png')
     plt.close(fig)
 
     # ...the training & validation accuracy progression...
@@ -531,7 +530,7 @@ def train(num_epochs):
     plt.xlabel("Epoch number")
     plt.ylabel("Accuracy (%)")    
     plt.legend()
-    plt.savefig(BASE_DIR + MODEL_PATH + '/model-accuracies.png')
+    plt.savefig(OUT_DIR + '/model-accuracies.png')
     plt.close(fig)
 
 ###################################################################################################
@@ -569,7 +568,8 @@ def testBatch():
     print(" - Model tested on", device, "device",
           file=OUT_FILE)
 
-    # TODO - I might have forgot the model.eval directive.... CHECK!!!
+    # TODO -DOC
+    model.eval()
 
     # Convert model parameters and buffers to CPU or Cuda
     model.to(device)
@@ -587,7 +587,7 @@ def testBatch():
     npimg = img_grid.numpy()
     fig=plt.figure()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.savefig(BASE_DIR + MODEL_PATH + '/labels-prediction.png')
+    plt.savefig(OUT_DIR + '/labels-prediction.png')
     plt.close(fig)
     
     # Let's see what if the model identifies the labels of these example
@@ -630,7 +630,7 @@ if __name__ == "__main__":
    
     # Let's load the model we just created and test the accuracy per label
     model = set_model_version(MODEL_VERSION)
-    model.load_state_dict(torch.load(BASE_DIR + MODEL_PATH + "/trained-model.pth"))
+    model.load_state_dict(torch.load(OUT_DIR + "/trained-model.pth"))
 
     # Test with batch of images
     testBatch()
@@ -640,11 +640,11 @@ if __name__ == "__main__":
     import shutil
 
     OUT_FILE.close()
-    archive = tarfile.open(BASE_DIR + MODEL_PATH+".tar.gz", "w|gz")
-    archive.add(BASE_DIR + MODEL_PATH, arcname="")
+    archive = tarfile.open(OUT_DIR +".tar.gz", "w|gz")
+    archive.add(OUT_DIR, arcname="")
     archive.close()
 
-    print("\n[INFO] Training model and summary file saved at: " + BASE_DIR + MODEL_PATH + ".tar.gz\n")
+    print("\n[INFO] Training model and summary file saved at: " + OUT_DIR + ".tar.gz\n")
 
     # Deleting temp folder
-    shutil.rmtree(BASE_DIR + MODEL_PATH)
+    shutil.rmtree(OUT_DIR)
