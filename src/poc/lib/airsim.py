@@ -112,10 +112,11 @@ def get_newest_item(path):
 import shutil
 
 # Base folders
-POC_FOLDER = '/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/' 
-FLIR_BUFFER = POC_FOLDER + 'flir_buffer/'
-PREDICTIONS_OUT_FILE = open(os.path.abspath(POC_FOLDER + 'out/frame-predictions.log'), "w")   
-DEPLOY_DATA_DIR = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/PoC/flir_buffer"
+GIT_FOLDER = '/home/jbericat/Workspaces/uoc.tfg.jbericat'
+POC_FOLDER = GIT_FOLDER + '/usr/poc' 
+FLIR_BUFFER = POC_FOLDER + '/3_cnn-deployment/flir-buffer'
+PREDICTIONS_OUT_FILE = open(os.path.abspath(POC_FOLDER + '/3_cnn-deployment/out/frame-predictions.log'), "w")   
+DEPLOY_DATA_DIR = "/home/jbericat/Workspaces/uoc.tfg.jbericat/usr/poc/3_cnn-deployment/flir-buffer"
 
 def flir_offline_batch_coverter():
     
@@ -126,10 +127,10 @@ def flir_offline_batch_coverter():
     ###########################################################################
    
     # OUTPUT to FLIR conversion buffer
-    output = FLIR_BUFFER + 'unknown-class/' 
+    output = FLIR_BUFFER + '/unknown-class' 
 
     # INPUT sample folder
-    sample_folder = get_newest_item(POC_FOLDER + 'in/') + '/'
+    sample_folder = get_newest_item(POC_FOLDER + '/3_cnn-deployment/in/') + '/'
 
     ###########################################################################
     # STEP 2: Extract SEGMENT & RGB Filenames from the airsim_rec.txt log
