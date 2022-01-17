@@ -124,6 +124,7 @@ DATASET_IMG_SIZE = 229
 # - Class #2: Medium-intensity wildfires -- REMOVED FROM DATASET v7.0!!!
 # - Class #3: Low-intensity wildfires
 # - Class #4: Images with no wildfires at all
+
 NUMBER_OF_LABELS = OUTPUT_FEATURES = 3
 IMG_CHANNELS = 1
 
@@ -579,7 +580,8 @@ def testBatch():
     print(" - Model tested on", device, "device",
           file=OUT_FILE)
 
-    # TODO -DOC
+    # This directive MUST be enabled for testing
+    #  (I'd say it wasn't present on the original code)
     model.eval()
 
     # Convert model parameters and buffers to CPU or Cuda
