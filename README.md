@@ -239,9 +239,9 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 		
 				7.3.1. Optimització de la funció create_flir_img() per a la simulació d'imatges FLIR
 				
-				        7.3.1.1. Versió 1: Algorisme sense optimitzar
+				       7.3.1.1. Versió 1: Algorisme sense optimitzar
 						
-                        7.3.1.2. Versió 2: Algorisme optimitzat
+                       7.3.1.2. Versió 2: Algorisme optimitzat
 
 				7.3.2. Implementació de la funció de simulació d'imatges FLIR "flir_offline_batch_converter.py"
 				
@@ -254,12 +254,64 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 		7.4. Execució de la PdC
 		
 		7.5. ANNEX: Control dels canvis efectuats als fitxers de codi font durant la darrera etapa del projecte
+		
+	8. FITA#08 –  Prova de concepte: Optimitzacions, conclusions i consideracions finals
 
+		8.1. Primera execució de la prova de concepte
+		
+				8.1.1. Conclusions obtingudes després de la primera execució de la prova
+				
+						8.1.1.1. Problemes de disseny
+						
+						8.1.1.2. Problemes amb el dataset i les característiques de les imatges
+						
+						8.1.1.3. Verificació del Model CNN entrenat
+
+						8.1.1.4. Problemes relacionats amb la inferència del model
+				
+				8.1.2. recol·lecció de feedback i implementació de millores
+				
+						8.1.2.1. Dataset d’imatges
+						
+						8.1.2.2. Algorisme d’entrenament
+						
+						8.1.2.3. Algorisme d’inferència
+						
+		8.2. Segona execució de la prova de concepte
+		
+				8.2.1. Preparació de la prova
+				
+						8.2.1.1. Entrenament del model amb el nou dataset
+						
+				8.2.2. Inferència del model sobre el mateix conjunt d’imatges d’explotació utilitzat a la primera PdC
+				
+				8.2.3. Conclusions obtingudes després de la segona execució de la prova
+				
+				8.2.4. Recol·lecció de feedback i implementació de millores
+				
+						8.2.4.1. Dataset d’imatges
+						
+						8.2.4.2. Algorisme d’entrenament
+						
+						8.2.4.3. Algorisme d’inferència
+						
+		8.3. Tercera execució de la prova de concepte
+		
+				8.3.1. Preparació de la prova
+		
+						8.3.1.1. Entrenament del model amb l’algorisme revisat a la secció 8.2.2.2
+						
+				8.3.2. Inferència de les dades
+				
+				8.3.3. Conclusions obtingudes després de la tercera execució de la prova
+						
+		8.4. Conclusions finals				
+						
+		8.5. Consideracions addicionals al respecte de l’abast, objectius i compromisos establerts durant la planificació inicial d’aquest projecte
+						
 --------------------------------------------------------------
 
-08.	FITA#08 - Elaboració de conclusions i compilació de les memòries parcials del projecte
-
-09.	FITA#09 - Creació d'una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
+09.	FITA#09 - compilació de les memòries parcials del projecte, creació d'una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
 
 10.	FITA#10 - Preparar la defensa del projecte
 
