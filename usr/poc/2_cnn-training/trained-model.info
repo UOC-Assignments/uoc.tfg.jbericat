@@ -1,0 +1,134 @@
+********************************************************************************
+***                                                                          ***
+***                      PoC's CNN Model Training Summary                    ***
+***                                                                          ***
+********************************************************************************
+***                                                                          ***
+***                             Model version: v3.0                          ***
+***                            Dataset version: v12.0                         ***
+***                                                                          ***
+********************************************************************************
+
+ TRAINING PARAMETERS:
+
+ - Image size = (229 x 229 x 1)
+ - Number of classes / labels = 3
+ - Batch size = 128
+ - Learning rate = 0.0001
+
+********************************************************************************
+
+ DATASET TOTALS:
+
+ - The number of images in a training set is:  11776
+ - The number of images in a validation set is:  3968
+ - The number of images in a test set is:  640
+ - The number of batches per epoch is:  92
+
+********************************************************************************
+
+ CNN BLUEPRINT:
+
+  Network_v3(
+  (conv1): Conv2d(1, 16, kernel_size=(9, 9), stride=(2, 2), padding=(2, 2))
+  (bn1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (conv2): Conv2d(16, 16, kernel_size=(5, 5), stride=(2, 2), padding=(2, 2))
+  (bn2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (pool): MaxPool2d(kernel_size=2, stride=1, padding=0, dilation=1, ceil_mode=False)
+  (conv3): Conv2d(16, 32, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2))
+  (bn3): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (conv4): Conv2d(32, 32, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2))
+  (bn4): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (fc1): Linear(in_features=107648, out_features=3, bias=True)
+)
+
+********************************************************************************
+
+ MODEL TRAINING STATS:
+
+ - Model trained on cuda:0 device
+ - Training time:  10677.349  seconds
+
+********************************************************************************
+
+ MODEL TESTING STATS:
+
+  - For epoch 1 the TEST accuracy over the whole TEST dataset is 79 %
+  - For epoch 2 the TEST accuracy over the whole TEST dataset is 84 %
+  - For epoch 3 the TEST accuracy over the whole TEST dataset is 74 %
+  - For epoch 4 the TEST accuracy over the whole TEST dataset is 88 %
+  - For epoch 5 the TEST accuracy over the whole TEST dataset is 80 %
+  - For epoch 6 the TEST accuracy over the whole TEST dataset is 84 %
+  - For epoch 7 the TEST accuracy over the whole TEST dataset is 80 %
+  - For epoch 8 the TEST accuracy over the whole TEST dataset is 83 %
+  - For epoch 9 the TEST accuracy over the whole TEST dataset is 78 %
+  - For epoch 10 the TEST accuracy over the whole TEST dataset is 75 %
+  - For epoch 11 the TEST accuracy over the whole TEST dataset is 74 %
+  - For epoch 12 the TEST accuracy over the whole TEST dataset is 81 %
+  - For epoch 13 the TEST accuracy over the whole TEST dataset is 78 %
+  - For epoch 14 the TEST accuracy over the whole TEST dataset is 77 %
+  - For epoch 15 the TEST accuracy over the whole TEST dataset is 84 %
+  - For epoch 16 the TEST accuracy over the whole TEST dataset is 80 %
+  - For epoch 17 the TEST accuracy over the whole TEST dataset is 91 %
+  - For epoch 18 the TEST accuracy over the whole TEST dataset is 83 %
+  - For epoch 19 the TEST accuracy over the whole TEST dataset is 80 %
+  - For epoch 20 the TEST accuracy over the whole TEST dataset is 88 %
+
+********************************************************************************
+
+ FINAL PREDICTION TEST:
+
+ - Model tested on cuda:0 device
+ - Final test accuracy: 91 % 
+
++--------------------------+--------------------------+---------------------------------------+
+| Real Label               | Predicted Label          | Output score [High / Low / No]        |
++==========================+==========================+=======================================+
+| low-intensity-wildfires  | high-intensity-wildfires | [ 1.232942    0.09906744 -5.1467724 ] |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | low-intensity-wildfires  | [-8.845539  2.417996  1.578095]       |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-3.2360299 -3.9604971  5.659079 ]    |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-4.5699334 -3.7302165  5.988307 ]    |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | low-intensity-wildfires  | [ -4.5925546   7.610162  -10.001231 ] |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | low-intensity-wildfires  | [ 0.9356603  1.2943679 -6.957526 ]    |
++--------------------------+--------------------------+---------------------------------------+
+| high-intensity-wildfires | high-intensity-wildfires | [ 20.771608  -9.698544 -20.058754]    |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-4.2560596 -3.8140867  6.3152194]    |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | low-intensity-wildfires  | [-4.277995   2.8907914 -2.0460386]    |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | no-wildfires             | [-5.1211605   0.12469656  1.8801923 ] |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | low-intensity-wildfires  | [-7.893419   4.4963374 -3.2514513]    |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-3.1900156 -5.15512    7.537456 ]    |
++--------------------------+--------------------------+---------------------------------------+
+| high-intensity-wildfires | high-intensity-wildfires | [ 7.5525484 -5.4916716 -6.1236277]    |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-3.46193   -2.5222769  3.442431 ]    |
++--------------------------+--------------------------+---------------------------------------+
+| high-intensity-wildfires | high-intensity-wildfires | [ 32.59405  -13.47883  -36.692665]    |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | no-wildfires             | [-3.8990552  -0.1359438  -0.10370919] |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | low-intensity-wildfires  | [-5.439094   5.61463   -4.5535164]    |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | low-intensity-wildfires  | [-1.8680964  3.887939  -8.090165 ]    |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-4.543063 -4.217307  6.106032]       |
++--------------------------+--------------------------+---------------------------------------+
+| low-intensity-wildfires  | low-intensity-wildfires  | [-4.3644395  4.2229605 -5.569517 ]    |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-5.5659146 -4.7293787  7.5036035]    |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-0.27666548 -4.689765    4.2440248 ] |
++--------------------------+--------------------------+---------------------------------------+
+| high-intensity-wildfires | high-intensity-wildfires | [ 24.646006  -5.791209 -29.864662]    |
++--------------------------+--------------------------+---------------------------------------+
+| no-wildfires             | no-wildfires             | [-5.4311285 -1.7750133  4.52081  ]    |
++--------------------------+--------------------------+---------------------------------------+

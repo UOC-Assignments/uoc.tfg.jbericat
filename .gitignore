@@ -1,12 +1,8 @@
 # Ignore directories:
 
 usr/*
-!usr/GIT-README.md
-!usr/raw_datasets/
-!usr/PoC/
+!usr/poc/
 bin/*
-!bin/GIT-README.md
-!bin/CNN/
 src/*
 !src/poc/
 !src/test-code/
