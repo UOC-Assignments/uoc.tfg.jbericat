@@ -133,7 +133,7 @@ IMG_CHANNELS = 1
 # model stops improving it's performance after each training iteration (plotting the 
 # loss function at the end of the training process could be useful to optimize the training 
 # time vs perfomance balance.
-EPOCHS = 10
+EPOCHS = 20
 
 # The PoC's dataset consists of 500x2=1000 training images and 200x2=400 test images (we're adding the augmented dataset). 
 # Hence, we define a batch size of X to load YY & ZZ batches of images respectively on each epoch:
@@ -532,12 +532,12 @@ def train(num_epochs):
     plt.savefig(OUT_DIR + '/model-loss-curves.png')
     plt.close(fig)
 
-    # ...the training & validation accuracy progression...
+    # ...& the learning curve.
     fig=plt.figure()
     plt.plot(STATS["train_acc"], color='red', label="training accuracy")
     plt.plot(STATS["val_acc"], color='blue', label="validation accuracy")
     plt.plot(STATS["test_acc"], color='purple', label="test accuracy")
-    plt.title("ACCURACY PROGRESSION")
+    plt.title("LEARNING CURVE")
     plt.xlabel("Epoch number")
     plt.ylabel("Accuracy (%)")    
     plt.legend()
