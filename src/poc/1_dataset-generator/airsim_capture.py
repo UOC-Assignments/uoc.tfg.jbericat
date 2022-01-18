@@ -1,7 +1,7 @@
 """
 Title::
 
-    .py 
+    arisim_capture.py 
 
 Conda environment: "condapy373"
 
@@ -10,27 +10,26 @@ Conda environment: "condapy373"
 
 Description::
 
+    Algorith that uses the airsim API to programatically retrieve 
+    images from a customized Unreal Environment and then convert 
+    them into thermal night vision simulated images.
 
 Inputs::
 
+    STDIN Data
 
 Output::
+
+    Images taken by the drone are stored at /usr/poc/1_dataset/raw_data/buffer/
 
 
 Original author::
 
+        Elizabeth Bondi
 
-Modified / adapted by:   
+modified by::
 
-
-References::
-
-    1 - 
-
-TODO list: 
-
-    1 - DOC
-
+        Jordi Bericat Ruz - Universitat Oberta de Catalunya
 """
 
 # Importing functions from the PoC Library folder /src/poc/lib
