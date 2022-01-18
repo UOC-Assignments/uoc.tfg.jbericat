@@ -9,9 +9,9 @@ Semestre: Tardor 2021/22 (Aula 1)
 
 ## Índex
 
-1. [Títol provisional del projecte](#1---t%C3%ADtol-provisional-del-projecte)
+1. [Títol del projecte](#1---t%C3%ADtol-provisional-del-projecte)
 
-2. [Resum provisional del projecte: Motivació i definició dels objectius](#2---resum-provisional-del-projecte-motivaci%C3%B3-i-definici%C3%B3-dels-objectius)
+2. [Resum del projecte: Motivació i definició dels objectius](#2---resum-provisional-del-projecte-motivaci%C3%B3-i-definici%C3%B3-dels-objectius)
 
 3. [Definició dels objectius del TFG: Planificació temporal](#3---definici%C3%B3-dels-objectius-del-tfg-planificaci%C3%B3-temporal)
 
@@ -310,10 +310,6 @@ Seguidament es detalla la planificació temporal de cadascuna de les tasques ass
 		8.5. Consideracions addicionals al respecte de l’abast, objectius i compromisos establerts durant la planificació inicial d’aquest projecte
 						
 --------------------------------------------------------------
-
-09.	FITA#09 - compilació de les memòries parcials del projecte, creació d'una presentació i/o vídeo-demo del projecte que destaqui els punts principals i demostri el correcte funcionament de tot el sistema sobre les PoC definides.
-
-10.	FITA#10 - Preparar la defensa del projecte
 
 
 ## 4 - Bibliografia
