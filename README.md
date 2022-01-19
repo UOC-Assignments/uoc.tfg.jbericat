@@ -21,11 +21,11 @@ Semestre: Tardor 2021/22 (Aula 1)
 
 4. [Bibliografia](#4---bibliografia)
  
-## 1 - Títol provisional del projecte
+## 1 - Títol del projecte
 
 **Entrenament d’un model d'intel·ligència artificial en un entorn virtual per a la seva aplicació en la extinció d’incendis forestals: Prova de concepte**
 
-## 2 - Resum provisional del projecte: Motivació i definició dels objectius
+## 2 - Resum del projecte: Motivació i definició dels objectius
 
 Durant els darrers 35 anys , s’ha incrementat tant la envergadura com la virulència dels incendis forestals que es produeixen a Catalunya: hi ha menys incendis, però aquests són molt més grans i avancen més ràpidament. La causa s’atribueix a diversos factors; principalment al progressiu escalfament global del planeta, que està afectant especialment les zones costaneres del mar Mediterrani  i que implica que es produeixin situacions de sequera no només a l’estiu, si no que també en d’altres èpoques de l’any, però també a l’abandonament de les terres de conreu i pastures, agreujat per la ineficient política de gestió dels boscos del nostre país (gairebé un 65%  del territori català correspon a massa forestal). 
 
